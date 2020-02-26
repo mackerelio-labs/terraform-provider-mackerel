@@ -34,7 +34,11 @@ func resourceMackerelServiceMetadata() *schema.Resource {
 
 func resourceMackerelServiceMetadataCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-	if err := client.PutServiceMetaData(d.Get("service").(string), d.Get("namespace").(string), d.Get("metadata").(mackerel.ServiceMetaData)); err != nil {
+	if err := client.PutServiceMetaData(
+		d.Get("service").(string),
+		d.Get("namespace").(string),
+		d.Get("metadata").(mackerel.ServiceMetaData),
+	); err != nil {
 		return err
 	}
 	d.SetId(d.Get("namespace").(string))

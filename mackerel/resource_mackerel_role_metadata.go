@@ -28,9 +28,7 @@ func resourceMackerelRoleMetadata() *schema.Resource {
 			"metadata": {
 				Type:     schema.TypeMap,
 				Required: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -39,7 +37,11 @@ func resourceMackerelRoleMetadata() *schema.Resource {
 func resourceMackerelRoleMetadataCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
 	if err := client.PutRoleMetaData(
-		d.Get("service").(string), d.Get("role").(string), d.Get("namespace").(string), d.Get("metadata").(mackerel.RoleMetaData)); err != nil {
+		d.Get("service").(string),
+		d.Get("role").(string),
+		d.Get("namespace").(string),
+		d.Get("metadata").(mackerel.RoleMetaData),
+	); err != nil {
 		return err
 	}
 	d.SetId(d.Get("namespace").(string))
@@ -48,7 +50,11 @@ func resourceMackerelRoleMetadataCreate(d *schema.ResourceData, meta interface{}
 
 func resourceMackerelRoleMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-	resp, err := client.GetRoleMetaData(d.Get("service").(string), d.Get("role").(string), d.Get("namespace").(string))
+	resp, err := client.GetRoleMetaData(
+		d.Get("service").(string),
+		d.Get("role").(string),
+		d.Get("namespace").(string),
+	)
 	if err != nil {
 		return err
 	}
@@ -66,8 +72,11 @@ func resourceMackerelRoleMetadataUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceMackerelRoleMetadataDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-	err := client.DeleteRoleMetaData(d.Get("service").(string), d.Get("role").(string), d.Get("namespace").(string))
-	if err != nil {
+	if err := client.DeleteRoleMetaData(
+		d.Get("service").(string),
+		d.Get("role").(string),
+		d.Get("namespace").(string),
+	); err != nil {
 		return err
 	}
 	d.SetId("")
