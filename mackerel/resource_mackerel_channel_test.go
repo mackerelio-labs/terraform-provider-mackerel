@@ -76,7 +76,9 @@ func testAccCheckMackerelChannelTypeEmailConfig(channelName string) string {
 	return fmt.Sprintf(`
 resource "mackerel_channel" "foo" {
   name = "%s"
-  email { }
+  email {
+    events = ["alert"]
+  }
 }
 `, channelName)
 }
@@ -87,6 +89,8 @@ func testAccCheckMackerelChannelTypeEmailConfigUpdated(channelName string) strin
 resource "mackerel_channel" "foo" {
   name = "%s"
   email {
+    emails = ["main.xcezx+mackerel@gmail.com"]
+    user_ids = []
     events = ["alert", "alertGroup"]
   }
 }
@@ -100,9 +104,6 @@ resource "mackerel_channel" "foo" {
   name = "%s"
   slack {
     url = "https://example.test/"
-    mentions = {
-      ok = "OK!!!"
-    }
   }
 }
 `, channelName)
@@ -115,7 +116,12 @@ resource "mackerel_channel" "foo" {
   name = "%s"
   slack {
     url = "https://example.test/"
-    mentions = { }
+    mentions = {
+      ok = "ok message"
+      warning = "warning message"
+      critical = "critical message"
+    }
+    enabled_graph_image = true
     events = ["alert", "alertGroup", "hostStatus", "hostRegister", "hostRetire", "monitor"]
   }
 }`, channelName)
