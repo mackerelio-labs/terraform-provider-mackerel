@@ -1,16 +1,21 @@
 # all available settings of specific linters
 linters-settings:
   errcheck:
-    ignore: github.com/hashicorp/terraform-plugin-sdk/helper/schema:Set,bytes:.*,io:Close|Write
-
-  gofmt:
-
-  goimports:
-    local-prefixes: github.com/xcezx/terraform-provider-mackerel
+    ignore: github.com/hashicorp/terraform-plugin-sdk/helper/schema:ForceNew|Set,fmt:.*,io:Close
 
 linters:
   enable:
+    - deadcode
     - errcheck
     - gofmt
     - goimports
+    - gosimple
+    - ineffassign
+    - misspell
+    - staticcheck
+    - structcheck
+    - unconvert
+    - unused
+    - varcheck
+    - vet
   disable-all: true
