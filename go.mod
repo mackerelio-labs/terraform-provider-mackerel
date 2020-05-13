@@ -1,6 +1,6 @@
 module github.com/xcezx/terraform-provider-mackerel
 
-go 1.12
+go 1.14
 
 require (
 	github.com/golangci/golangci-lint v1.24.0
