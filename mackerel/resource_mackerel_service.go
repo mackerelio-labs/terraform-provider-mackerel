@@ -58,9 +58,5 @@ func resourceMackerelServiceRead(d *schema.ResourceData, meta interface{}) error
 func resourceMackerelServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
 	_, err := client.DeleteService(d.Id())
-	if err != nil {
-		return err
-	}
-	d.SetId("")
-	return nil
+	return err
 }
