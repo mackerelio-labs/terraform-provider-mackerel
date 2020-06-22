@@ -1,7 +1,11 @@
 package mackerel
 
 import (
+	"encoding/json"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -20,42 +24,55 @@ func resourceMackerelServiceMetadata() *schema.Resource {
 			"namespace": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
-			"metadata": {
-				Type:     schema.TypeMap,
-				Required: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+			"metadata_json": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringIsJSON,
 			},
 		},
 	}
 }
 
 func resourceMackerelServiceMetadataCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
-	if err := client.PutServiceMetaData(
-		d.Get("service").(string),
-		d.Get("namespace").(string),
-		d.Get("metadata").(mackerel.ServiceMetaData),
-	); err != nil {
+	var metadata mackerel.ServiceMetaData
+	if err := json.Unmarshal([]byte(d.Get("metadata_json").(string)), &metadata); err != nil {
 		return err
 	}
-	d.SetId(d.Get("namespace").(string))
+	namespace := d.Get("namespace").(string)
+
+	client := meta.(*mackerel.Client)
+	if err := client.PutServiceMetaData(d.Get("service").(string), namespace, metadata); err != nil {
+		return err
+	}
+	d.SetId(namespace)
+
 	return resourceMackerelServiceMetadataRead(d, meta)
 }
 
 func resourceMackerelServiceMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-	resp, err := client.GetServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
+
+	resp, err := client.GetServiceMetaData(d.Get("service").(string), d.Id())
 	if err != nil {
 		return err
 	}
-	metadata := make(map[string]interface{})
-	for k, v := range resp.ServiceMetaData.(map[string]interface{}) {
-		metadata[k] = v
+
+	metadataJsonBytes, err := json.Marshal(resp.ServiceMetaData)
+	if err != nil {
+		return err
 	}
-	_ = d.Set("metadata", metadata)
+
+	metadataJson, err := structure.NormalizeJsonString(string(metadataJsonBytes))
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("metadata_json", metadataJson); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -65,10 +82,6 @@ func resourceMackerelServiceMetadataUpdate(d *schema.ResourceData, meta interfac
 
 func resourceMackerelServiceMetadataDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-	err := client.DeleteServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
-	if err != nil {
-		return err
-	}
-	d.SetId("")
-	return nil
+
+	return client.DeleteServiceMetaData(d.Get("service").(string), d.Id())
 }

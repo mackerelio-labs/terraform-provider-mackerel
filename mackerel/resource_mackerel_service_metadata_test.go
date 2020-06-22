@@ -26,10 +26,6 @@ func TestAccMackerelServiceMetadata(t *testing.T) {
 						"mackerel_service_metadata.foo", "service", serviceName),
 					resource.TestCheckResourceAttr(
 						"mackerel_service_metadata.foo", "namespace", namespace),
-					resource.TestCheckResourceAttr(
-						"mackerel_service_metadata.foo", "metadata.%", "1"),
-					resource.TestCheckResourceAttr(
-						"mackerel_service_metadata.foo", "metadata.TZ", "UTC"),
 				),
 			},
 		},
@@ -65,9 +61,11 @@ resource "mackerel_service" "foo" {
 resource "mackerel_service_metadata" "foo" {
 	service = "${mackerel_service.foo.id}"
 	namespace = "%s"
-	metadata = {
-		TZ = "UTC"
-	}
+	metadata_json = jsonencode({
+		int = 1
+		string = "foo bar baz"
+		array = ["1", true, 1]
+	})
 }
 `, serviceName, namespace)
 }
