@@ -1,7 +1,10 @@
 package mackerel
 
 import (
+	"regexp"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -16,6 +19,8 @@ func resourceMackerelService() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9-_]{1,62}$`),
+					"must include only alphabets, numbers, hyphen and underscore; in addition, it must be within 2 to 63 characters, and it can not begin a hyphen or underscore"),
 			},
 			"memo": {
 				Type:     schema.TypeString,
