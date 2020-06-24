@@ -11,22 +11,41 @@ import (
 )
 
 func TestAccMackerelService(t *testing.T) {
-	name := fmt.Sprintf("tf-%s", acctest.RandString(5))
-	memo := fmt.Sprintf("%s is managed by Terraform.", name)
+	resourceName := "mackerel_service.foo"
+	rand := acctest.RandString(5)
+	rName := fmt.Sprintf("tf-%s", rand)
+	rNameUpdated := fmt.Sprintf("tf-updated-%s", rand)
+	rMemo := fmt.Sprintf("%s is managed by Terraform.", rName)
+	rMemoUpdated := fmt.Sprintf("%s is managed by Terraform.", rNameUpdated)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMackerelServiceDestroy,
 		Steps: []resource.TestStep{
+			// Test: Create
 			{
-				Config: testAccCheckMackerelServiceConfig(name, memo),
+				Config: testAccMackerelServiceConfig(rName, rMemo),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMackerelServiceExists("mackerel_service.foo"),
-					resource.TestCheckResourceAttr(
-						"mackerel_service.foo", "name", name),
-					resource.TestCheckResourceAttr(
-						"mackerel_service.foo", "memo", memo),
+					testAccCheckMackerelServiceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "memo", rMemo),
 				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelServiceConfig(rNameUpdated, rMemoUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelServiceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "memo", rMemoUpdated),
+				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -83,7 +102,7 @@ func testAccCheckMackerelServiceExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckMackerelServiceConfig(name, memo string) string {
+func testAccMackerelServiceConfig(name, memo string) string {
 	// language=HCL
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
