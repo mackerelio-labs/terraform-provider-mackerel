@@ -8,11 +8,11 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-type config struct {
+type Config struct {
 	APIKey string
 }
 
-func (c *config) Client() (*mackerel.Client, error) {
+func (c *Config) Client() (*mackerel.Client, error) {
 	if c.APIKey == "" {
 		return nil, fmt.Errorf("no API Key for Mackerel")
 	}

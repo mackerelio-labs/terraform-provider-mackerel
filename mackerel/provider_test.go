@@ -25,7 +25,6 @@ func TestProvider(t *testing.T) {
 }
 
 func TestProviderImpl(t *testing.T) {
-	//noinspection GoVarAndConstTypeMayBeOmitted
 	var _ terraform.ResourceProvider = Provider()
 }
 

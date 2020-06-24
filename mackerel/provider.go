@@ -30,7 +30,7 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(data *schema.ResourceData) (interface{}, error) {
-	config := config{
+	config := Config{
 		APIKey: data.Get("api_key").(string),
 	}
 	return config.Client()

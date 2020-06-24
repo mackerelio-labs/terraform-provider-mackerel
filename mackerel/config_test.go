@@ -5,7 +5,7 @@ import (
 )
 
 func TestConfigEmptyAPIKey(t *testing.T) {
-	config := config{
+	config := Config{
 		APIKey: "",
 	}
 	if _, err := config.Client(); err == nil {
