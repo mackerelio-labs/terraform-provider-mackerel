@@ -21,8 +21,11 @@ func resourceMackerelService() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9-_]{1,62}$`),
-					"must include only alphabets, numbers, hyphen and underscore; in addition, it must be within 2 to 63 characters, and it can not begin a hyphen or underscore"),
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(2, 63),
+					validation.StringMatch(regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-_]+$`),
+						"must include only alphabets, numbers, hyphen and underscore, and it can not begin a hyphen or underscore"),
+				),
 			},
 			"memo": {
 				Type:     schema.TypeString,
