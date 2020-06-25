@@ -11,25 +11,56 @@ import (
 )
 
 func TestAccMackerelServiceMetadata(t *testing.T) {
-	serviceName := fmt.Sprintf("tf-service-%s", acctest.RandString(5))
-	namespace := fmt.Sprintf("tf-ns-%s", serviceName)
+	resourceName := "mackerel_service_metadata.foo"
+	rand := acctest.RandString(5)
+	rServiceName := fmt.Sprintf("tf-%s", rand)
+	rNamespace := fmt.Sprintf("tf-namespace-%s", rand)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: nil, // todo
+		CheckDestroy: testAccCheckMackerelServiceMetadataDestroy,
 		Steps: []resource.TestStep{
+			// Test: Create
 			{
-				Config: testAccCheckMackerelServiceMetadataConfig(serviceName, namespace),
+				Config: testAccMackerelServiceMetadataConfig(rServiceName, rNamespace),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMackerelServiceMetadataExists("mackerel_service_metadata.foo"),
-					resource.TestCheckResourceAttr(
-						"mackerel_service_metadata.foo", "service", serviceName),
-					resource.TestCheckResourceAttr(
-						"mackerel_service_metadata.foo", "namespace", namespace),
+					testAccCheckMackerelServiceMetadataExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
+					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
 				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelServiceMetadataConfigUpdated(rServiceName, rNamespace),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelServiceMetadataExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
+					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
+				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
+}
+
+func testAccCheckMackerelServiceMetadataDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*mackerel.Client)
+	for _, r := range s.RootModule().Resources {
+		if r.Type != "mackerel_service_metadata" {
+			continue
+		}
+
+		if _, err := client.GetServiceMetaData(r.Primary.Attributes["service"], r.Primary.Attributes["namespace"]); err == nil {
+			return fmt.Errorf("service metadata still exists")
+		}
+	}
+	return nil
 }
 
 func testAccCheckMackerelServiceMetadataExists(n string) resource.TestCheckFunc {
@@ -43,7 +74,7 @@ func testAccCheckMackerelServiceMetadataExists(n string) resource.TestCheckFunc 
 		}
 
 		client := testAccProvider.Meta().(*mackerel.Client)
-		_, err := client.GetServiceMetaData(rs.Primary.Attributes["service"], rs.Primary.ID)
+		_, err := client.GetServiceMetaData(rs.Primary.Attributes["service"], rs.Primary.Attributes["namespace"])
 		if err != nil {
 			return fmt.Errorf("err: %s", err)
 		}
@@ -51,7 +82,7 @@ func testAccCheckMackerelServiceMetadataExists(n string) resource.TestCheckFunc 
 	}
 }
 
-func testAccCheckMackerelServiceMetadataConfig(serviceName, namespace string) string {
+func testAccMackerelServiceMetadataConfig(serviceName, namespace string) string {
 	// language=HCL
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
@@ -59,12 +90,27 @@ resource "mackerel_service" "foo" {
 }
 
 resource "mackerel_service_metadata" "foo" {
-	service = "${mackerel_service.foo.id}"
+	service = mackerel_service.foo.id
 	namespace = "%s"
 	metadata_json = jsonencode({
-		int = 1
-		string = "foo bar baz"
-		array = ["1", true, 1]
+		id = 1
+	})
+}
+`, serviceName, namespace)
+}
+
+func testAccMackerelServiceMetadataConfigUpdated(serviceName, namespace string) string {
+	// language=HCL
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+	name = "%s"
+}
+
+resource "mackerel_service_metadata" "foo" {
+	service = mackerel_service.foo.id
+	namespace = "%s"
+	metadata_json = jsonencode({
+		id = 2
 	})
 }
 `, serviceName, namespace)
