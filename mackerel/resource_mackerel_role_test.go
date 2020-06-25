@@ -10,29 +10,60 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-func TestAccMackerelRole(t *testing.T) {
-	serviceName := fmt.Sprintf("tf-service-%s", acctest.RandString(5))
-	roleName := fmt.Sprintf("tf-role-%s", acctest.RandString(5))
-	roleMemo := fmt.Sprintf("%s role is managed by Terraform.", roleName)
+func TestMackerelRole(t *testing.T) {
+	resourceName := "mackerel_role.bar"
+	rand := acctest.RandString(5)
+	rServiceName := fmt.Sprintf("tf-%s", rand)
+	rRoleName := fmt.Sprintf("tf-%s-role", rand)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: nil, // todo
+		CheckDestroy: testAccCheckMackerelRoleDestroy,
 		Steps: []resource.TestStep{
+			// Test: Create
 			{
-				Config: testAccCheckMackerelRoleConfig(serviceName, roleName, roleMemo),
+				Config: testAccMackerelRoleConfig(rServiceName, rRoleName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMackerelRoleExists("mackerel_role.bar"),
-					resource.TestCheckResourceAttr(
-						"mackerel_role.bar", "service", serviceName),
-					resource.TestCheckResourceAttr(
-						"mackerel_role.bar", "name", roleName),
-					resource.TestCheckResourceAttr(
-						"mackerel_role.bar", "memo", roleMemo),
+					testAccCheckMackerelRoleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rRoleName),
+					resource.TestCheckResourceAttr(resourceName, "memo", ""),
 				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
+}
+
+func testAccCheckMackerelRoleDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*mackerel.Client)
+	for _, r := range s.RootModule().Resources {
+		if r.Type != "mackerel_role" {
+			continue
+		}
+
+		services, err := client.FindServices()
+		if err != nil {
+			return err
+		}
+		for _, service := range services {
+			if service.Name != r.Primary.Attributes["service"] {
+				continue
+			}
+			for _, role := range service.Roles {
+				if role == r.Primary.Attributes["name"] {
+					return fmt.Errorf("mackerel role still exists: %s", r.Primary.ID)
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func testAccCheckMackerelRoleExists(n string) resource.TestCheckFunc {
@@ -48,11 +79,10 @@ func testAccCheckMackerelRoleExists(n string) resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*mackerel.Client)
 		roles, err := client.FindRoles(rs.Primary.Attributes["service"])
 		if err != nil {
-			return fmt.Errorf("err: %s", err)
+			return err
 		}
-
 		for _, role := range roles {
-			if role.Name == rs.Primary.ID {
+			if role.Name == rs.Primary.Attributes["name"] {
 				return nil
 			}
 		}
@@ -61,7 +91,7 @@ func testAccCheckMackerelRoleExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckMackerelRoleConfig(serviceName, roleName, roleMemo string) string {
+func testAccMackerelRoleConfig(serviceName, roleName string) string {
 	// language=HCL
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
@@ -69,9 +99,9 @@ resource "mackerel_service" "foo" {
 }
 
 resource "mackerel_role" "bar" {
-    service = "${mackerel_service.foo.id}"
+    service = mackerel_service.foo.id
     name = "%s"
-    memo = "%s"
+    memo = ""
 }
-`, serviceName, roleName, roleMemo)
+`, serviceName, roleName)
 }
