@@ -57,8 +57,12 @@ func resourceMackerelServiceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	for _, service := range services {
 		if service.Name == d.Id() {
-			_ = d.Set("name", service.Name)
-			_ = d.Set("memo", service.Memo)
+			if err := d.Set("name", service.Name); err != nil {
+				return err
+			}
+			if err := d.Set("memo", service.Memo); err != nil {
+				return err
+			}
 			break
 		}
 	}
