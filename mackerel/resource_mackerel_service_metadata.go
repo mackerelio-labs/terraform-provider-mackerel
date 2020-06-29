@@ -91,7 +91,7 @@ func resourceMackerelServiceMetadataDelete(d *schema.ResourceData, meta interfac
 	return client.DeleteServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
 }
 
-func resourceMackerelServiceMetadataImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceMackerelServiceMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	if strings.Contains(d.Id(), "/metadata/") {
 		s := strings.Split(d.Id(), "/metadata/")
 		if err := d.Set("service", s[0]); err != nil {
