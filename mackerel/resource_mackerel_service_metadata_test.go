@@ -16,7 +16,7 @@ func TestAccMackerelServiceMetadata(t *testing.T) {
 	rServiceName := fmt.Sprintf("tf-%s", rand)
 	rNamespace := fmt.Sprintf("tf-namespace-%s", rand)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMackerelServiceMetadataDestroy,

@@ -17,7 +17,7 @@ func TestAccMackerelRoleMetadata(t *testing.T) {
 	rRoleName := fmt.Sprintf("tf-%s-role", rand)
 	rNamespace := fmt.Sprintf("tf-namespace-%s", rand)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: nil, // todo
