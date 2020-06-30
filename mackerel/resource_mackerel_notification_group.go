@@ -68,25 +68,6 @@ func resourceMackerelNotificationGroup() *schema.Resource {
 	}
 }
 
-func buildNotificationGroupStruct(d *schema.ResourceData) *mackerel.NotificationGroup {
-	group := &mackerel.NotificationGroup{
-		Name:                      d.Get("name").(string),
-		ChildNotificationGroupIDs: expandStringList(d.Get("child_notification_group_ids").(*schema.Set).List()),
-		ChildChannelIDs:           expandStringList(d.Get("child_channel_ids").(*schema.Set).List()),
-		Monitors:                  expandMonitors(d.Get("monitor").([]interface{})),
-		Services:                  expandServices(d.Get("service").([]interface{})),
-	}
-
-	switch d.Get("notification_level").(string) {
-	case "all":
-		group.NotificationLevel = mackerel.NotificationLevelAll
-	case "critical":
-		group.NotificationLevel = mackerel.NotificationLevelCritical
-	}
-
-	return group
-}
-
 func resourceMackerelNotificationGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
 	group, err := client.CreateNotificationGroup(buildNotificationGroupStruct(d))
@@ -140,6 +121,25 @@ func resourceMackerelNotificationGroupDelete(d *schema.ResourceData, meta interf
 	client := meta.(*mackerel.Client)
 	_, err := client.DeleteNotificationGroup(d.Id())
 	return err
+}
+
+func buildNotificationGroupStruct(d *schema.ResourceData) *mackerel.NotificationGroup {
+	group := &mackerel.NotificationGroup{
+		Name:                      d.Get("name").(string),
+		ChildNotificationGroupIDs: expandStringList(d.Get("child_notification_group_ids").(*schema.Set).List()),
+		ChildChannelIDs:           expandStringList(d.Get("child_channel_ids").(*schema.Set).List()),
+		Monitors:                  expandMonitors(d.Get("monitor").([]interface{})),
+		Services:                  expandServices(d.Get("service").([]interface{})),
+	}
+
+	switch d.Get("notification_level").(string) {
+	case "all":
+		group.NotificationLevel = mackerel.NotificationLevelAll
+	case "critical":
+		group.NotificationLevel = mackerel.NotificationLevelCritical
+	}
+
+	return group
 }
 
 func expandMonitors(v interface{}) []*mackerel.NotificationGroupMonitor {
