@@ -15,7 +15,7 @@ func TestAccMackerelChannel_Email(t *testing.T) {
 	rand := acctest.RandString(5)
 	rName := fmt.Sprintf("tf-channel email %s", rand)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMackerelChannelDestroy,

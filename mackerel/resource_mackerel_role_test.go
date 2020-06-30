@@ -16,7 +16,7 @@ func TestMackerelRole(t *testing.T) {
 	rServiceName := fmt.Sprintf("tf-%s", rand)
 	rRoleName := fmt.Sprintf("tf-%s-role", rand)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMackerelRoleDestroy,
