@@ -134,9 +134,9 @@ func resourceMackerelChannel() *schema.Resource {
 }
 
 func resourceMackerelChannelCreate(d *schema.ResourceData, meta interface{}) error {
-	var param mackerel.Channel
-
-	param.Name = d.Get("name").(string)
+	param := &mackerel.Channel{
+		Name: d.Get("name").(string),
+	}
 
 	if d.Get("email.#") == 1 {
 		param.Type = "email"
@@ -177,7 +177,7 @@ func resourceMackerelChannelCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	client := meta.(*mackerel.Client)
-	channel, err := client.CreateChannel(&param)
+	channel, err := client.CreateChannel(param)
 	if err != nil {
 		return err
 	}
@@ -210,21 +210,14 @@ func resourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error
 					return err
 				}
 			case "slack":
-				mentions := make(map[string]string)
-				if v := channel.Mentions.OK; v != "" {
-					mentions["ok"] = v
-				}
-				if v := channel.Mentions.Warning; v != "" {
-					mentions["warning"] = v
-				}
-				if v := channel.Mentions.Critical; v != "" {
-					mentions["critical"] = v
-				}
-
 				if err := d.Set("slack", []map[string]interface{}{
 					{
-						"url":                 channel.URL,
-						"mentions":            mentions,
+						"url": channel.URL,
+						"mentions": map[string]interface{}{
+							"ok":       channel.Mentions.OK,
+							"warning":  channel.Mentions.Warning,
+							"critical": channel.Mentions.Critical,
+						},
 						"enabled_graph_image": *channel.EnabledGraphImage,
 						"events":              flattenStringSet(*channel.Events),
 					},

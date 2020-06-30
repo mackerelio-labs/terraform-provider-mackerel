@@ -60,7 +60,7 @@ func testAccCheckMackerelServiceDestroy(s *terraform.State) error {
 
 		services, err := client.FindServices()
 		if err != nil {
-			return fmt.Errorf("err: %s", err)
+			return err
 		}
 		for _, srv := range services {
 			if srv.Name == r.Primary.ID {
@@ -88,17 +88,13 @@ func testAccCheckMackerelServiceExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("err: %s", err)
 		}
 
-		var found = false
 		for _, srv := range services {
 			if srv.Name == rs.Primary.ID {
-				found = true
-				break
+				return nil
 			}
 		}
-		if !found {
-			return fmt.Errorf("service not found from mackerel: %s", rs.Primary.ID)
-		}
-		return nil
+
+		return fmt.Errorf("service not found from mackerel: %s", rs.Primary.ID)
 	}
 }
 
