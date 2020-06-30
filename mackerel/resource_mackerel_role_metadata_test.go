@@ -32,6 +32,16 @@ func TestAccMackerelRoleMetadata(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
 				),
 			},
+			// Test: Update
+			{
+				Config: testAccMackerelRoleMetadataConfigUpdated(rServiceName, rRoleName, rNamespace),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelRoleMetadataExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
+					resource.TestCheckResourceAttr(resourceName, "role", rRoleName),
+					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
+				),
+			},
 			// Test: Import
 			{
 				ResourceName:      resourceName,
@@ -78,6 +88,28 @@ resource "mackerel_role_metadata" "foo" {
   namespace = "%s"
   metadata_json = jsonencode({
     id = 1
+  })
+}
+`, serviceName, roleName, namespace)
+}
+
+func testAccMackerelRoleMetadataConfigUpdated(serviceName, roleName, namespace string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "%s"
+}
+
+resource "mackerel_role" "foo" {
+  service = mackerel_service.foo.id
+  name = "%s"
+}
+
+resource "mackerel_role_metadata" "foo" {
+  service = mackerel_service.foo.name
+  role = mackerel_role.foo.name
+  namespace = "%s"
+  metadata_json = jsonencode({
+    id = 2
   })
 }
 `, serviceName, roleName, namespace)

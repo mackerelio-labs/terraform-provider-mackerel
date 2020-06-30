@@ -65,9 +65,7 @@ func resourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	for _, role := range roles {
 		if role.Name == d.Get("name").(string) {
-			if err := d.Set("memo", role.Memo); err != nil {
-				return err
-			}
+			d.Set("memo", role.Memo)
 			break
 		}
 	}
@@ -83,12 +81,8 @@ func resourceMackerelRoleDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceMackerelRoleImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	if strings.Contains(d.Id(), "/roles/") {
 		s := strings.Split(d.Id(), "/roles/")
-		if err := d.Set("service", s[0]); err != nil {
-			return nil, err
-		}
-		if err := d.Set("name", s[1]); err != nil {
-			return nil, err
-		}
+		d.Set("service", s[0])
+		d.Set("name", s[1])
 	}
 
 	return []*schema.ResourceData{d}, nil

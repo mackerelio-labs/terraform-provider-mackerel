@@ -14,6 +14,7 @@ func TestAccMackerelNotificationGroup(t *testing.T) {
 	resourceName := "mackerel_notification_group.foo"
 	rand := acctest.RandString(5)
 	rName := fmt.Sprintf("tf-notification-grouup %s", rand)
+	rNameUpdated := fmt.Sprintf("tf-notification-gruop %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,11 +23,20 @@ func TestAccMackerelNotificationGroup(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccMackerelNotificationGroupConfig(rName),
+				Config: testAccMackerelNotificationGroupConfig(rand, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelNotificationGroupExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notification_level", "all"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelNotificationGroupConfigUpdate(rand, rNameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelNotificationGroupExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "notification_level", "critical"),
 				),
 			},
 			// Test: Import
@@ -84,10 +94,40 @@ func testAccCheckMackerelNotificationGroupExists(n string) resource.TestCheckFun
 	}
 }
 
-func testAccMackerelNotificationGroupConfig(name string) string {
+func testAccMackerelNotificationGroupConfig(rand, name string) string {
 	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "tf-service-%s"
+}
+
+resource "mackerel_channel" "foo" {
+  name = "tf-channel-%s"
+  email { }
+}
+
 resource "mackerel_notification_group" "foo" {
   name = "%s"
+  child_channel_ids = [mackerel_channel.foo.id]
+  service {
+    name = mackerel_service.foo.id
+  }
 }
-`, name)
+`, rand, rand, name)
+}
+
+func testAccMackerelNotificationGroupConfigUpdate(rand, name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "tf-service-%s"
+}
+
+resource "mackerel_channel" "foo" {
+  name = "tf-channel-%s"
+  email { }
+}
+
+resource "mackerel_notification_group" "foo" {
+  name = "%s"
+  notification_level = "critical"
+}`, rand, rand, name)
 }

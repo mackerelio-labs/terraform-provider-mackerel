@@ -73,10 +73,7 @@ func resourceMackerelServiceMetadataRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-
-	if err := d.Set("metadata_json", metadataJson); err != nil {
-		return err
-	}
+	d.Set("metadata_json", metadataJson)
 
 	return nil
 }
@@ -94,12 +91,8 @@ func resourceMackerelServiceMetadataDelete(d *schema.ResourceData, meta interfac
 func resourceMackerelServiceMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	if strings.Contains(d.Id(), "/metadata/") {
 		s := strings.Split(d.Id(), "/metadata/")
-		if err := d.Set("service", s[0]); err != nil {
-			return nil, err
-		}
-		if err := d.Set("namespace", s[1]); err != nil {
-			return nil, err
-		}
+		d.Set("service", s[0])
+		d.Set("namespace", s[1])
 	}
 
 	return []*schema.ResourceData{d}, nil
