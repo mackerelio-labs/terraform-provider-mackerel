@@ -92,16 +92,15 @@ func testAccCheckMackerelRoleExists(n string) resource.TestCheckFunc {
 }
 
 func testAccMackerelRoleConfig(serviceName, roleName string) string {
-	// language=HCL
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
-    name = "%s"
+  name = "%s"
 }
 
 resource "mackerel_role" "bar" {
-    service = mackerel_service.foo.id
-    name = "%s"
-    memo = ""
+  service = mackerel_service.foo.id
+  name = "%s"
+  memo = ""
 }
 `, serviceName, roleName)
 }

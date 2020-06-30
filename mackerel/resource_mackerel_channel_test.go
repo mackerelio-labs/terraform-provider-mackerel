@@ -149,12 +149,11 @@ func testAccCheckMackerelChannelExists(n string) resource.TestCheckFunc {
 }
 
 func testAccMackerelChannelConfigEmail(name string) string {
-	return fmt.Sprintf(`
-resource "mackerel_channel" "email" {
-	name = "%s"
-	email {
-		events = ["alert", "alertGroup"]
-	}
+	return fmt.Sprintf(`resource "mackerel_channel" "email" {
+  name = "%s"
+  email {
+    events = ["alert", "alertGroup"]
+  }
 }
 `, name)
 }
@@ -162,17 +161,24 @@ resource "mackerel_channel" "email" {
 func testAccMackerelChannelConfigSlack(name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_channel" "slack" {
-	name = "%s"
-	slack {
-		url = "https://hooks.slack.com/services/xxx/yyy/zzz"
-		mentions = {
-			"ok" = "OK!!!"
-			"warning" = "WARNING!!!"
-			"critical" = "CRITICAL!!!"
-		}
-		enabled_graph_image = true
-		events              = ["alert", "alertGroup", "hostStatus", "hostRegister", "hostRetire", "monitor"]
-	}
+  name = "%s"
+  slack {
+    url = "https://hooks.slack.com/services/xxx/yyy/zzz"
+    mentions = {
+      "ok" = "OK!!!"
+      "warning" = "WARNING!!!"
+      "critical" = "CRITICAL!!!"
+    }
+    enabled_graph_image = true
+    events = [
+      "alert",
+      "alertGroup",
+      "hostStatus",
+      "hostRegister",
+      "hostRetire",
+      "monitor",
+    ]
+  }
 }
 `, name)
 }
@@ -180,11 +186,17 @@ resource "mackerel_channel" "slack" {
 func testAccMackerelChannelConfigWebhook(name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_channel" "webhook" {
-	name = "%s"
-	webhook {
-		url = "https://test.com/hook"
-		events = ["alert", "alertGroup", "hostStatus", "hostRegister", "hostRetire", "monitor"]
-	}
+  name = "%s"
+  webhook {
+    url = "https://test.com/hook"
+    events = [
+      "alert",
+      "alertGroup",
+      "hostStatus",
+      "hostRegister",
+      "hostRetire",
+      "monitor"]
+  }
 }
 `, name)
 }

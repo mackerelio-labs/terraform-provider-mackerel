@@ -103,11 +103,10 @@ func testAccCheckMackerelServiceExists(n string) resource.TestCheckFunc {
 }
 
 func testAccMackerelServiceConfig(name, memo string) string {
-	// language=HCL
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
-	name = "%s"
-	memo = "%s"
+  name = "%s"
+  memo = "%s"
 }
 `, name, memo)
 }

@@ -83,35 +83,33 @@ func testAccCheckMackerelServiceMetadataExists(n string) resource.TestCheckFunc 
 }
 
 func testAccMackerelServiceMetadataConfig(serviceName, namespace string) string {
-	// language=HCL
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "mackerel_service_metadata" "foo" {
-	service = mackerel_service.foo.id
-	namespace = "%s"
-	metadata_json = jsonencode({
-		id = 1
-	})
+  service = mackerel_service.foo.id
+  namespace = "%s"
+  metadata_json = jsonencode({
+    id = 1
+  })
 }
 `, serviceName, namespace)
 }
 
 func testAccMackerelServiceMetadataConfigUpdated(serviceName, namespace string) string {
-	// language=HCL
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "mackerel_service_metadata" "foo" {
-	service = mackerel_service.foo.id
-	namespace = "%s"
-	metadata_json = jsonencode({
-		id = 2
-	})
+  service = mackerel_service.foo.id
+  namespace = "%s"
+  metadata_json = jsonencode({
+    id = 2
+  })
 }
 `, serviceName, namespace)
 }

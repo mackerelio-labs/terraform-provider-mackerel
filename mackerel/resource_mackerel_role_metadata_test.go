@@ -62,24 +62,23 @@ func testAccCheckMackerelRoleMetadataExists(n string) resource.TestCheckFunc {
 }
 
 func testAccMackerelRoleMetadataConfig(serviceName, roleName, namespace string) string {
-	// language=HCL
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "mackerel_role" "foo" {
-	service = mackerel_service.foo.id
-	name = "%s"
+  service = mackerel_service.foo.id
+  name = "%s"
 }
 
 resource "mackerel_role_metadata" "foo" {
-	service = mackerel_service.foo.name
-	role = mackerel_role.foo.name
-	namespace = "%s"
-	metadata_json = jsonencode({
-		id = 1
-	})
+  service = mackerel_service.foo.name
+  role = mackerel_role.foo.name
+  namespace = "%s"
+  metadata_json = jsonencode({
+    id = 1
+  })
 }
 `, serviceName, roleName, namespace)
 }
