@@ -77,10 +77,7 @@ func resourceMackerelRoleMetadataRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-
-	if err := d.Set("metadata_json", metadataJSON); err != nil {
-		return err
-	}
+	d.Set("metadata_json", metadataJSON)
 
 	return nil
 }
@@ -97,15 +94,9 @@ func resourceMackerelRoleMetadataDelete(d *schema.ResourceData, meta interface{}
 func resourceMackerelRoleMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	r := regexp.MustCompile(`^([a-zA-Z0-9-_]+)/roles/([a-zA-Z0-9-_]+)/metadata/(.*)$`)
 	if v := r.FindStringSubmatch(d.Id()); v != nil {
-		if err := d.Set("service", v[1]); err != nil {
-			return nil, err
-		}
-		if err := d.Set("role", v[2]); err != nil {
-			return nil, err
-		}
-		if err := d.Set("namespace", v[3]); err != nil {
-			return nil, err
-		}
+		d.Set("service", v[1])
+		d.Set("role", v[2])
+		d.Set("namespace", v[3])
 	}
 	return []*schema.ResourceData{d}, nil
 }

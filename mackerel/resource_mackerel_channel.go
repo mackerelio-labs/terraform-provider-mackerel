@@ -194,23 +194,19 @@ func resourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error
 
 	for _, channel := range channels {
 		if channel.ID == d.Id() {
-			if err := d.Set("name", channel.Name); err != nil {
-				return err
-			}
+			d.Set("name", channel.Name)
 
 			switch channel.Type {
 			case "email":
-				if err := d.Set("email", []map[string]interface{}{
+				d.Set("email", []map[string]interface{}{
 					{
 						"emails":   flattenStringSet(*channel.Emails),
 						"user_ids": flattenStringSet(*channel.UserIDs),
 						"events":   flattenStringSet(*channel.Events),
 					},
-				}); err != nil {
-					return err
-				}
+				})
 			case "slack":
-				if err := d.Set("slack", []map[string]interface{}{
+				d.Set("slack", []map[string]interface{}{
 					{
 						"url": channel.URL,
 						"mentions": map[string]interface{}{
@@ -221,18 +217,14 @@ func resourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error
 						"enabled_graph_image": *channel.EnabledGraphImage,
 						"events":              flattenStringSet(*channel.Events),
 					},
-				}); err != nil {
-					return err
-				}
+				})
 			case "webhook":
-				if err := d.Set("webhook", []map[string]interface{}{
+				d.Set("webhook", []map[string]interface{}{
 					{
 						"url":    channel.URL,
 						"events": flattenStringSet(*channel.Events),
 					},
-				}); err != nil {
-					return err
-				}
+				})
 			}
 			break
 		}

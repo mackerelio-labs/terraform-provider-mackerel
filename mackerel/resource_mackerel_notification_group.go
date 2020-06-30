@@ -88,24 +88,12 @@ func resourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interfac
 
 	for _, group := range groups {
 		if group.ID == d.Id() {
-			if err := d.Set("name", group.Name); err != nil {
-				return err
-			}
-			if err := d.Set("notification_level", group.NotificationLevel); err != nil {
-				return err
-			}
-			if err := d.Set("child_notification_group_ids", flattenStringSet(group.ChildNotificationGroupIDs)); err != nil {
-				return err
-			}
-			if err := d.Set("child_channel_ids", flattenStringSet(group.ChildChannelIDs)); err != nil {
-				return err
-			}
-			if err := d.Set("monitor", flattenMonitors(group.Monitors)); err != nil {
-				return err
-			}
-			if err := d.Set("service", flattenServices(group.Services)); err != nil {
-				return err
-			}
+			d.Set("name", group.Name)
+			d.Set("notification_level", group.NotificationLevel)
+			d.Set("child_notification_group_ids", flattenStringSet(group.ChildNotificationGroupIDs))
+			d.Set("child_channel_ids", flattenStringSet(group.ChildChannelIDs))
+			d.Set("monitor", flattenMonitors(group.Monitors))
+			d.Set("service", flattenServices(group.Services))
 			break
 		}
 	}
@@ -146,10 +134,10 @@ func expandMonitors(v interface{}) []*mackerel.NotificationGroupMonitor {
 	var monitors []*mackerel.NotificationGroupMonitor
 
 	for _, mon := range v.([]interface{}) {
-		rmon := mon.(map[string]interface{})
+		rMon := mon.(map[string]interface{})
 		monitors = append(monitors, &mackerel.NotificationGroupMonitor{
-			ID:          rmon["id"].(string),
-			SkipDefault: rmon["skip_default"].(bool),
+			ID:          rMon["id"].(string),
+			SkipDefault: rMon["skip_default"].(bool),
 		})
 	}
 
@@ -173,8 +161,8 @@ func expandServices(v interface{}) []*mackerel.NotificationGroupService {
 	var services []*mackerel.NotificationGroupService
 
 	for _, srv := range v.([]interface{}) {
-		rsrv := srv.(map[string]interface{})
-		services = append(services, &mackerel.NotificationGroupService{Name: rsrv["name"].(string)})
+		rSrv := srv.(map[string]interface{})
+		services = append(services, &mackerel.NotificationGroupService{Name: rSrv["name"].(string)})
 	}
 
 	return services
