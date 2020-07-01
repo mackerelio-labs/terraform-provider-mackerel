@@ -19,6 +19,7 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"mackerel_channel":            resourceMackerelChannel(),
+			"mackerel_downtime":           resourceMackerelDowntime(),
 			"mackerel_notification_group": resourceMackerelNotificationGroup(),
 			"mackerel_role":               resourceMackerelRole(),
 			"mackerel_role_metadata":      resourceMackerelRoleMetadata(),
