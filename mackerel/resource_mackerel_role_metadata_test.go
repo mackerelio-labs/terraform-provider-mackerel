@@ -20,7 +20,7 @@ func TestAccMackerelRoleMetadata(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: nil, // todo
+		CheckDestroy: testAccCheckMackerelRoleMetadataDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -50,6 +50,23 @@ func TestAccMackerelRoleMetadata(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckMackerelRoleMetadataDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*mackerel.Client)
+	for _, r := range s.RootModule().Resources {
+		if r.Type != "mackerel_role_metadata" {
+			continue
+		}
+
+		service := r.Primary.Attributes["service"]
+		role := r.Primary.Attributes["role"]
+		namespace := r.Primary.Attributes["namespace"]
+		if _, err := client.GetRoleMetaData(service, role, namespace); err == nil {
+			return fmt.Errorf("role metadata still exists: %s:%s/%s", service, role, namespace)
+		}
+	}
+	return nil
 }
 
 func testAccCheckMackerelRoleMetadataExists(n string) resource.TestCheckFunc {
