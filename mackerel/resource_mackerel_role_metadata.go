@@ -87,7 +87,7 @@ func resourceMackerelRoleMetadataDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceMackerelRoleMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	r := regexp.MustCompile(`^([a-zA-Z0-9-_]+)/roles/([a-zA-Z0-9-_]+)/metadata/(.*)$`)
+	r := regexp.MustCompile(`^([a-zA-Z0-9-_]+):([a-zA-Z0-9-_]+)/(.*)$`)
 	if v := r.FindStringSubmatch(d.Id()); v != nil {
 		d.Set("service", v[1])
 		d.Set("role", v[2])
@@ -97,5 +97,5 @@ func resourceMackerelRoleMetadataImport(d *schema.ResourceData, _ interface{}) (
 }
 
 func makeRoleMetadataID(service, role, namespace string) string {
-	return fmt.Sprintf("%s/roles/%s/metadata/%s", service, role, namespace)
+	return fmt.Sprintf("%s:%s/%s", service, role, namespace)
 }

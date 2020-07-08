@@ -84,8 +84,8 @@ func resourceMackerelServiceMetadataDelete(d *schema.ResourceData, meta interfac
 }
 
 func resourceMackerelServiceMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	if strings.Contains(d.Id(), "/metadata/") {
-		s := strings.Split(d.Id(), "/metadata/")
+	if strings.Contains(d.Id(), "/") {
+		s := strings.Split(d.Id(), "/")
 		d.Set("service", s[0])
 		d.Set("namespace", s[1])
 	}
@@ -94,5 +94,5 @@ func resourceMackerelServiceMetadataImport(d *schema.ResourceData, _ interface{}
 }
 
 func makeServiceMetadataID(service, namespace string) string {
-	return fmt.Sprintf("%s/metadata/%s", service, namespace)
+	return fmt.Sprintf("%s/%s", service, namespace)
 }
