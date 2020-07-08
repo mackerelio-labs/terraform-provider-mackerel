@@ -58,8 +58,10 @@ func testAccCheckMackerelServiceMetadataDestroy(s *terraform.State) error {
 			continue
 		}
 
-		if _, err := client.GetServiceMetaData(r.Primary.Attributes["service"], r.Primary.Attributes["namespace"]); err == nil {
-			return fmt.Errorf("service metadata still exists")
+		service := r.Primary.Attributes["service"]
+		namespace := r.Primary.Attributes["namespace"]
+		if _, err := client.GetServiceMetaData(service, namespace); err == nil {
+			return fmt.Errorf("service metadata still exists: %s:%s", service, namespace)
 		}
 	}
 	return nil
