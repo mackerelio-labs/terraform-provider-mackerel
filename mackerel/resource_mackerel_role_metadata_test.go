@@ -30,6 +30,7 @@ func TestAccMackerelRoleMetadata(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
 					resource.TestCheckResourceAttr(resourceName, "role", rRoleName),
 					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
+					resource.TestCheckResourceAttr(resourceName, "metadata_json", `{"id":1}`),
 				),
 			},
 			// Test: Update
@@ -40,6 +41,7 @@ func TestAccMackerelRoleMetadata(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
 					resource.TestCheckResourceAttr(resourceName, "role", rRoleName),
 					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
+					resource.TestCheckResourceAttr(resourceName, "metadata_json", `{"id":2}`),
 				),
 			},
 			// Test: Import

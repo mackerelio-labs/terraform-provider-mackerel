@@ -28,6 +28,7 @@ func TestAccMackerelServiceMetadata(t *testing.T) {
 					testAccCheckMackerelServiceMetadataExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
 					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
+					resource.TestCheckResourceAttr(resourceName, "metadata_json", `{"id":1}`),
 				),
 			},
 			// Test: Update
@@ -37,6 +38,7 @@ func TestAccMackerelServiceMetadata(t *testing.T) {
 					testAccCheckMackerelServiceMetadataExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
 					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
+					resource.TestCheckResourceAttr(resourceName, "metadata_json", `{"id":2}`),
 				),
 			},
 			// Test: Import
