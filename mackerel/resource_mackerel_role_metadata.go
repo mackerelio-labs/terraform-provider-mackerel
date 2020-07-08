@@ -68,16 +68,11 @@ func resourceMackerelRoleMetadataRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	metadataJSONBytes, err := json.Marshal(resp.RoleMetaData)
+	metadataJson, err := structure.FlattenJsonToString(resp.RoleMetaData.(map[string]interface{}))
 	if err != nil {
 		return err
 	}
-
-	metadataJSON, err := structure.NormalizeJsonString(string(metadataJSONBytes))
-	if err != nil {
-		return err
-	}
-	d.Set("metadata_json", metadataJSON)
+	d.Set("metadata_json", metadataJson)
 
 	return nil
 }

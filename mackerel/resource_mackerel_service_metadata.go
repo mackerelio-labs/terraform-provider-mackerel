@@ -64,12 +64,7 @@ func resourceMackerelServiceMetadataRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	metadataJsonBytes, err := json.Marshal(resp.ServiceMetaData)
-	if err != nil {
-		return err
-	}
-
-	metadataJson, err := structure.NormalizeJsonString(string(metadataJsonBytes))
+	metadataJson, err := structure.FlattenJsonToString(resp.ServiceMetaData.(map[string]interface{}))
 	if err != nil {
 		return err
 	}
