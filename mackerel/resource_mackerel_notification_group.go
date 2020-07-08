@@ -102,7 +102,14 @@ func resourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceMackerelNotificationGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	return resourceMackerelNotificationGroupCreate(d, meta)
+	client := meta.(*mackerel.Client)
+	group, err := client.UpdateNotificationGroup(d.Id(), buildNotificationGroupStruct(d))
+	if err != nil {
+		return err
+	}
+	d.SetId(group.ID)
+
+	return resourceMackerelNotificationGroupRead(d, meta)
 }
 
 func resourceMackerelNotificationGroupDelete(d *schema.ResourceData, meta interface{}) error {
