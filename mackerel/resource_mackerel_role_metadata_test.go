@@ -84,7 +84,7 @@ func testAccCheckMackerelRoleMetadataExists(n string) resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*mackerel.Client)
 		_, err := client.GetRoleMetaData(rs.Primary.Attributes["service"], rs.Primary.Attributes["role"], rs.Primary.Attributes["namespace"])
 		if err != nil {
-			return fmt.Errorf("role metadata not found mackerel: %s", rs.Primary.ID)
+			return err
 		}
 		return nil
 	}

@@ -13,10 +13,10 @@ import (
 func TestAccMackerelService(t *testing.T) {
 	resourceName := "mackerel_service.foo"
 	rand := acctest.RandString(5)
-	rName := fmt.Sprintf("tf-%s", rand)
-	rNameUpdated := fmt.Sprintf("tf-updated-%s", rand)
-	rMemo := fmt.Sprintf("%s is managed by Terraform.", rName)
-	rMemoUpdated := fmt.Sprintf("%s is managed by Terraform.", rNameUpdated)
+	name := fmt.Sprintf("tf-%s", rand)
+	nameUpdated := fmt.Sprintf("tf-updated-%s", rand)
+	memo := fmt.Sprintf("%s is managed by Terraform.", name)
+	memoUpdated := fmt.Sprintf("%s is managed by Terraform.", nameUpdated)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -25,20 +25,20 @@ func TestAccMackerelService(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccMackerelServiceConfig(rName, rMemo),
+				Config: testAccMackerelServiceConfig(name, memo),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelServiceExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "memo", rMemo),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "memo", memo),
 				),
 			},
 			// Test: Update
 			{
-				Config: testAccMackerelServiceConfig(rNameUpdated, rMemoUpdated),
+				Config: testAccMackerelServiceConfig(nameUpdated, memoUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelServiceExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
-					resource.TestCheckResourceAttr(resourceName, "memo", rMemoUpdated),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "memo", memoUpdated),
 				),
 			},
 			// Test: Import
@@ -85,7 +85,7 @@ func testAccCheckMackerelServiceExists(n string) resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*mackerel.Client)
 		services, err := client.FindServices()
 		if err != nil {
-			return fmt.Errorf("err: %s", err)
+			return err
 		}
 
 		for _, srv := range services {

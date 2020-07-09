@@ -13,8 +13,9 @@ import (
 func TestMackerelRole(t *testing.T) {
 	resourceName := "mackerel_role.bar"
 	rand := acctest.RandString(5)
-	rServiceName := fmt.Sprintf("tf-%s", rand)
-	rRoleName := fmt.Sprintf("tf-%s-role", rand)
+	serviceName := fmt.Sprintf("tf-service-%s", rand)
+	name := fmt.Sprintf("tf-role-%s", rand)
+	nameUpdated := fmt.Sprintf("tf-rol-%s-updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,12 +24,22 @@ func TestMackerelRole(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccMackerelRoleConfig(rServiceName, rRoleName),
+				Config: testAccMackerelRoleConfig(serviceName, name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelRoleExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rRoleName),
+					resource.TestCheckResourceAttr(resourceName, "service", serviceName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "memo", ""),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelRoleConfigUpdated(serviceName, nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelRoleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "service", serviceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "memo", fmt.Sprintf("%s is managed by Terraform", nameUpdated)),
 				),
 			},
 			// Test: Import
@@ -91,7 +102,7 @@ func testAccCheckMackerelRoleExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccMackerelRoleConfig(serviceName, roleName string) string {
+func testAccMackerelRoleConfig(serviceName, name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "foo" {
   name = "%s"
@@ -100,7 +111,20 @@ resource "mackerel_service" "foo" {
 resource "mackerel_role" "bar" {
   service = mackerel_service.foo.id
   name = "%s"
-  memo = ""
 }
-`, serviceName, roleName)
+`, serviceName, name)
+}
+
+func testAccMackerelRoleConfigUpdated(serviceName, name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "%s"
+}
+
+resource "mackerel_role" "bar" {
+  service = mackerel_service.foo.name
+  name = "%s"
+  memo = "%s is managed by Terraform"
+}
+`, serviceName, name, name)
 }

@@ -13,8 +13,8 @@ import (
 func TestAccMackerelServiceMetadata(t *testing.T) {
 	resourceName := "mackerel_service_metadata.foo"
 	rand := acctest.RandString(5)
-	rServiceName := fmt.Sprintf("tf-%s", rand)
-	rNamespace := fmt.Sprintf("tf-namespace-%s", rand)
+	serviceName := fmt.Sprintf("tf-%s", rand)
+	namespace := fmt.Sprintf("tf-namespace-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,21 +23,21 @@ func TestAccMackerelServiceMetadata(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccMackerelServiceMetadataConfig(rServiceName, rNamespace),
+				Config: testAccMackerelServiceMetadataConfig(serviceName, namespace),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelServiceMetadataExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
-					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
+					resource.TestCheckResourceAttr(resourceName, "service", serviceName),
+					resource.TestCheckResourceAttr(resourceName, "namespace", namespace),
 					resource.TestCheckResourceAttr(resourceName, "metadata_json", `{"id":1}`),
 				),
 			},
 			// Test: Update
 			{
-				Config: testAccMackerelServiceMetadataConfigUpdated(rServiceName, rNamespace),
+				Config: testAccMackerelServiceMetadataConfigUpdated(serviceName, namespace),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelServiceMetadataExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "service", rServiceName),
-					resource.TestCheckResourceAttr(resourceName, "namespace", rNamespace),
+					resource.TestCheckResourceAttr(resourceName, "service", serviceName),
+					resource.TestCheckResourceAttr(resourceName, "namespace", namespace),
 					resource.TestCheckResourceAttr(resourceName, "metadata_json", `{"id":2}`),
 				),
 			},
@@ -80,7 +80,7 @@ func testAccCheckMackerelServiceMetadataExists(n string) resource.TestCheckFunc 
 		client := testAccProvider.Meta().(*mackerel.Client)
 		_, err := client.GetServiceMetaData(rs.Primary.Attributes["service"], rs.Primary.Attributes["namespace"])
 		if err != nil {
-			return fmt.Errorf("err: %s", err)
+			return err
 		}
 		return nil
 	}
