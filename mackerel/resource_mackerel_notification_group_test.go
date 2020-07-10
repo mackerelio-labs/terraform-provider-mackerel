@@ -13,8 +13,8 @@ import (
 func TestAccMackerelNotificationGroup(t *testing.T) {
 	resourceName := "mackerel_notification_group.foo"
 	rand := acctest.RandString(5)
-	rName := fmt.Sprintf("tf-notification-grouup %s", rand)
-	rNameUpdated := fmt.Sprintf("tf-notification-gruop %s updated", rand)
+	name := fmt.Sprintf("tf-notification-grouup %s", rand)
+	nameUpdated := fmt.Sprintf("tf-notification-group %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,20 +23,28 @@ func TestAccMackerelNotificationGroup(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccMackerelNotificationGroupConfig(rand, rName),
+				Config: testAccMackerelNotificationGroupConfig(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelNotificationGroupExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "notification_level", "all"),
+					resource.TestCheckResourceAttr(resourceName, "child_notification_group_ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "child_channel_ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service.#", "0"),
 				),
 			},
 			// Test: Update
 			{
-				Config: testAccMackerelNotificationGroupConfigUpdate(rand, rNameUpdated),
+				Config: testAccMackerelNotificationGroupConfigUpdated(rand, nameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelNotificationGroupExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
 					resource.TestCheckResourceAttr(resourceName, "notification_level", "critical"),
+					resource.TestCheckResourceAttr(resourceName, "child_notification_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "child_channel_ids.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service.#", "2"),
 				),
 			},
 			// Test: Import
@@ -94,40 +102,51 @@ func testAccCheckMackerelNotificationGroupExists(n string) resource.TestCheckFun
 	}
 }
 
-func testAccMackerelNotificationGroupConfig(rand, name string) string {
+func testAccMackerelNotificationGroupConfig(name string) string {
 	return fmt.Sprintf(`
-resource "mackerel_service" "foo" {
-  name = "tf-service-%s"
-}
-
-resource "mackerel_channel" "foo" {
-  name = "tf-channel-%s"
-  email { }
-}
-
 resource "mackerel_notification_group" "foo" {
   name = "%s"
-  child_channel_ids = [mackerel_channel.foo.id]
-  service {
-    name = mackerel_service.foo.id
-  }
 }
-`, rand, rand, name)
+`, name)
 }
 
-func testAccMackerelNotificationGroupConfigUpdate(rand, name string) string {
+func testAccMackerelNotificationGroupConfigUpdated(rand, name string) string {
 	return fmt.Sprintf(`
+
 resource "mackerel_service" "foo" {
   name = "tf-service-%s"
 }
 
+resource "mackerel_service" "bar" {
+  name = "tf-service-%s-bar"
+}
+
 resource "mackerel_channel" "foo" {
   name = "tf-channel-%s"
-  email { }
+  email {}
+}
+
+resource "mackerel_notification_group" "child" {
+  name = "tf-notification-group-%s-child"
 }
 
 resource "mackerel_notification_group" "foo" {
   name = "%s"
   notification_level = "critical"
-}`, rand, rand, name)
+  child_notification_group_ids = [
+    mackerel_notification_group.child.id]
+  child_channel_ids = [
+    mackerel_channel.foo.id]
+  service {
+    name = mackerel_service.foo.name
+  }
+  service {
+    name = mackerel_service.foo.name
+  }
+  service {
+    name = mackerel_service.bar.name
+  }
+}
+
+`, rand, rand, rand, rand, name)
 }

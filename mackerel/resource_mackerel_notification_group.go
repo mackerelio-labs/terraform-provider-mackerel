@@ -6,6 +6,29 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
+var serviceResource = &schema.Resource{
+	Schema: map[string]*schema.Schema{
+		"name": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+	},
+}
+
+var monitorResource = &schema.Resource{
+	Schema: map[string]*schema.Schema{
+		"id": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		"skip_default": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  false,
+		},
+	},
+}
+
 func resourceMackerelNotificationGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMackerelNotificationGroupCreate,
@@ -37,32 +60,14 @@ func resourceMackerelNotificationGroup() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"monitor": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"skip_default": {
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-					},
-				},
+				Elem:     monitorResource,
 			},
 			"service": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
+				Elem:     serviceResource,
 			},
 		},
 	}
@@ -123,8 +128,8 @@ func buildNotificationGroupStruct(d *schema.ResourceData) *mackerel.Notification
 		Name:                      d.Get("name").(string),
 		ChildNotificationGroupIDs: expandStringList(d.Get("child_notification_group_ids").(*schema.Set).List()),
 		ChildChannelIDs:           expandStringList(d.Get("child_channel_ids").(*schema.Set).List()),
-		Monitors:                  expandMonitors(d.Get("monitor").([]interface{})),
-		Services:                  expandServices(d.Get("service").([]interface{})),
+		Monitors:                  expandMonitorSet(d.Get("monitor").(*schema.Set)),
+		Services:                  expandServiceSet(d.Get("service").(*schema.Set)),
 	}
 
 	switch d.Get("notification_level").(string) {
@@ -137,46 +142,46 @@ func buildNotificationGroupStruct(d *schema.ResourceData) *mackerel.Notification
 	return group
 }
 
-func expandMonitors(v interface{}) []*mackerel.NotificationGroupMonitor {
-	var monitors []*mackerel.NotificationGroupMonitor
+func expandMonitorSet(set *schema.Set) []*mackerel.NotificationGroupMonitor {
+	monitors := make([]*mackerel.NotificationGroupMonitor, 0, set.Len())
 
-	for _, mon := range v.([]interface{}) {
-		rMon := mon.(map[string]interface{})
+	for _, monitor := range set.List() {
+		monitor := monitor.(map[string]interface{})
 		monitors = append(monitors, &mackerel.NotificationGroupMonitor{
-			ID:          rMon["id"].(string),
-			SkipDefault: rMon["skip_default"].(bool),
+			ID:          monitor["id"].(string),
+			SkipDefault: monitor["skip_default"].(bool),
 		})
 	}
 
 	return monitors
 }
 
-func flattenMonitors(v []*mackerel.NotificationGroupMonitor) []map[string]interface{} {
-	var monitors []map[string]interface{}
+func flattenMonitors(v []*mackerel.NotificationGroupMonitor) *schema.Set {
+	monitors := make([]interface{}, 0, len(v))
 
-	for _, mon := range v {
+	for _, monitor := range v {
 		monitors = append(monitors, map[string]interface{}{
-			"id":           mon.ID,
-			"skip_default": mon.SkipDefault,
+			"id":           monitor.ID,
+			"skip_default": monitor.SkipDefault,
 		})
 	}
 
-	return monitors
+	return schema.NewSet(schema.HashResource(monitorResource), monitors)
 }
 
-func expandServices(v interface{}) []*mackerel.NotificationGroupService {
-	var services []*mackerel.NotificationGroupService
+func expandServiceSet(set *schema.Set) []*mackerel.NotificationGroupService {
+	services := make([]*mackerel.NotificationGroupService, 0, set.Len())
 
-	for _, srv := range v.([]interface{}) {
-		rSrv := srv.(map[string]interface{})
-		services = append(services, &mackerel.NotificationGroupService{Name: rSrv["name"].(string)})
+	for _, service := range set.List() {
+		service := service.(map[string]interface{})
+		services = append(services, &mackerel.NotificationGroupService{Name: service["name"].(string)})
 	}
 
 	return services
 }
 
-func flattenServices(v []*mackerel.NotificationGroupService) []map[string]interface{} {
-	var services []map[string]interface{}
+func flattenServices(v []*mackerel.NotificationGroupService) *schema.Set {
+	services := make([]interface{}, 0, len(v))
 
 	for _, srv := range v {
 		services = append(services, map[string]interface{}{
@@ -184,5 +189,5 @@ func flattenServices(v []*mackerel.NotificationGroupService) []map[string]interf
 		})
 	}
 
-	return services
+	return schema.NewSet(schema.HashResource(serviceResource), services)
 }
