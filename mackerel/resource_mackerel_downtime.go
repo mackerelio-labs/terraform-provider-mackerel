@@ -135,12 +135,12 @@ func resourceMackerelDowntimeRead(d *schema.ResourceData, meta interface{}) erro
 					},
 				})
 			}
-			d.Set("service_scopes", flattenStringSet(downtime.ServiceScopes))
-			d.Set("service_exclude_scopes", flattenStringSet(downtime.ServiceExcludeScopes))
-			d.Set("role_scopes", flattenStringSet(downtime.RoleScopes))
-			d.Set("role_exclude_scopes", flattenStringSet(downtime.RoleExcludeScopes))
-			d.Set("monitor_scopes", flattenStringSet(downtime.MonitorScopes))
-			d.Set("monitor_exclude_scopes", flattenStringSet(downtime.MonitorExcludeScopes))
+			d.Set("service_scopes", flattenStringListToSet(downtime.ServiceScopes))
+			d.Set("service_exclude_scopes", flattenStringListToSet(downtime.ServiceExcludeScopes))
+			d.Set("role_scopes", flattenStringListToSet(downtime.RoleScopes))
+			d.Set("role_exclude_scopes", flattenStringListToSet(downtime.RoleExcludeScopes))
+			d.Set("monitor_scopes", flattenStringListToSet(downtime.MonitorScopes))
+			d.Set("monitor_exclude_scopes", flattenStringListToSet(downtime.MonitorExcludeScopes))
 			break
 		}
 	}
@@ -206,12 +206,12 @@ func buildDowntimeStruct(d *schema.ResourceData) *mackerel.Downtime {
 		Start:                int64(d.Get("start").(int)),
 		Duration:             int64(d.Get("duration").(int)),
 		Recurrence:           nil,
-		ServiceScopes:        expandStringList(d.Get("service_scopes").(*schema.Set).List()),
-		ServiceExcludeScopes: expandStringList(d.Get("service_exclude_scopes").(*schema.Set).List()),
-		RoleScopes:           expandStringList(d.Get("role_scopes").(*schema.Set).List()),
-		RoleExcludeScopes:    expandStringList(d.Get("role_exclude_scopes").(*schema.Set).List()),
-		MonitorScopes:        expandStringList(d.Get("monitor_scopes").(*schema.Set).List()),
-		MonitorExcludeScopes: expandStringList(d.Get("monitor_exclude_scopes").(*schema.Set).List()),
+		ServiceScopes:        expandStringListFromSet(d.Get("service_scopes").(*schema.Set)),
+		ServiceExcludeScopes: expandStringListFromSet(d.Get("service_exclude_scopes").(*schema.Set)),
+		RoleScopes:           expandStringListFromSet(d.Get("role_scopes").(*schema.Set)),
+		RoleExcludeScopes:    expandStringListFromSet(d.Get("role_exclude_scopes").(*schema.Set)),
+		MonitorScopes:        expandStringListFromSet(d.Get("monitor_scopes").(*schema.Set)),
+		MonitorExcludeScopes: expandStringListFromSet(d.Get("monitor_exclude_scopes").(*schema.Set)),
 	}
 	if _, ok := d.GetOk("recurrence"); ok {
 		var recurrence mackerel.DowntimeRecurrence

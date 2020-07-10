@@ -141,13 +141,13 @@ func resourceMackerelChannelCreate(d *schema.ResourceData, meta interface{}) err
 	if d.Get("email.#") == 1 {
 		param.Type = "email"
 
-		emails := expandStringList(d.Get("email.0.emails").(*schema.Set).List())
+		emails := expandStringListFromSet(d.Get("email.0.emails").(*schema.Set))
 		param.Emails = &emails
 
-		userIDs := expandStringList(d.Get("email.0.user_ids").(*schema.Set).List())
+		userIDs := expandStringListFromSet(d.Get("email.0.user_ids").(*schema.Set))
 		param.UserIDs = &userIDs
 
-		events := expandStringList(d.Get("email.0.events").(*schema.Set).List())
+		events := expandStringListFromSet(d.Get("email.0.events").(*schema.Set))
 		param.Events = &events
 	}
 	if d.Get("slack.#") == 1 {
@@ -164,7 +164,7 @@ func resourceMackerelChannelCreate(d *schema.ResourceData, meta interface{}) err
 		enabledGraphImage := d.Get("slack.0.enabled_graph_image").(bool)
 		param.EnabledGraphImage = &enabledGraphImage
 
-		events := expandStringList(d.Get("slack.0.events").(*schema.Set).List())
+		events := expandStringListFromSet(d.Get("slack.0.events").(*schema.Set))
 		param.Events = &events
 	}
 	if d.Get("webhook.#") == 1 {
@@ -172,7 +172,7 @@ func resourceMackerelChannelCreate(d *schema.ResourceData, meta interface{}) err
 
 		param.URL = d.Get("webhook.0.url").(string)
 
-		events := expandStringList(d.Get("webhook.0.events").(*schema.Set).List())
+		events := expandStringListFromSet(d.Get("webhook.0.events").(*schema.Set))
 		param.Events = &events
 	}
 
@@ -200,9 +200,9 @@ func resourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error
 			case "email":
 				d.Set("email", []map[string]interface{}{
 					{
-						"emails":   flattenStringSet(*channel.Emails),
-						"user_ids": flattenStringSet(*channel.UserIDs),
-						"events":   flattenStringSet(*channel.Events),
+						"emails":   flattenStringListToSet(*channel.Emails),
+						"user_ids": flattenStringListToSet(*channel.UserIDs),
+						"events":   flattenStringListToSet(*channel.Events),
 					},
 				})
 			case "slack":
@@ -215,14 +215,14 @@ func resourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error
 							"critical": channel.Mentions.Critical,
 						},
 						"enabled_graph_image": *channel.EnabledGraphImage,
-						"events":              flattenStringSet(*channel.Events),
+						"events":              flattenStringListToSet(*channel.Events),
 					},
 				})
 			case "webhook":
 				d.Set("webhook", []map[string]interface{}{
 					{
 						"url":    channel.URL,
-						"events": flattenStringSet(*channel.Events),
+						"events": flattenStringListToSet(*channel.Events),
 					},
 				})
 			}

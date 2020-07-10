@@ -95,8 +95,8 @@ func resourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interfac
 		if group.ID == d.Id() {
 			d.Set("name", group.Name)
 			d.Set("notification_level", group.NotificationLevel)
-			d.Set("child_notification_group_ids", flattenStringSet(group.ChildNotificationGroupIDs))
-			d.Set("child_channel_ids", flattenStringSet(group.ChildChannelIDs))
+			d.Set("child_notification_group_ids", flattenStringListToSet(group.ChildNotificationGroupIDs))
+			d.Set("child_channel_ids", flattenStringListToSet(group.ChildChannelIDs))
 			d.Set("monitor", flattenMonitors(group.Monitors))
 			d.Set("service", flattenServices(group.Services))
 			break
@@ -126,8 +126,8 @@ func resourceMackerelNotificationGroupDelete(d *schema.ResourceData, meta interf
 func buildNotificationGroupStruct(d *schema.ResourceData) *mackerel.NotificationGroup {
 	group := &mackerel.NotificationGroup{
 		Name:                      d.Get("name").(string),
-		ChildNotificationGroupIDs: expandStringList(d.Get("child_notification_group_ids").(*schema.Set).List()),
-		ChildChannelIDs:           expandStringList(d.Get("child_channel_ids").(*schema.Set).List()),
+		ChildNotificationGroupIDs: expandStringListFromSet(d.Get("child_notification_group_ids").(*schema.Set)),
+		ChildChannelIDs:           expandStringListFromSet(d.Get("child_channel_ids").(*schema.Set)),
 		Monitors:                  expandMonitorSet(d.Get("monitor").(*schema.Set)),
 		Services:                  expandServiceSet(d.Get("service").(*schema.Set)),
 	}
