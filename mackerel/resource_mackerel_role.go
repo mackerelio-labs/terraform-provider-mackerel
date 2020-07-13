@@ -79,8 +79,8 @@ func resourceMackerelRoleDelete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceMackerelRoleImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	if strings.Contains(d.Id(), "/roles/") {
-		s := strings.Split(d.Id(), "/roles/")
+	if strings.Contains(d.Id(), ":") {
+		s := strings.Split(d.Id(), ":")
 		d.Set("service", s[0])
 		d.Set("name", s[1])
 	}
@@ -89,5 +89,5 @@ func resourceMackerelRoleImport(d *schema.ResourceData, _ interface{}) ([]*schem
 }
 
 func makeRoleID(service, name string) string {
-	return fmt.Sprintf("%s/roles/%s", service, name)
+	return fmt.Sprintf("%s:%s", service, name)
 }
