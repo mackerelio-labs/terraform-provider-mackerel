@@ -20,6 +20,6 @@ func flattenStringList(strings []string) []interface{} {
 	return vs
 }
 
-func flattenStringListToSet(list []string) *schema.Set {
-	return schema.NewSet(schema.HashString, flattenStringList(list))
+func flattenStringListToSet(strings []string) *schema.Set {
+	return schema.NewSet(schema.HashString, flattenStringList(strings))
 }
