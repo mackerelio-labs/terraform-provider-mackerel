@@ -134,50 +134,8 @@ func resourceMackerelChannel() *schema.Resource {
 }
 
 func resourceMackerelChannelCreate(d *schema.ResourceData, meta interface{}) error {
-	param := &mackerel.Channel{
-		Name: d.Get("name").(string),
-	}
-
-	if d.Get("email.#") == 1 {
-		param.Type = "email"
-
-		emails := expandStringListFromSet(d.Get("email.0.emails").(*schema.Set))
-		param.Emails = &emails
-
-		userIDs := expandStringListFromSet(d.Get("email.0.user_ids").(*schema.Set))
-		param.UserIDs = &userIDs
-
-		events := expandStringListFromSet(d.Get("email.0.events").(*schema.Set))
-		param.Events = &events
-	}
-	if d.Get("slack.#") == 1 {
-		param.Type = "slack"
-
-		param.URL = d.Get("slack.0.url").(string)
-
-		param.Mentions = mackerel.Mentions{
-			OK:       d.Get("slack.0.mentions.ok").(string),
-			Warning:  d.Get("slack.0.mentions.warning").(string),
-			Critical: d.Get("slack.0.mentions.critical").(string),
-		}
-
-		enabledGraphImage := d.Get("slack.0.enabled_graph_image").(bool)
-		param.EnabledGraphImage = &enabledGraphImage
-
-		events := expandStringListFromSet(d.Get("slack.0.events").(*schema.Set))
-		param.Events = &events
-	}
-	if d.Get("webhook.#") == 1 {
-		param.Type = "webhook"
-
-		param.URL = d.Get("webhook.0.url").(string)
-
-		events := expandStringListFromSet(d.Get("webhook.0.events").(*schema.Set))
-		param.Events = &events
-	}
-
 	client := meta.(*mackerel.Client)
-	channel, err := client.CreateChannel(param)
+	channel, err := client.CreateChannel(buildChannelStruct(d))
 	if err != nil {
 		return err
 	}
@@ -195,36 +153,38 @@ func resourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error
 	for _, channel := range channels {
 		if channel.ID == d.Id() {
 			d.Set("name", channel.Name)
-
 			switch channel.Type {
 			case "email":
-				d.Set("email", []map[string]interface{}{
-					{
-						"emails":   flattenStringListToSet(*channel.Emails),
-						"user_ids": flattenStringListToSet(*channel.UserIDs),
-						"events":   flattenStringListToSet(*channel.Events),
-					},
-				})
+				email := map[string]interface{}{
+					"emails":   flattenStringListToSet(*channel.Emails),
+					"user_ids": flattenStringListToSet(*channel.UserIDs),
+					"events":   flattenStringListToSet(*channel.Events),
+				}
+				d.Set("email", []interface{}{email})
 			case "slack":
-				d.Set("slack", []map[string]interface{}{
-					{
-						"url": channel.URL,
-						"mentions": map[string]interface{}{
-							"ok":       channel.Mentions.OK,
-							"warning":  channel.Mentions.Warning,
-							"critical": channel.Mentions.Critical,
-						},
-						"enabled_graph_image": *channel.EnabledGraphImage,
-						"events":              flattenStringListToSet(*channel.Events),
-					},
-				})
+				mentions := make(map[string]string)
+				for k, v := range map[string]string{
+					"ok":       channel.Mentions.OK,
+					"warning":  channel.Mentions.Warning,
+					"critical": channel.Mentions.Critical,
+				} {
+					if v != "" {
+						mentions[k] = v
+					}
+				}
+				slack := map[string]interface{}{
+					"url":                 channel.URL,
+					"mentions":            mentions,
+					"enabled_graph_image": *channel.EnabledGraphImage,
+					"events":              flattenStringListToSet(*channel.Events),
+				}
+				d.Set("slack", []interface{}{slack})
 			case "webhook":
-				d.Set("webhook", []map[string]interface{}{
-					{
-						"url":    channel.URL,
-						"events": flattenStringListToSet(*channel.Events),
-					},
-				})
+				webhook := map[string]interface{}{
+					"url":    channel.URL,
+					"events": flattenStringListToSet(*channel.Events),
+				}
+				d.Set("webhook", []interface{}{webhook})
 			}
 			break
 		}
@@ -236,4 +196,50 @@ func resourceMackerelChannelDelete(d *schema.ResourceData, meta interface{}) err
 	client := meta.(*mackerel.Client)
 	_, err := client.DeleteChannel(d.Id())
 	return err
+}
+
+func buildChannelStruct(d *schema.ResourceData) *mackerel.Channel {
+	channel := &mackerel.Channel{
+		Name: d.Get("name").(string),
+	}
+
+	if _, ok := d.GetOk("email"); ok {
+		channel.Type = "email"
+
+		emails := expandStringListFromSet(d.Get("email.0.emails").(*schema.Set))
+		channel.Emails = &emails
+
+		userIDs := expandStringListFromSet(d.Get("email.0.user_ids").(*schema.Set))
+		channel.UserIDs = &userIDs
+
+		events := expandStringListFromSet(d.Get("email.0.events").(*schema.Set))
+		channel.Events = &events
+	}
+	if _, ok := d.GetOk("slack"); ok {
+		channel.Type = "slack"
+
+		channel.URL = d.Get("slack.0.url").(string)
+
+		channel.Mentions = mackerel.Mentions{
+			OK:       d.Get("slack.0.mentions.ok").(string),
+			Warning:  d.Get("slack.0.mentions.warning").(string),
+			Critical: d.Get("slack.0.mentions.critical").(string),
+		}
+
+		enabledGraphImage := d.Get("slack.0.enabled_graph_image").(bool)
+		channel.EnabledGraphImage = &enabledGraphImage
+
+		events := expandStringListFromSet(d.Get("slack.0.events").(*schema.Set))
+		channel.Events = &events
+	}
+	if _, ok := d.GetOk("webhook"); ok {
+		channel.Type = "webhook"
+
+		channel.URL = d.Get("webhook.0.url").(string)
+
+		events := expandStringListFromSet(d.Get("webhook.0.events").(*schema.Set))
+		channel.Events = &events
+	}
+
+	return channel
 }

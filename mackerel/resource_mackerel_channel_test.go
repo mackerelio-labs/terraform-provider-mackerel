@@ -13,7 +13,8 @@ import (
 func TestAccMackerelChannel_Email(t *testing.T) {
 	resourceName := "mackerel_channel.email"
 	rand := acctest.RandString(5)
-	rName := fmt.Sprintf("tf-channel email %s", rand)
+	name := fmt.Sprintf("tf-channel email %s", rand)
+	nameUpdated := fmt.Sprintf("tf-channel email %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,13 +23,30 @@ func TestAccMackerelChannel_Email(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccMackerelChannelConfigEmail(rName),
+				Config: testAccMackerelChannelConfigEmail(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelChannelExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "email.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "slack.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "webhook.#", "0"),
+					resource.TestCheckNoResourceAttr(resourceName, "email.0.emails.#"),
+					resource.TestCheckNoResourceAttr(resourceName, "email.0.user_ids.#"),
+					resource.TestCheckNoResourceAttr(resourceName, "email.0.events.#"),
+					resource.TestCheckNoResourceAttr(resourceName, "slack.#"),
+					resource.TestCheckNoResourceAttr(resourceName, "webhook.#"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelChannelConfigEmailUpdated(nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelChannelExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "email.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "email.0.emails.#", "1"),
+					resource.TestCheckNoResourceAttr(resourceName, "email.0.user_ids.#"),
+					resource.TestCheckResourceAttr(resourceName, "email.0.events.#", "2"),
+					resource.TestCheckNoResourceAttr(resourceName, "slack.#"),
+					resource.TestCheckNoResourceAttr(resourceName, "webhook.#"),
 				),
 			},
 			// Test: Import
@@ -44,7 +62,8 @@ func TestAccMackerelChannel_Email(t *testing.T) {
 func TestAccMackerelChannel_Slack(t *testing.T) {
 	resourceName := "mackerel_channel.slack"
 	rand := acctest.RandString(5)
-	rName := fmt.Sprintf("tf-channel slack %s", rand)
+	name := fmt.Sprintf("tf-channel slack %s", rand)
+	nameUpdated := fmt.Sprintf("tf-channel slack %s updated", rand)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -53,13 +72,32 @@ func TestAccMackerelChannel_Slack(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccMackerelChannelConfigSlack(rName),
+				Config: testAccMackerelChannelConfigSlack(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelChannelExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "email.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckNoResourceAttr(resourceName, "email.#"),
 					resource.TestCheckResourceAttr(resourceName, "slack.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "webhook.#", "0"),
+					resource.TestCheckResourceAttrSet(resourceName, "slack.0.url"),
+					resource.TestCheckNoResourceAttr(resourceName, "slack.0.mentions.%"),
+					resource.TestCheckNoResourceAttr(resourceName, "slack.0.events.#"),
+					resource.TestCheckNoResourceAttr(resourceName, "webhook.#"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelChannelConfigSlackUpdated(nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelChannelExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckNoResourceAttr(resourceName, "email.#"),
+					resource.TestCheckResourceAttr(resourceName, "slack.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "slack.0.url"),
+					resource.TestCheckResourceAttr(resourceName, "slack.0.mentions.ok", "OK!!!"),
+					resource.TestCheckResourceAttr(resourceName, "slack.0.mentions.warning", "WARNING!!!"),
+					resource.TestCheckResourceAttr(resourceName, "slack.0.mentions.critical", "CRITICAL!!!"),
+					resource.TestCheckResourceAttr(resourceName, "slack.0.events.#", "6"),
+					resource.TestCheckNoResourceAttr(resourceName, "webhook.#"),
 				),
 			},
 			// Test: Import
@@ -75,7 +113,8 @@ func TestAccMackerelChannel_Slack(t *testing.T) {
 func TestAccMackerelChannel_Webhook(t *testing.T) {
 	resourceName := "mackerel_channel.webhook"
 	rand := acctest.RandString(5)
-	rName := fmt.Sprintf("tf-channel slack %s", rand)
+	name := fmt.Sprintf("tf-channel slack %s", rand)
+	nameUpdated := fmt.Sprintf("tf-channel slack %s updated", rand)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -84,13 +123,28 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccMackerelChannelConfigWebhook(rName),
+				Config: testAccMackerelChannelConfigWebhook(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelChannelExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "email.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "slack.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckNoResourceAttr(resourceName, "email.#"),
+					resource.TestCheckNoResourceAttr(resourceName, "slack.#"),
 					resource.TestCheckResourceAttr(resourceName, "webhook.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "webhook.0.url"),
+					resource.TestCheckNoResourceAttr(resourceName, "webhook.0.events.#"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelChannelConfigWebhookUpdated(nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelChannelExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckNoResourceAttr(resourceName, "email.#"),
+					resource.TestCheckNoResourceAttr(resourceName, "slack.#"),
+					resource.TestCheckResourceAttr(resourceName, "webhook.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "webhook.0.url"),
+					resource.TestCheckResourceAttr(resourceName, "webhook.0.events.#", "6"),
 				),
 			},
 			// Test: Import
@@ -149,16 +203,41 @@ func testAccCheckMackerelChannelExists(n string) resource.TestCheckFunc {
 }
 
 func testAccMackerelChannelConfigEmail(name string) string {
-	return fmt.Sprintf(`resource "mackerel_channel" "email" {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "email" {
+  name = "%s"
+  email {}
+}
+`, name)
+}
+
+func testAccMackerelChannelConfigEmailUpdated(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "email" {
   name = "%s"
   email {
-    events = ["alert", "alertGroup"]
+    emails = [
+      "john.doe@example.test"]
+    events = [
+      "alert",
+      "alertGroup"]
   }
 }
 `, name)
 }
 
 func testAccMackerelChannelConfigSlack(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "slack" {
+  name = "%s"
+  slack {
+    url = "https://hooks.slack.com/services/xxx/yyy/zzz"
+  }
+}
+`, name)
+}
+
+func testAccMackerelChannelConfigSlackUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_channel" "slack" {
   name = "%s"
@@ -176,14 +255,24 @@ resource "mackerel_channel" "slack" {
       "hostStatus",
       "hostRegister",
       "hostRetire",
-      "monitor",
-    ]
+      "monitor"]
   }
 }
 `, name)
 }
 
 func testAccMackerelChannelConfigWebhook(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "webhook" {
+  name = "%s"
+  webhook {
+    url = "https://test.com/hook"
+  }
+}
+`, name)
+}
+
+func testAccMackerelChannelConfigWebhookUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_channel" "webhook" {
   name = "%s"
