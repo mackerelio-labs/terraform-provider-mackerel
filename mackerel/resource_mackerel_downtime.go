@@ -122,15 +122,15 @@ func resourceMackerelDowntimeRead(d *schema.ResourceData, meta interface{}) erro
 			d.Set("start", downtime.Start)
 			d.Set("duration", downtime.Duration)
 			if downtime.Recurrence != nil {
-				weekdaysSet := schema.NewSet(schema.HashString, []interface{}{})
+				weekdays := make([]string, 0, len(downtime.Recurrence.Weekdays))
 				for _, weekday := range downtime.Recurrence.Weekdays {
-					weekdaysSet.Add(weekdayToString[weekday])
+					weekdays = append(weekdays, weekday.String())
 				}
 				d.Set("recurrence", []map[string]interface{}{
 					{
-						"type":     recurrenceTypeToString[downtime.Recurrence.Type],
+						"type":     downtime.Recurrence.Type.String(),
 						"interval": downtime.Recurrence.Interval,
-						"weekdays": weekdaysSet,
+						"weekdays": flattenStringListToSet(weekdays),
 						"until":    downtime.Recurrence.Until,
 					},
 				})
@@ -171,14 +171,6 @@ var stringToRecurrenceType = map[string]mackerel.DowntimeRecurrenceType{
 	"yearly":  mackerel.DowntimeRecurrenceTypeYearly,
 }
 
-var recurrenceTypeToString = map[mackerel.DowntimeRecurrenceType]string{
-	mackerel.DowntimeRecurrenceTypeHourly:  "hourly",
-	mackerel.DowntimeRecurrenceTypeDaily:   "daily",
-	mackerel.DowntimeRecurrenceTypeWeekly:  "weekly",
-	mackerel.DowntimeRecurrenceTypeMonthly: "monthly",
-	mackerel.DowntimeRecurrenceTypeYearly:  "yearly",
-}
-
 var stringToWeekday = map[string]mackerel.DowntimeWeekday{
 	"Sunday":    mackerel.DowntimeWeekday(time.Sunday),
 	"Monday":    mackerel.DowntimeWeekday(time.Monday),
@@ -187,16 +179,6 @@ var stringToWeekday = map[string]mackerel.DowntimeWeekday{
 	"Thursday":  mackerel.DowntimeWeekday(time.Thursday),
 	"Friday":    mackerel.DowntimeWeekday(time.Friday),
 	"Saturday":  mackerel.DowntimeWeekday(time.Saturday),
-}
-
-var weekdayToString = map[mackerel.DowntimeWeekday]string{
-	mackerel.DowntimeWeekday(time.Sunday):    "Sunday",
-	mackerel.DowntimeWeekday(time.Monday):    "Monday",
-	mackerel.DowntimeWeekday(time.Tuesday):   "Tuesday",
-	mackerel.DowntimeWeekday(time.Wednesday): "Wednesday",
-	mackerel.DowntimeWeekday(time.Thursday):  "Thursday",
-	mackerel.DowntimeWeekday(time.Friday):    "Friday",
-	mackerel.DowntimeWeekday(time.Saturday):  "Saturday",
 }
 
 func buildDowntimeStruct(d *schema.ResourceData) *mackerel.Downtime {
@@ -213,6 +195,7 @@ func buildDowntimeStruct(d *schema.ResourceData) *mackerel.Downtime {
 		MonitorScopes:        expandStringListFromSet(d.Get("monitor_scopes").(*schema.Set)),
 		MonitorExcludeScopes: expandStringListFromSet(d.Get("monitor_exclude_scopes").(*schema.Set)),
 	}
+
 	if _, ok := d.GetOk("recurrence"); ok {
 		var recurrence mackerel.DowntimeRecurrence
 		if v, ok := d.GetOk("recurrence.0.type"); ok {
@@ -224,8 +207,9 @@ func buildDowntimeStruct(d *schema.ResourceData) *mackerel.Downtime {
 			recurrence.Interval = int64(v.(int))
 		}
 		if v, ok := d.GetOk("recurrence.0.weekdays"); ok {
-			weekdays := make([]mackerel.DowntimeWeekday, 0, v.(*schema.Set).Len())
-			for _, weekday := range v.(*schema.Set).List() {
+			set := v.(*schema.Set)
+			weekdays := make([]mackerel.DowntimeWeekday, 0, set.Len())
+			for _, weekday := range set.List() {
 				if rWeekday, ok := stringToWeekday[weekday.(string)]; ok {
 					weekdays = append(weekdays, rWeekday)
 				}
