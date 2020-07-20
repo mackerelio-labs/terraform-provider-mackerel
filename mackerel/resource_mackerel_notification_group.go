@@ -124,22 +124,14 @@ func resourceMackerelNotificationGroupDelete(d *schema.ResourceData, meta interf
 }
 
 func buildNotificationGroupStruct(d *schema.ResourceData) *mackerel.NotificationGroup {
-	group := &mackerel.NotificationGroup{
+	return &mackerel.NotificationGroup{
 		Name:                      d.Get("name").(string),
+		NotificationLevel:         mackerel.NotificationLevel(d.Get("notification_level").(string)),
 		ChildNotificationGroupIDs: expandStringListFromSet(d.Get("child_notification_group_ids").(*schema.Set)),
 		ChildChannelIDs:           expandStringListFromSet(d.Get("child_channel_ids").(*schema.Set)),
 		Monitors:                  expandMonitorSet(d.Get("monitor").(*schema.Set)),
 		Services:                  expandServiceSet(d.Get("service").(*schema.Set)),
 	}
-
-	switch d.Get("notification_level").(string) {
-	case "all":
-		group.NotificationLevel = mackerel.NotificationLevelAll
-	case "critical":
-		group.NotificationLevel = mackerel.NotificationLevelCritical
-	}
-
-	return group
 }
 
 func expandMonitorSet(set *schema.Set) []*mackerel.NotificationGroupMonitor {
