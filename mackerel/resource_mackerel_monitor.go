@@ -93,7 +93,20 @@ func resourceMackerelMonitor() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
 				MaxItems:     1,
-				Elem:         &schema.Resource{},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"scopes": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"exclude_scopes": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
 			"service_metric": {
 				Type:         schema.TypeList,
@@ -269,15 +282,41 @@ func flattenMonitorHostMetric(monitor *mackerel.MonitorHostMetric, d *schema.Res
 	return nil
 }
 
-// todo
 func expandMonitorConnectivity(d *schema.ResourceData) *mackerel.MonitorConnectivity {
-	monitor := &mackerel.MonitorConnectivity{}
+	monitor := &mackerel.MonitorConnectivity{
+		Name:                 d.Get("name").(string),
+		Memo:                 d.Get("memo").(string),
+		Type:                 "connectivity",
+		IsMute:               d.Get("is_mute").(bool),
+		NotificationInterval: uint64(d.Get("notification_interval").(int)),
+		Scopes:               expandStringListFromSet(d.Get("connectivity.0.scopes").(*schema.Set)),
+		ExcludeScopes:        expandStringListFromSet(d.Get("connectivity.0.exclude_scopes").(*schema.Set)),
+	}
 
 	return monitor
 }
 
-// todo
 func flattenMonitorConnectivity(monitor *mackerel.MonitorConnectivity, d *schema.ResourceData) error {
+	d.Set("name", monitor.Name)
+	d.Set("memo", monitor.Memo)
+	d.Set("is_mute", monitor.IsMute)
+	d.Set("notification_interval", monitor.NotificationInterval)
+
+	normalizedScopes := make([]string, 0, len(monitor.Scopes))
+	for _, s := range monitor.Scopes {
+		normalizedScopes = append(normalizedScopes, strings.ReplaceAll(s, " ", ""))
+	}
+	normalizedExcludeScopes := make([]string, 0, len(monitor.ExcludeScopes))
+	for _, s := range monitor.ExcludeScopes {
+		normalizedExcludeScopes = append(normalizedExcludeScopes, strings.ReplaceAll(s, " ", ""))
+	}
+	d.Set("connectivity", []map[string]interface{}{
+		{
+			"scopes":         flattenStringListToSet(normalizedScopes),
+			"exclude_scopes": flattenStringListToSet(normalizedExcludeScopes),
+		},
+	})
+
 	return nil
 }
 

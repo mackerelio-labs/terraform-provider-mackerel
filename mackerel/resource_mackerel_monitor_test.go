@@ -85,6 +85,69 @@ func TestAccMackerelMonitor_HostMetric(t *testing.T) {
 	})
 }
 
+func TestAccMackerelMonitor_Connectivity(t *testing.T) {
+	resourceName := "mackerel_monitor.foo"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-monitor connectivity %s", rand)
+	nameUpdated := fmt.Sprintf("tf-monitor connectivity %s updated", rand)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		Steps: []resource.TestStep{
+			// Test: Create
+			{
+				Config: testAccMackerelMonitorConfigConnectivity(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "memo", ""),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "false"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "0"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "connectivity.0.scopes.#", "0"),
+						resource.TestCheckResourceAttr(resourceName, "connectivity.0.exclude_scopes.#", "0"),
+					),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelMonitorConfigConnectivityUpdated(rand, nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "memo", "This monitor is managed by Terraform."),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "true"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "30"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "connectivity.0.scopes.#", "2"),
+						resource.TestCheckResourceAttr(resourceName, "connectivity.0.exclude_scopes.#", "2"),
+					),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
+				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckMackerelMonitorDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*mackerel.Client)
 	for _, r := range s.RootModule().Resources {
@@ -166,6 +229,52 @@ resource "mackerel_monitor" "foo" {
     critical = 90
     duration = 3
     max_check_attempts = 5
+    scopes = [
+      mackerel_service.scoped.name,
+      mackerel_role.scoped.id]
+    exclude_scopes = [
+      mackerel_service.not_scoped.name,
+      mackerel_role.not_scoped.id]
+  }
+}
+`, rand, rand, rand, rand, name)
+}
+
+func testAccMackerelMonitorConfigConnectivity(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  connectivity {}
+}
+`, name)
+}
+
+func testAccMackerelMonitorConfigConnectivityUpdated(rand, name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "scoped" {
+  name = "tf-service-%s-scoped"
+}
+
+resource "mackerel_role" "not_scoped" {
+  service = mackerel_service.scoped.name
+  name = "tf-role-%s-not-scoped"
+}
+
+resource "mackerel_service" "not_scoped" {
+  name = "tf-service-%s-not-scoped"
+}
+
+resource "mackerel_role" "scoped" {
+  service = mackerel_service.not_scoped.name
+  name = "tf-role-%s-scoped"
+}
+
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  memo = "This monitor is managed by Terraform."
+  is_mute = true
+  notification_interval = 30
+  connectivity {
     scopes = [
       mackerel_service.scoped.name,
       mackerel_role.scoped.id]
