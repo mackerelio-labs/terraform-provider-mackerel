@@ -120,7 +120,73 @@ func resourceMackerelMonitor() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
 				MaxItems:     1,
-				Elem:         &schema.Resource{},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"method": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"GET", "POST", "PUT", "DELETE"}, false),
+						},
+						"url": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.IsURLWithHTTPorHTTPS,
+						},
+						"max_check_attempts": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      1,
+							ValidateFunc: validation.IntBetween(1, 10),
+						},
+						"service": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"response_time_critical": {
+							Type:         schema.TypeFloat,
+							Optional:     true,
+							RequiredWith: []string{"external.0.service"},
+						},
+						"response_time_warning": {
+							Type:         schema.TypeFloat,
+							Optional:     true,
+							RequiredWith: []string{"external.0.service"},
+						},
+						"response_time_duration": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							// Default:      1,
+							RequiredWith: []string{"external.0.service"},
+							ValidateFunc: validation.IntBetween(1, 10),
+						},
+						"request_body": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"contains_string": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"certification_expiration_critical": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"certification_expiration_warning": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"skip_certificate_verification": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"headers": {
+							Type:      schema.TypeMap,
+							Optional:  true,
+							Sensitive: true,
+							Elem:      &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
 			"expression": {
 				Type:         schema.TypeList,
@@ -332,16 +398,88 @@ func flattenMonitorServiceMetric(monitor *mackerel.MonitorServiceMetric, d *sche
 	return nil
 }
 
-// todo
 func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternalHTTP {
-	monitor := &mackerel.MonitorExternalHTTP{}
+	monitor := &mackerel.MonitorExternalHTTP{
+		Name:                            d.Get("name").(string),
+		Memo:                            d.Get("memo").(string),
+		Type:                            "external",
+		IsMute:                          d.Get("is_mute").(bool),
+		NotificationInterval:            uint64(d.Get("notification_interval").(int)),
+		Method:                          d.Get("external.0.method").(string),
+		URL:                             d.Get("external.0.url").(string),
+		MaxCheckAttempts:                uint64(d.Get("external.0.max_check_attempts").(int)),
+		Service:                         d.Get("external.0.service").(string),
+		ResponseTimeCritical:            nil,
+		ResponseTimeWarning:             nil,
+		ResponseTimeDuration:            nil,
+		RequestBody:                     d.Get("external.0.request_body").(string),
+		ContainsString:                  d.Get("external.0.contains_string").(string),
+		CertificationExpirationCritical: nil,
+		CertificationExpirationWarning:  nil,
+		SkipCertificateVerification:     d.Get("external.0.skip_certificate_verification").(bool),
+		Headers:                         []mackerel.HeaderField{},
+	}
+	if responseTimeCritical, ok := d.GetOk("external.0.response_time_critical"); ok {
+		responseTimeCritical := responseTimeCritical.(float64)
+		monitor.ResponseTimeCritical = &responseTimeCritical
+	}
+	if responseTimeWarning, ok := d.GetOk("external.0.response_time_warning"); ok {
+		responseTimeWarning := responseTimeWarning.(float64)
+		monitor.ResponseTimeWarning = &responseTimeWarning
+	}
+	if responseTimeDuration, ok := d.GetOk("external.0.response_time_duration"); ok {
+		responseTimeDuration := uint64(responseTimeDuration.(int))
+		monitor.ResponseTimeDuration = &responseTimeDuration
+	}
+	if certificationExpirationCritical, ok := d.GetOk("external.0.certification_expiration_critical"); ok {
+		certificationExpirationCritical := uint64(certificationExpirationCritical.(int))
+		monitor.CertificationExpirationCritical = &certificationExpirationCritical
+	}
+	if certificationExpirationWarning, ok := d.GetOk("external.0.certification_expiration_warning"); ok {
+		certificationExpirationWarning := uint64(certificationExpirationWarning.(int))
+		monitor.CertificationExpirationWarning = &certificationExpirationWarning
+	}
+	if headers, ok := d.GetOk("external.0.headers"); ok {
+		for name, value := range headers.(map[string]interface{}) {
+			monitor.Headers = append(monitor.Headers, mackerel.HeaderField{Name: name, Value: value.(string)})
+		}
+	}
 
 	return monitor
 }
 
-// todo
 func flattenMonitorExternalHTTP(monitor *mackerel.MonitorExternalHTTP, d *schema.ResourceData) error {
+	d.Set("name", monitor.Name)
+	d.Set("memo", monitor.Memo)
+	d.Set("is_mute", monitor.IsMute)
+	d.Set("notification_interval", monitor.NotificationInterval)
+
+	external := map[string]interface{}{
+		"method":                            monitor.Method,
+		"url":                               monitor.URL,
+		"max_check_attempts":                monitor.MaxCheckAttempts,
+		"service":                           monitor.Service,
+		"response_time_critical":            monitor.ResponseTimeCritical,
+		"response_time_warning":             monitor.ResponseTimeWarning,
+		"response_time_duration":            monitor.ResponseTimeDuration,
+		"request_body":                      monitor.RequestBody,
+		"contains_string":                   monitor.ContainsString,
+		"certification_expiration_critical": monitor.CertificationExpirationCritical,
+		"certification_expiration_warning":  monitor.CertificationExpirationWarning,
+		"skip_certificate_verification":     monitor.SkipCertificateVerification,
+		"headers":                           flattenHeaderField(monitor.Headers),
+	}
+	d.Set("external", []map[string]interface{}{external})
+
 	return nil
+}
+
+func flattenHeaderField(fields []mackerel.HeaderField) map[string]interface{} {
+	headers := make(map[string]interface{}, len(fields))
+	for _, f := range fields {
+		headers[f.Name] = f.Value
+	}
+	return headers
 }
 
 // todo

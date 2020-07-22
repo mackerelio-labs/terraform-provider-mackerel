@@ -148,6 +148,93 @@ func TestAccMackerelMonitor_Connectivity(t *testing.T) {
 	})
 }
 
+func TestAccMackerelMonitor_External(t *testing.T) {
+	resourceName := "mackerel_monitor.foo"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-monitor external %s", rand)
+	nameUpdated := fmt.Sprintf("tf-monitor external %s updated", rand)
+	serviceName := fmt.Sprintf("tf-service-%s", rand)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		Steps: []resource.TestStep{
+			// Test: Create
+			{
+				Config: testAccMackerelMonitorConfigExternal(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "memo", ""),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "false"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "0"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "external.0.method", "GET"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.url", "https://terraform-provider-mackerel.test/"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.max_check_attempts", "1"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.service", ""),
+						resource.TestCheckResourceAttr(resourceName, "external.0.response_time_critical", "0"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.response_time_warning", "0"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.response_time_duration", "0"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.request_body", ""),
+						resource.TestCheckResourceAttr(resourceName, "external.0.contains_string", ""),
+						resource.TestCheckResourceAttr(resourceName, "external.0.certification_expiration_critical", "0"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.certification_expiration_warning", "0"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.skip_certificate_verification", "false"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.headers.%", "0"),
+					),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelMonitorConfigExternalUpdated(serviceName, nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "memo", "This monitor is managed by Terraform."),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "true"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "30"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "external.0.method", "POST"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.url", "https://terraform-provider-mackerel.test/"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.max_check_attempts", "3"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.service", serviceName),
+						resource.TestCheckResourceAttr(resourceName, "external.0.response_time_critical", "3000"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.response_time_warning", "2000"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.response_time_duration", "3"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.request_body", "foo=bar"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.contains_string", "blah blah blah"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.certification_expiration_critical", "7"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.certification_expiration_warning", "14"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.skip_certificate_verification", "true"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.headers.%", "1"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.headers.Cache-Control", "no-cache"),
+					),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
+				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckMackerelMonitorDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*mackerel.Client)
 	for _, r := range s.RootModule().Resources {
@@ -284,4 +371,48 @@ resource "mackerel_monitor" "foo" {
   }
 }
 `, rand, rand, rand, rand, name)
+}
+
+func testAccMackerelMonitorConfigExternal(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  external {
+    method = "GET"
+    url = "https://terraform-provider-mackerel.test/"
+  }
+}
+`, name)
+}
+
+func testAccMackerelMonitorConfigExternalUpdated(serviceName, name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "%s"
+}
+
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  memo = "This monitor is managed by Terraform."
+  is_mute = true
+  notification_interval = 30
+  external {
+    method = "POST"
+    url = "https://terraform-provider-mackerel.test/"
+    max_check_attempts = 3
+    service = mackerel_service.foo.name
+    response_time_critical = 3000
+    response_time_warning = 2000
+    response_time_duration = 3
+    request_body = "foo=bar"
+    contains_string = "blah blah blah"
+    certification_expiration_critical = 7
+    certification_expiration_warning = 14
+    skip_certificate_verification = true
+    headers = {
+      Cache-Control = "no-cache"
+    }
+  }
+}
+`, serviceName, name)
 }
