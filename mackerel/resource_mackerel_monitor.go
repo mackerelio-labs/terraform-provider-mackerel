@@ -153,8 +153,8 @@ func resourceMackerelMonitor() *schema.Resource {
 							RequiredWith: []string{"external.0.service"},
 						},
 						"response_time_duration": {
-							Type:         schema.TypeInt,
-							Optional:     true,
+							Type:     schema.TypeInt,
+							Optional: true,
 							// Default:      1,
 							RequiredWith: []string{"external.0.service"},
 							ValidateFunc: validation.IntBetween(1, 10),
@@ -193,7 +193,29 @@ func resourceMackerelMonitor() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
 				MaxItems:     1,
-				Elem:         &schema.Resource{},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"expression": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"operator": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{">", "<"}, false),
+						},
+						"warning": {
+							Type:         schema.TypeFloat,
+							Optional:     true,
+							AtLeastOneOf: []string{"expression.0.warning", "expression.0.critical"},
+						},
+						"critical": {
+							Type:         schema.TypeFloat,
+							Optional:     true,
+							AtLeastOneOf: []string{"expression.0.warning", "expression.0.critical"},
+						},
+					},
+				},
 			},
 			"anomaly_detection": {
 				Type:         schema.TypeList,
@@ -482,15 +504,43 @@ func flattenHeaderField(fields []mackerel.HeaderField) map[string]interface{} {
 	return headers
 }
 
-// todo
 func expandMonitorExpression(d *schema.ResourceData) *mackerel.MonitorExpression {
-	monitor := &mackerel.MonitorExpression{}
+	monitor := &mackerel.MonitorExpression{
+		Name:                 d.Get("name").(string),
+		Memo:                 d.Get("memo").(string),
+		Type:                 "expression",
+		IsMute:               d.Get("is_mute").(bool),
+		NotificationInterval: uint64(d.Get("notification_interval").(int)),
+		Expression:           d.Get("expression.0.expression").(string),
+		Operator:             d.Get("expression.0.operator").(string),
+		Warning:              nil,
+		Critical:             nil,
+	}
+	if warning, ok := d.GetOk("expression.0.warning"); ok {
+		warning := warning.(float64)
+		monitor.Warning = &warning
+	}
+	if critical, ok := d.GetOk("expression.0.critical"); ok {
+		critical := critical.(float64)
+		monitor.Critical = &critical
+	}
 
 	return monitor
 }
 
-// todo
 func flattenMonitorExpression(monitor *mackerel.MonitorExpression, d *schema.ResourceData) error {
+	d.Set("name", monitor.Name)
+	d.Set("memo", monitor.Memo)
+	d.Set("is_mute", monitor.IsMute)
+	d.Set("notification_interval", monitor.NotificationInterval)
+	d.Set("expression", []map[string]interface{}{
+		{
+			"expression": monitor.Expression,
+			"operator":   monitor.Operator,
+			"warning":    monitor.Warning,
+			"critical":   monitor.Critical,
+		},
+	})
 	return nil
 }
 

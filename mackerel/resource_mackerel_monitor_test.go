@@ -235,6 +235,72 @@ func TestAccMackerelMonitor_External(t *testing.T) {
 	})
 }
 
+func TestAccMackerelMonitor_Expression(t *testing.T) {
+	resourceName := "mackerel_monitor.foo"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-monitor expression %s", rand)
+	nameUpdated := fmt.Sprintf("tf-monitor expression %s updated", rand)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		Steps: []resource.TestStep{
+			// Test: Create
+			{
+				Config: testAccMackerelMonitorConfigExpression(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "memo", ""),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "false"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "0"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "expression.0.expression", "max(role(my-service:db, loadavg5))"),
+						resource.TestCheckResourceAttr(resourceName, "expression.0.operator", ">"),
+						resource.TestCheckResourceAttr(resourceName, "expression.0.warning", "0.7"),
+					),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelMonitorConfigExpressionUpdated(nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "memo", "This monitor is managed by Terraform."),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "true"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "30"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "expression.0.expression", "max(role(my-service:db, loadavg5))"),
+						resource.TestCheckResourceAttr(resourceName, "expression.0.operator", ">"),
+						resource.TestCheckResourceAttr(resourceName, "expression.0.warning", "0.7"),
+						resource.TestCheckResourceAttr(resourceName, "expression.0.critical", "0.9"),
+					),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
+				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckMackerelMonitorDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*mackerel.Client)
 	for _, r := range s.RootModule().Resources {
@@ -415,4 +481,34 @@ resource "mackerel_monitor" "foo" {
   }
 }
 `, serviceName, name)
+}
+
+func testAccMackerelMonitorConfigExpression(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  expression {
+    expression = "max(role(my-service:db, loadavg5))"
+    operator = ">"
+    warning = 0.7
+  }
+}
+`, name)
+}
+
+func testAccMackerelMonitorConfigExpressionUpdated(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  memo = "This monitor is managed by Terraform."
+  is_mute = true
+  notification_interval = 30
+  expression {
+    expression = "max(role(my-service:db, loadavg5))"
+    operator = ">"
+    warning = 0.7
+    critical = 0.9
+  }
+}
+`, name)
 }
