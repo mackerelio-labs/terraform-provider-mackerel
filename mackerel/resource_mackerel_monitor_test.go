@@ -301,6 +301,75 @@ func TestAccMackerelMonitor_Expression(t *testing.T) {
 	})
 }
 
+func TestAccMackerelMonitor_AnomalyDetection(t *testing.T) {
+	resourceName := "mackerel_monitor.foo"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-monitor anomaly_detection %s", rand)
+	nameUpdated := fmt.Sprintf("tf-monitor anomaly_detection %s updated", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		Steps: []resource.TestStep{
+			// Test: Create
+			{
+				Config: testAccMackerelMonitorConfigAnomalyDetection(rand, name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "memo", ""),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "false"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "0"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.warning_sensitivity", "insensitive"),
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.critical_sensitivity", ""),
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.max_check_attempts", "3"),
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.training_period_from", "0"),
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.scopes.#", "1"),
+					),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelMonitorConfigAnomalyDetectionUpdated(rand, nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "memo", "This monitor is managed by Terraform."),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "true"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "30"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.warning_sensitivity", "insensitive"),
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.critical_sensitivity", "normal"),
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.max_check_attempts", "5"),
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.training_period_from", "1577836800"),
+						resource.TestCheckResourceAttr(resourceName, "anomaly_detection.0.scopes.#", "1"),
+					),
+				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckMackerelMonitorDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*mackerel.Client)
 	for _, r := range s.RootModule().Resources {
@@ -511,4 +580,52 @@ resource "mackerel_monitor" "foo" {
   }
 }
 `, name)
+}
+
+func testAccMackerelMonitorConfigAnomalyDetection(rand, name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "tf-service-%s"
+}
+
+resource "mackerel_role" "foo" {
+  service = mackerel_service.foo.name
+  name = "tf-role-%s"
+}
+
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  anomaly_detection {
+    warning_sensitivity = "insensitive"
+    scopes = [mackerel_role.foo.id]
+  }
+}
+`, rand, rand, name)
+}
+
+func testAccMackerelMonitorConfigAnomalyDetectionUpdated(rand, name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "tf-service-%s"
+}
+
+resource "mackerel_role" "foo" {
+  service = mackerel_service.foo.name
+  name = "tf-role-%s"
+}
+
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  memo = "This monitor is managed by Terraform."
+  is_mute = true
+  notification_interval = 30
+  anomaly_detection {
+    warning_sensitivity = "insensitive"
+    critical_sensitivity = "normal"
+    max_check_attempts = 5
+    training_period_from = 1577836800
+    scopes = [mackerel_role.foo.id]
+  }
+}
+`, rand, rand, name)
 }

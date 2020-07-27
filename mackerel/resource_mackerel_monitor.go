@@ -222,7 +222,37 @@ func resourceMackerelMonitor() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
 				MaxItems:     1,
-				Elem:         &schema.Resource{},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"warning_sensitivity": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: []string{"anomaly_detection.0.warning_sensitivity", "anomaly_detection.0.critical_sensitivity"},
+							ValidateFunc: validation.StringInSlice([]string{"insensitive", "normal", "sensitive"}, false),
+						},
+						"critical_sensitivity": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: []string{"anomaly_detection.0.warning_sensitivity", "anomaly_detection.0.critical_sensitivity"},
+							ValidateFunc: validation.StringInSlice([]string{"insensitive", "normal", "sensitive"}, false),
+						},
+						"max_check_attempts": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      3,
+							ValidateFunc: validation.IntBetween(1, 10),
+						},
+						"training_period_from": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"scopes": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -544,14 +574,42 @@ func flattenMonitorExpression(monitor *mackerel.MonitorExpression, d *schema.Res
 	return nil
 }
 
-// todo
 func expandMonitorAnomalyDetection(d *schema.ResourceData) *mackerel.MonitorAnomalyDetection {
-	monitor := &mackerel.MonitorAnomalyDetection{}
+	monitor := &mackerel.MonitorAnomalyDetection{
+		Name:                 d.Get("name").(string),
+		Memo:                 d.Get("memo").(string),
+		Type:                 "anomalyDetection",
+		IsMute:               d.Get("is_mute").(bool),
+		NotificationInterval: uint64(d.Get("notification_interval").(int)),
+		WarningSensitivity:   d.Get("anomaly_detection.0.warning_sensitivity").(string),
+		CriticalSensitivity:  d.Get("anomaly_detection.0.critical_sensitivity").(string),
+		TrainingPeriodFrom:   uint64(d.Get("anomaly_detection.0.training_period_from").(int)),
+		MaxCheckAttempts:     uint64(d.Get("anomaly_detection.0.max_check_attempts").(int)),
+		Scopes:               expandStringListFromSet(d.Get("anomaly_detection.0.scopes").(*schema.Set)),
+	}
 
 	return monitor
 }
 
-// todo
 func flattenMonitorAnomalyDetection(monitor *mackerel.MonitorAnomalyDetection, d *schema.ResourceData) error {
+	d.Set("name", monitor.Name)
+	d.Set("memo", monitor.Memo)
+	d.Set("is_mute", monitor.IsMute)
+	d.Set("notification_interval", monitor.NotificationInterval)
+
+	normalizedScopes := make([]string, 0, len(monitor.Scopes))
+	for _, s := range monitor.Scopes {
+		normalizedScopes = append(normalizedScopes, strings.ReplaceAll(s, " ", ""))
+	}
+	d.Set("anomaly_detection", []map[string]interface{}{
+		{
+			"warning_sensitivity":  monitor.WarningSensitivity,
+			"critical_sensitivity": monitor.CriticalSensitivity,
+			"training_period_from": monitor.TrainingPeriodFrom,
+			"max_check_attempts":   monitor.MaxCheckAttempts,
+			"scopes":               flattenStringListToSet(normalizedScopes),
+		},
+	})
+
 	return nil
 }
