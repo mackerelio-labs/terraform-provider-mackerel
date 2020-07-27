@@ -113,7 +113,59 @@ func resourceMackerelMonitor() *schema.Resource {
 				Optional:     true,
 				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
 				MaxItems:     1,
-				Elem:         &schema.Resource{},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"metric": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"operator": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{">", "<"}, false),
+						},
+						"warning": {
+							Type:         schema.TypeFloat,
+							Optional:     true,
+							AtLeastOneOf: []string{"service_metric.0.warning", "service_metric.0.critical"},
+						},
+						"critical": {
+							Type:         schema.TypeFloat,
+							Optional:     true,
+							AtLeastOneOf: []string{"service_metric.0.warning", "service_metric.0.critical"},
+						},
+						"duration": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"max_check_attempts": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      1,
+							ValidateFunc: validation.IntBetween(1, 10),
+						},
+						"missing_duration_warning": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ValidateFunc: validation.All(
+								validation.IntBetween(10, 7*24*60),
+								validation.IntDivisibleBy(10),
+							),
+						},
+						"missing_duration_critical": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ValidateFunc: validation.All(
+								validation.IntBetween(10, 7*24*60),
+								validation.IntDivisibleBy(10),
+							),
+						},
+					},
+				},
 			},
 			"external": {
 				Type:         schema.TypeList,
@@ -438,15 +490,53 @@ func flattenMonitorConnectivity(monitor *mackerel.MonitorConnectivity, d *schema
 	return nil
 }
 
-// todo
 func expandMonitorServiceMetric(d *schema.ResourceData) *mackerel.MonitorServiceMetric {
-	monitor := &mackerel.MonitorServiceMetric{}
+	monitor := &mackerel.MonitorServiceMetric{
+		Name:                    d.Get("name").(string),
+		Memo:                    d.Get("memo").(string),
+		Type:                    "service",
+		IsMute:                  d.Get("is_mute").(bool),
+		NotificationInterval:    uint64(d.Get("notification_interval").(int)),
+		Service:                 d.Get("service_metric.0.service").(string),
+		Metric:                  d.Get("service_metric.0.metric").(string),
+		Operator:                d.Get("service_metric.0.operator").(string),
+		Warning:                 nil,
+		Critical:                nil,
+		Duration:                uint64(d.Get("service_metric.0.duration").(int)),
+		MaxCheckAttempts:        uint64(d.Get("service_metric.0.max_check_attempts").(int)),
+		MissingDurationWarning:  uint64(d.Get("service_metric.0.missing_duration_warning").(int)),
+		MissingDurationCritical: uint64(d.Get("service_metric.0.missing_duration_critical").(int)),
+	}
+	if warning, ok := d.GetOk("service_metric.0.warning"); ok {
+		warning := warning.(float64)
+		monitor.Warning = &warning
+	}
+	if critical, ok := d.GetOk("service_metric.0.critical"); ok {
+		critical := critical.(float64)
+		monitor.Critical = &critical
+	}
 
 	return monitor
 }
 
-// todo
 func flattenMonitorServiceMetric(monitor *mackerel.MonitorServiceMetric, d *schema.ResourceData) error {
+	d.Set("name", monitor.Name)
+	d.Set("memo", monitor.Memo)
+	d.Set("is_mute", monitor.IsMute)
+	d.Set("notification_interval", monitor.NotificationInterval)
+	d.Set("service_metric", []map[string]interface{}{
+		{
+			"service":                   monitor.Service,
+			"metric":                    monitor.Metric,
+			"operator":                  monitor.Operator,
+			"warning":                   monitor.Warning,
+			"critical":                  monitor.Critical,
+			"duration":                  monitor.Duration,
+			"max_check_attempts":        monitor.MaxCheckAttempts,
+			"missing_duration_warning":  monitor.MissingDurationWarning,
+			"missing_duration_critical": monitor.MissingDurationCritical,
+		},
+	})
 	return nil
 }
 

@@ -148,6 +148,84 @@ func TestAccMackerelMonitor_Connectivity(t *testing.T) {
 	})
 }
 
+func TestAccMackerelMonitor_ServiceMetric(t *testing.T) {
+	resourceName := "mackerel_monitor.foo"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-monitor service_metric %s", rand)
+	nameUpdated := fmt.Sprintf("tf-monitor service_metric %s updated", rand)
+	serviceName := fmt.Sprintf("tf-service-%s", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		Steps: []resource.TestStep{
+			// Test: Create
+			{
+				Config: testAccMackerelMonitorConfigServiceMetric(serviceName, name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "memo", ""),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "false"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "0"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.service", serviceName),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.metric", "custom.access.2xx_ratio"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.operator", "<"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.warning", "99.9"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.critical", "0"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.duration", "1"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.max_check_attempts", "1"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.missing_duration_warning", "0"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.missing_duration_critical", "0"),
+					),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelMonitorConfigServiceMetricUpdated(serviceName, nameUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "memo", "This monitor is managed by Terraform."),
+					resource.TestCheckResourceAttr(resourceName, "is_mute", "true"),
+					resource.TestCheckResourceAttr(resourceName, "notification_interval", "30"),
+					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.service", serviceName),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.metric", "custom.access.2xx_ratio"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.operator", "<"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.warning", "99.9"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.critical", "99.99"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.duration", "3"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.max_check_attempts", "5"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.missing_duration_warning", "10"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.missing_duration_critical", "10080"),
+					),
+					resource.TestCheckResourceAttr(resourceName, "external.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
+				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccMackerelMonitor_External(t *testing.T) {
 	resourceName := "mackerel_monitor.foo"
 	rand := acctest.RandString(5)
@@ -506,6 +584,51 @@ resource "mackerel_monitor" "foo" {
   }
 }
 `, rand, rand, rand, rand, name)
+}
+
+func testAccMackerelMonitorConfigServiceMetric(serviceName, name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "%s"
+}
+
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  service_metric {
+    service = mackerel_service.foo.name
+    duration = 1
+    metric = "custom.access.2xx_ratio"
+    operator = "<"
+    warning = 99.9
+  }
+}
+`, serviceName, name)
+}
+
+func testAccMackerelMonitorConfigServiceMetricUpdated(serviceName, name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "%s"
+}
+
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  memo = "This monitor is managed by Terraform."
+  is_mute = true
+  notification_interval = 30
+  service_metric {
+    service = mackerel_service.foo.name
+    duration = 3
+    metric = "custom.access.2xx_ratio"
+    operator = "<"
+    warning = 99.9
+    critical = 99.99
+    max_check_attempts = 5
+    missing_duration_warning = 10
+    missing_duration_critical = 10080
+  }
+}
+`, serviceName, name)
 }
 
 func testAccMackerelMonitorConfigExternal(name string) string {
