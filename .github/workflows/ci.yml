@@ -19,8 +19,9 @@ jobs:
       - uses: actions/cache@v2
         continue-on-error: true
         timeout-minutes: 2
-        with: ${{ env.GOCACHE }}
-        key: ${{ runner.os }}-GOCACHE-${{ hashFiles('go.sum') }}-${{ hashFiles('mackerel/**') }}
+        with:
+          path: ${{ env.GOCACHE }}
+          key: ${{ runner.os }}-GOCACHE-${{ hashFiles('go.sum') }}-${{ hashFiles('mackerel/**') }}
       - uses: actions/cache@v2
         continue-on-error: true
         timeout-minutes: 2
