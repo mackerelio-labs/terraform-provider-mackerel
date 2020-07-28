@@ -22,7 +22,7 @@ jobs:
         with: ${{ env.GOCACHE }}
         key: ${{ runner.os }}-GOCACHE-${{ hashFiles('go.sum') }}-${{ hashFiles('mackerel/**') }}
       - uses: actions/cache@v2
-        conitnue-on-error: true
+        continue-on-error: true
         timeout-minutes: 2
         with:
           path: $(go env GOPATH)/pkg/mod
