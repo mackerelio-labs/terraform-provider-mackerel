@@ -42,35 +42,25 @@ func resourceMackerelServiceMetadata() *schema.Resource {
 func resourceMackerelServiceMetadataCreate(d *schema.ResourceData, meta interface{}) error {
 	service := d.Get("service").(string)
 	namespace := d.Get("namespace").(string)
-	var metadata mackerel.ServiceMetaData
-	if err := json.Unmarshal([]byte(d.Get("metadata_json").(string)), &metadata); err != nil {
+	metadata, err := expandServiceMetadata(d)
+	if err != nil {
 		return err
 	}
-
 	client := meta.(*mackerel.Client)
 	if err := client.PutServiceMetaData(service, namespace, metadata); err != nil {
 		return err
 	}
-	d.SetId(makeServiceMetadataID(service, namespace))
-
+	d.SetId(strings.Join([]string{service, namespace}, "/"))
 	return resourceMackerelServiceMetadataRead(d, meta)
 }
 
 func resourceMackerelServiceMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-
 	resp, err := client.GetServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
 	if err != nil {
 		return err
 	}
-
-	metadataJson, err := structure.FlattenJsonToString(resp.ServiceMetaData.(map[string]interface{}))
-	if err != nil {
-		return err
-	}
-	d.Set("metadata_json", metadataJson)
-
-	return nil
+	return flattenServiceMetadata(resp.ServiceMetaData, d)
 }
 
 func resourceMackerelServiceMetadataUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -79,20 +69,33 @@ func resourceMackerelServiceMetadataUpdate(d *schema.ResourceData, meta interfac
 
 func resourceMackerelServiceMetadataDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-
 	return client.DeleteServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
 }
 
 func resourceMackerelServiceMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	if strings.Contains(d.Id(), "/") {
-		s := strings.Split(d.Id(), "/")
-		d.Set("service", s[0])
-		d.Set("namespace", s[1])
+	idParts := strings.SplitN(d.Id(), "/", 2)
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+		return nil, fmt.Errorf("the ID must be in the form '<service name>:<namespace>'")
 	}
+	d.Set("service", idParts[0])
+	d.Set("namespace", idParts[1])
 
 	return []*schema.ResourceData{d}, nil
 }
 
-func makeServiceMetadataID(service, namespace string) string {
-	return fmt.Sprintf("%s/%s", service, namespace)
+func expandServiceMetadata(d *schema.ResourceData) (mackerel.ServiceMetaData, error) {
+	var metadata mackerel.ServiceMetaData
+	if err := json.Unmarshal([]byte(d.Get("metadata_json").(string)), &metadata); err != nil {
+		return nil, err
+	}
+	return metadata, nil
+}
+
+func flattenServiceMetadata(metadata mackerel.ServiceMetaData, d *schema.ResourceData) error {
+	metadataJSON, err := structure.FlattenJsonToString(metadata.(map[string]interface{}))
+	if err != nil {
+		return err
+	}
+	d.Set("metadata_json", metadataJSON)
+	return nil
 }

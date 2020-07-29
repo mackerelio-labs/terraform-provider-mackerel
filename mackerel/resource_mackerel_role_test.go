@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,7 +11,7 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-func TestMackerelRole(t *testing.T) {
+func TestAccMackerelRole(t *testing.T) {
 	resourceName := "mackerel_role.bar"
 	rand := acctest.RandString(5)
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
@@ -47,6 +48,13 @@ func TestMackerelRole(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			// Test: Import (invalid format)
+			{
+				ResourceName:  "mackerel_role.foo",
+				ExpectError:   regexp.MustCompile("the ID must be in the form '<service name>:<role name>'"),
+				ImportState:   true,
+				ImportStateId: "invalid_format",
 			},
 		},
 	})
