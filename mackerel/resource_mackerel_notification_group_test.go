@@ -43,7 +43,7 @@ func TestAccMackerelNotificationGroup(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notification_level", "critical"),
 					resource.TestCheckResourceAttr(resourceName, "child_notification_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "child_channel_ids.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "monitor.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "service.#", "2"),
 				),
 			},
@@ -112,7 +112,6 @@ resource "mackerel_notification_group" "foo" {
 
 func testAccMackerelNotificationGroupConfigUpdated(rand, name string) string {
 	return fmt.Sprintf(`
-
 resource "mackerel_service" "foo" {
   name = "tf-service-%s"
 }
@@ -126,6 +125,11 @@ resource "mackerel_channel" "foo" {
   email {}
 }
 
+resource "mackerel_monitor" "foo" {
+  name = "tf-monitor-%s"
+  connectivity {}
+}
+
 resource "mackerel_notification_group" "child" {
   name = "tf-notification-group-%s-child"
 }
@@ -137,9 +141,19 @@ resource "mackerel_notification_group" "foo" {
     mackerel_notification_group.child.id]
   child_channel_ids = [
     mackerel_channel.foo.id]
+  monitor {
+    id = mackerel_monitor.foo.id
+    skip_default = false
+  }
+  // ignore duplicates
+  monitor {
+    id = mackerel_monitor.foo.id
+    skip_default = false
+  }
   service {
     name = mackerel_service.foo.name
   }
+  // ignore duplicates
   service {
     name = mackerel_service.foo.name
   }
@@ -147,6 +161,5 @@ resource "mackerel_notification_group" "foo" {
     name = mackerel_service.bar.name
   }
 }
-
-`, rand, rand, rand, rand, name)
+`, rand, rand, rand, rand, rand, name)
 }
