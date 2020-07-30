@@ -47,7 +47,7 @@ func resourceMackerelRoleMetadataCreate(d *schema.ResourceData, meta interface{}
 	service := d.Get("service").(string)
 	role := d.Get("role").(string)
 	namespace := d.Get("namespace").(string)
-	metadata, err := expandRoleMetadata(d)
+	metadata, err := expandRoleMetadata(d.Get("metadata_json").(string))
 	if err != nil {
 		return err
 	}
@@ -90,12 +90,10 @@ func resourceMackerelRoleMetadataImport(d *schema.ResourceData, _ interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func expandRoleMetadata(d *schema.ResourceData) (mackerel.RoleMetaData, error) {
+func expandRoleMetadata(jsonString string) (mackerel.RoleMetaData, error) {
 	var metadata mackerel.RoleMetaData
-	if err := json.Unmarshal([]byte(d.Get("metadata_json").(string)), &metadata); err != nil {
-		return nil, err
-	}
-	return metadata, nil
+	err := json.Unmarshal([]byte(jsonString), &metadata)
+	return metadata, err
 }
 
 func flattenRoleMetadata(metadata mackerel.RoleMetaData, d *schema.ResourceData) error {
