@@ -62,7 +62,7 @@ func resourceMackerelServiceRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	if service == nil {
-		return fmt.Errorf("the name '%s' does not any match service in mackerel.io", d.Id())
+		return fmt.Errorf("the name '%s' does not match any service in mackerel.io", d.Id())
 	}
 	return flattenService(service, d)
 }

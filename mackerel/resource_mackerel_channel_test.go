@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -155,6 +156,40 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccMackerelChannel_ResourceNotFound(t *testing.T) {
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-channel-%s", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMackerelChannelDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMackerelChannelConfigEmail(name),
+			},
+			{
+				PreConfig:   testAccDeleteMackerelChannel(name),
+				Config:      testAccMackerelChannelConfigEmail(name),
+				ExpectError: regexp.MustCompile(`the ID '.*' does not match any channel in mackerel\.io`),
+			},
+		},
+	})
+}
+
+func testAccDeleteMackerelChannel(name string) func() {
+	return func() {
+		client := testAccProvider.Meta().(*mackerel.Client)
+		channels, _ := client.FindChannels()
+		for _, c := range channels {
+			if c.Name == name {
+				_, _ = client.DeleteChannel(c.ID)
+				break
+			}
+		}
+	}
 }
 
 func testAccCheckMackerelChannelDestroy(s *terraform.State) error {

@@ -68,7 +68,7 @@ func resourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if role == nil {
-		return fmt.Errorf("the name '%s' does not any match role in mackerel.io", d.Get("name").(string))
+		return fmt.Errorf("the name '%s' does not match any role in mackerel.io", d.Get("name").(string))
 	}
 	return flattenRole(role, d)
 }

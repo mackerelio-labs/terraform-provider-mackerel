@@ -124,7 +124,7 @@ func resourceMackerelDowntimeRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	if downtime == nil {
-		return fmt.Errorf("the ID '%s' does not any match downtime in mackerel.io", d.Id())
+		return fmt.Errorf("the ID '%s' does not match any downtime in mackerel.io", d.Id())
 	}
 	return flattenDowntime(downtime, d)
 }

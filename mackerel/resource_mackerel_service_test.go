@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -49,6 +50,34 @@ func TestAccMackerelService(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccMackerelService_ResourceNotFound(t *testing.T) {
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-%s", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMackerelServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMackerelServiceConfig(name, ""),
+			},
+			{
+				PreConfig:   testAccDeleteMackerelService(name),
+				Config:      testAccMackerelServiceConfig(name, ""),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`the name '%s' does not match any service in mackerel\.io`, name)),
+			},
+		},
+	})
+}
+
+func testAccDeleteMackerelService(name string) func() {
+	return func() {
+		client := testAccProvider.Meta().(*mackerel.Client)
+		_, _ = client.DeleteService(name)
+	}
 }
 
 func testAccCheckMackerelServiceDestroy(s *terraform.State) error {
