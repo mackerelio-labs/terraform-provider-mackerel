@@ -1,6 +1,7 @@
 package mackerel
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -101,7 +102,7 @@ func resourceMackerelDowntime() *schema.Resource {
 
 func resourceMackerelDowntimeCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-	dt, err := client.CreateDowntime(buildDowntimeStruct(d))
+	dt, err := client.CreateDowntime(expandDowntime(d))
 	if err != nil {
 		return err
 	}
@@ -115,45 +116,25 @@ func resourceMackerelDowntimeRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	for _, downtime := range downtimes {
-		if downtime.ID == d.Id() {
-			d.Set("name", downtime.Name)
-			d.Set("memo", downtime.Memo)
-			d.Set("start", downtime.Start)
-			d.Set("duration", downtime.Duration)
-			if downtime.Recurrence != nil {
-				weekdays := make([]string, 0, len(downtime.Recurrence.Weekdays))
-				for _, weekday := range downtime.Recurrence.Weekdays {
-					weekdays = append(weekdays, weekday.String())
-				}
-				d.Set("recurrence", []map[string]interface{}{
-					{
-						"type":     downtime.Recurrence.Type.String(),
-						"interval": downtime.Recurrence.Interval,
-						"weekdays": flattenStringListToSet(weekdays),
-						"until":    downtime.Recurrence.Until,
-					},
-				})
-			}
-			d.Set("service_scopes", flattenStringListToSet(downtime.ServiceScopes))
-			d.Set("service_exclude_scopes", flattenStringListToSet(downtime.ServiceExcludeScopes))
-			d.Set("role_scopes", flattenStringListToSet(downtime.RoleScopes))
-			d.Set("role_exclude_scopes", flattenStringListToSet(downtime.RoleExcludeScopes))
-			d.Set("monitor_scopes", flattenStringListToSet(downtime.MonitorScopes))
-			d.Set("monitor_exclude_scopes", flattenStringListToSet(downtime.MonitorExcludeScopes))
+	var downtime *mackerel.Downtime
+	for _, dt := range downtimes {
+		if dt.ID == d.Id() {
+			downtime = dt
 			break
 		}
 	}
-	return nil
+	if downtime == nil {
+		return fmt.Errorf("the ID '%s' does not match any downtime in mackerel.io", d.Id())
+	}
+	return flattenDowntime(downtime, d)
 }
 
 func resourceMackerelDowntimeUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-	_, err := client.UpdateDowntime(d.Id(), buildDowntimeStruct(d))
+	_, err := client.UpdateDowntime(d.Id(), expandDowntime(d))
 	if err != nil {
 		return err
 	}
-
 	return resourceMackerelDowntimeRead(d, meta)
 }
 
@@ -181,7 +162,7 @@ var stringToWeekday = map[string]mackerel.DowntimeWeekday{
 	"Saturday":  mackerel.DowntimeWeekday(time.Saturday),
 }
 
-func buildDowntimeStruct(d *schema.ResourceData) *mackerel.Downtime {
+func expandDowntime(d *schema.ResourceData) *mackerel.Downtime {
 	downtime := &mackerel.Downtime{
 		Name:                 d.Get("name").(string),
 		Memo:                 d.Get("memo").(string),
@@ -195,7 +176,6 @@ func buildDowntimeStruct(d *schema.ResourceData) *mackerel.Downtime {
 		MonitorScopes:        expandStringListFromSet(d.Get("monitor_scopes").(*schema.Set)),
 		MonitorExcludeScopes: expandStringListFromSet(d.Get("monitor_exclude_scopes").(*schema.Set)),
 	}
-
 	if _, ok := d.GetOk("recurrence"); ok {
 		var recurrence mackerel.DowntimeRecurrence
 		if v, ok := d.GetOk("recurrence.0.type"); ok {
@@ -221,6 +201,33 @@ func buildDowntimeStruct(d *schema.ResourceData) *mackerel.Downtime {
 		}
 		downtime.Recurrence = &recurrence
 	}
-
 	return downtime
+}
+
+func flattenDowntime(downtime *mackerel.Downtime, d *schema.ResourceData) error {
+	d.Set("name", downtime.Name)
+	d.Set("memo", downtime.Memo)
+	d.Set("start", downtime.Start)
+	d.Set("duration", downtime.Duration)
+	if downtime.Recurrence != nil {
+		weekdays := make([]string, 0, len(downtime.Recurrence.Weekdays))
+		for _, weekday := range downtime.Recurrence.Weekdays {
+			weekdays = append(weekdays, weekday.String())
+		}
+		d.Set("recurrence", []map[string]interface{}{
+			{
+				"type":     downtime.Recurrence.Type.String(),
+				"interval": downtime.Recurrence.Interval,
+				"weekdays": flattenStringListToSet(weekdays),
+				"until":    downtime.Recurrence.Until,
+			},
+		})
+	}
+	d.Set("service_scopes", flattenStringListToSet(downtime.ServiceScopes))
+	d.Set("service_exclude_scopes", flattenStringListToSet(downtime.ServiceExcludeScopes))
+	d.Set("role_scopes", flattenStringListToSet(downtime.RoleScopes))
+	d.Set("role_exclude_scopes", flattenStringListToSet(downtime.RoleExcludeScopes))
+	d.Set("monitor_scopes", flattenStringListToSet(downtime.MonitorScopes))
+	d.Set("monitor_exclude_scopes", flattenStringListToSet(downtime.MonitorExcludeScopes))
+	return nil
 }

@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -46,6 +47,13 @@ func TestAccMackerelServiceMetadata(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			// Test: Import (invalid format)
+			{
+				ResourceName:  "mackerel_service_metadata.foo",
+				ExpectError:   regexp.MustCompile("the ID must be in the form '<service name>:<namespace>'"),
+				ImportState:   true,
+				ImportStateId: "invalid_format",
 			},
 		},
 	})

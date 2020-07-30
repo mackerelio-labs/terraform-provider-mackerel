@@ -1,6 +1,7 @@
 package mackerel
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -38,10 +39,7 @@ func resourceMackerelService() *schema.Resource {
 
 func resourceMackerelServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
-	service, err := client.CreateService(&mackerel.CreateServiceParam{
-		Name: d.Get("name").(string),
-		Memo: d.Get("memo").(string),
-	})
+	service, err := client.CreateService(expandCreateServiceParam(d))
 	if err != nil {
 		return err
 	}
@@ -55,18 +53,35 @@ func resourceMackerelServiceRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	for _, service := range services {
-		if service.Name == d.Id() {
-			d.Set("name", service.Name)
-			d.Set("memo", service.Memo)
+
+	var service *mackerel.Service
+	for _, s := range services {
+		if s.Name == d.Id() {
+			service = s
 			break
 		}
 	}
-	return nil
+	if service == nil {
+		return fmt.Errorf("the name '%s' does not match any service in mackerel.io", d.Id())
+	}
+	return flattenService(service, d)
 }
 
 func resourceMackerelServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*mackerel.Client)
 	_, err := client.DeleteService(d.Id())
 	return err
+}
+
+func expandCreateServiceParam(d *schema.ResourceData) *mackerel.CreateServiceParam {
+	return &mackerel.CreateServiceParam{
+		Name: d.Get("name").(string),
+		Memo: d.Get("memo").(string),
+	}
+}
+
+func flattenService(service *mackerel.Service, d *schema.ResourceData) error {
+	d.Set("name", service.Name)
+	d.Set("memo", service.Memo)
+	return nil
 }

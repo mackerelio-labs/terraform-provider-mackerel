@@ -46,14 +46,11 @@ func resourceMackerelRole() *schema.Resource {
 func resourceMackerelRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	service := d.Get("service").(string)
 	client := meta.(*mackerel.Client)
-	role, err := client.CreateRole(service, &mackerel.CreateRoleParam{
-		Name: d.Get("name").(string),
-		Memo: d.Get("memo").(string),
-	})
+	role, err := client.CreateRole(service, expandCreateRoleParam(d))
 	if err != nil {
 		return err
 	}
-	d.SetId(makeRoleID(service, role.Name))
+	d.SetId(fmt.Sprintf("%s:%s", service, role.Name))
 	return resourceMackerelRoleRead(d, meta)
 }
 
@@ -63,13 +60,17 @@ func resourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	for _, role := range roles {
-		if role.Name == d.Get("name").(string) {
-			d.Set("memo", role.Memo)
+	var role *mackerel.Role
+	for _, r := range roles {
+		if r.Name == d.Get("name").(string) {
+			role = r
 			break
 		}
 	}
-	return nil
+	if role == nil {
+		return fmt.Errorf("the name '%s' does not match any role in mackerel.io", d.Get("name").(string))
+	}
+	return flattenRole(role, d)
 }
 
 func resourceMackerelRoleDelete(d *schema.ResourceData, meta interface{}) error {
@@ -79,15 +80,24 @@ func resourceMackerelRoleDelete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceMackerelRoleImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	if strings.Contains(d.Id(), ":") {
-		s := strings.Split(d.Id(), ":")
-		d.Set("service", s[0])
-		d.Set("name", s[1])
+	idParts := strings.SplitN(d.Id(), ":", 2)
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+		return nil, fmt.Errorf("the ID must be in the form '<service name>:<role name>'")
 	}
-
+	d.Set("service", idParts[0])
+	d.Set("name", idParts[1])
 	return []*schema.ResourceData{d}, nil
 }
 
-func makeRoleID(service, name string) string {
-	return fmt.Sprintf("%s:%s", service, name)
+func expandCreateRoleParam(d *schema.ResourceData) *mackerel.CreateRoleParam {
+	return &mackerel.CreateRoleParam{
+		Name: d.Get("name").(string),
+		Memo: d.Get("memo").(string),
+	}
+}
+
+func flattenRole(role *mackerel.Role, d *schema.ResourceData) error {
+	d.Set("name", role.Name)
+	d.Set("memo", role.Memo)
+	return nil
 }

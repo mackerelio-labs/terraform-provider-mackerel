@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,7 +11,7 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-func TestMackerelRole(t *testing.T) {
+func TestAccMackerelRole(t *testing.T) {
 	resourceName := "mackerel_role.bar"
 	rand := acctest.RandString(5)
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
@@ -48,8 +49,44 @@ func TestMackerelRole(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			// Test: Import (invalid format)
+			{
+				ResourceName:  "mackerel_role.foo",
+				ExpectError:   regexp.MustCompile("the ID must be in the form '<service name>:<role name>'"),
+				ImportState:   true,
+				ImportStateId: "invalid_format",
+			},
 		},
 	})
+}
+
+func TestAccMackerelRole_ResourceNotFound(t *testing.T) {
+	rand := acctest.RandString(5)
+	serviceName := fmt.Sprintf("tf-service-%s", rand)
+	name := fmt.Sprintf("tf-role-%s", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMackerelRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMackerelRoleConfig(serviceName, name),
+			},
+			{
+				PreConfig:   testAccDeleteMackerelRole(serviceName, name),
+				Config:      testAccMackerelRoleConfig(serviceName, name),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`the name '%s' does not match any role in mackerel\.io`, name)),
+			},
+		},
+	})
+}
+
+func testAccDeleteMackerelRole(serviceName, name string) func() {
+	return func() {
+		client := testAccProvider.Meta().(*mackerel.Client)
+		_, _ = client.DeleteRole(serviceName, name)
+	}
 }
 
 func testAccCheckMackerelRoleDestroy(s *terraform.State) error {
