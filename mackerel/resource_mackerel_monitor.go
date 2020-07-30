@@ -1,7 +1,6 @@
 package mackerel
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -369,22 +368,26 @@ func expandMonitor(d *schema.ResourceData) mackerel.Monitor {
 }
 
 func flattenMonitor(monitor mackerel.Monitor, d *schema.ResourceData) error {
-	switch v := monitor.(type) {
-	case *mackerel.MonitorHostMetric:
-		return flattenMonitorHostMetric(v, d)
-	case *mackerel.MonitorConnectivity:
-		return flattenMonitorConnectivity(v, d)
-	case *mackerel.MonitorServiceMetric:
-		return flattenMonitorServiceMetric(v, d)
-	case *mackerel.MonitorExternalHTTP:
-		return flattenMonitorExternalHTTP(v, d)
-	case *mackerel.MonitorExpression:
-		return flattenMonitorExpression(v, d)
-	case *mackerel.MonitorAnomalyDetection:
-		return flattenMonitorAnomalyDetection(v, d)
-	default:
-		return fmt.Errorf("unknown monitor type")
+	var err error
+	if v, ok := monitor.(*mackerel.MonitorHostMetric); ok {
+		err = flattenMonitorHostMetric(v, d)
 	}
+	if v, ok := monitor.(*mackerel.MonitorConnectivity); ok {
+		err = flattenMonitorConnectivity(v, d)
+	}
+	if v, ok := monitor.(*mackerel.MonitorServiceMetric); ok {
+		err = flattenMonitorServiceMetric(v, d)
+	}
+	if v, ok := monitor.(*mackerel.MonitorExternalHTTP); ok {
+		err = flattenMonitorExternalHTTP(v, d)
+	}
+	if v, ok := monitor.(*mackerel.MonitorExpression); ok {
+		err = flattenMonitorExpression(v, d)
+	}
+	if v, ok := monitor.(*mackerel.MonitorAnomalyDetection); ok {
+		err = flattenMonitorAnomalyDetection(v, d)
+	}
+	return err
 }
 
 func expandMonitorHostMetric(d *schema.ResourceData) *mackerel.MonitorHostMetric {
