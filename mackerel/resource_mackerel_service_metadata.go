@@ -40,7 +40,9 @@ func resourceMackerelServiceMetadata() *schema.Resource {
 }
 
 func resourceMackerelServiceMetadataCreate(d *schema.ResourceData, meta interface{}) error {
-	service, namespace, metadata, err := expandServiceMetadata(d)
+	service := d.Get("service").(string)
+	namespace := d.Get("namespace").(string)
+	metadata, err := expandServiceMetadata(d)
 	if err != nil {
 		return err
 	}
@@ -81,12 +83,12 @@ func resourceMackerelServiceMetadataImport(d *schema.ResourceData, _ interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func expandServiceMetadata(d *schema.ResourceData) (service, namespace string, metadata mackerel.ServiceMetaData, err error) {
-	err = json.Unmarshal([]byte(d.Get("metadata_json").(string)), &metadata)
-	if err != nil {
-		return "", "", nil, err
+func expandServiceMetadata(d *schema.ResourceData) (mackerel.ServiceMetaData, error) {
+	var metadata mackerel.ServiceMetaData
+	if err := json.Unmarshal([]byte(d.Get("metadata_json").(string)), &metadata); err != nil {
+		return nil, err
 	}
-	return d.Get("service").(string), d.Get("namespace").(string), metadata, nil
+	return metadata, nil
 }
 
 func flattenServiceMetadata(metadata mackerel.ServiceMetaData, d *schema.ResourceData) error {
