@@ -28,6 +28,10 @@ func Provider() terraform.ResourceProvider {
 			"mackerel_service_metadata":   resourceMackerelServiceMetadata(),
 		},
 
+		DataSourcesMap: map[string]*schema.Resource{
+			"mackerel_service": dataSourceMackerelService(),
+		},
+
 		ConfigureFunc: providerConfigure,
 	}
 }
