@@ -60,35 +60,6 @@ func TestAccMackerelRole(t *testing.T) {
 	})
 }
 
-func TestAccMackerelRole_ResourceNotFound(t *testing.T) {
-	rand := acctest.RandString(5)
-	serviceName := fmt.Sprintf("tf-service-%s", rand)
-	name := fmt.Sprintf("tf-role-%s", rand)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelRoleDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccMackerelRoleConfig(serviceName, name),
-			},
-			{
-				PreConfig:   testAccDeleteMackerelRole(serviceName, name),
-				Config:      testAccMackerelRoleConfig(serviceName, name),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`the name '%s' does not match any role in mackerel\.io`, name)),
-			},
-		},
-	})
-}
-
-func testAccDeleteMackerelRole(serviceName, name string) func() {
-	return func() {
-		client := testAccProvider.Meta().(*mackerel.Client)
-		_, _ = client.DeleteRole(serviceName, name)
-	}
-}
-
 func testAccCheckMackerelRoleDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*mackerel.Client)
 	for _, r := range s.RootModule().Resources {
