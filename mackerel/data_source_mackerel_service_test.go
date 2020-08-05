@@ -17,10 +17,6 @@ func TestAccDataSourceMackerelService(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      fmt.Sprintf(`data "mackerel_service" "foo" { name = "%s" }`, name),
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`the name '%s' does not match any service in mackerel\.io`, name)),
-			},
-			{
 				Config: testAccDataSourceMackerelServiceConfig(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.mackerel_service.foo", "id", name),
@@ -43,4 +39,19 @@ data "mackerel_service" "foo" {
   name = mackerel_service.foo.name
 }
 `, name)
+}
+
+func TestAccDataSourceMackerelServiceNotMatchAnyService(t *testing.T) {
+	name := fmt.Sprintf("tf-service-%s", acctest.RandString(5))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      fmt.Sprintf(`data "mackerel_service" "foo" { name = "%s" }`, name),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`the name '%s' does not match any service in mackerel\.io`, name)),
+			},
+		},
+	})
 }
