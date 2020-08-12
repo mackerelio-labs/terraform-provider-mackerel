@@ -17,9 +17,9 @@ func TestAccMackerelMonitor_HostMetric(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-monitor host_metric %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -92,9 +92,9 @@ func TestAccMackerelMonitor_Connectivity(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-monitor connectivity %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -156,9 +156,9 @@ func TestAccMackerelMonitor_ServiceMetric(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -234,9 +234,9 @@ func TestAccMackerelMonitor_External(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -320,9 +320,9 @@ func TestAccMackerelMonitor_Expression(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-monitor expression %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -386,9 +386,9 @@ func TestAccMackerelMonitor_AnomalyDetection(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-monitor anomaly_detection %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{

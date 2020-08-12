@@ -17,9 +17,9 @@ func TestAccMackerelNotificationGroup(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-notification-group %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelNotificationGroupDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelNotificationGroupDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{

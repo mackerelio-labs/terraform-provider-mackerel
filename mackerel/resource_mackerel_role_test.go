@@ -18,9 +18,9 @@ func TestAccMackerelRole(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-rol-%s-updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelRoleDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelRoleDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{

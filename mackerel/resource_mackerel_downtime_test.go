@@ -17,9 +17,9 @@ func TestAccMackerelDowntime(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-downtime-%s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelDowntimeDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelDowntimeDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
