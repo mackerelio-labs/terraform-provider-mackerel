@@ -1,7 +1,7 @@
 # all available settings of specific linters
 linters-settings:
   errcheck:
-    ignore: github.com/hashicorp/terraform-plugin-sdk/helper/schema:ForceNew|Set
+    ignore: github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:Set
 
 linters:
   enable:
