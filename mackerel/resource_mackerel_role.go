@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
@@ -13,9 +14,9 @@ import (
 
 func resourceMackerelRole() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelRoleCreate,
-		Read:   resourceMackerelRoleRead,
-		Delete: resourceMackerelRoleDelete,
+		CreateContext: resourceMackerelRoleCreate,
+		ReadContext:   resourceMackerelRoleRead,
+		DeleteContext: resourceMackerelRoleDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceMackerelRoleImport,
 		},
@@ -44,22 +45,23 @@ func resourceMackerelRole() *schema.Resource {
 	}
 }
 
-func resourceMackerelRoleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceMackerelRoleCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	service := d.Get("service").(string)
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 	role, err := client.CreateRole(service, expandCreateRoleParam(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(fmt.Sprintf("%s:%s", service, role.Name))
-	return resourceMackerelRoleRead(d, meta)
+	return resourceMackerelRoleRead(ctx, d, m)
 }
 
-func resourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelRoleRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	roles, err := client.FindRoles(d.Get("service").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	var role *mackerel.Role
 	for _, r := range roles {
@@ -69,15 +71,22 @@ func resourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if role == nil {
-		return fmt.Errorf("the name '%s' does not match any role in mackerel.io", d.Get("name").(string))
+		return diag.Errorf("the name '%s' does not match any role in mackerel.io", d.Get("name").(string))
 	}
-	return flattenRole(role, d)
+	if err := flattenRole(role, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
-func resourceMackerelRoleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelRoleDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteRole(d.Get("service").(string), d.Get("name").(string))
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func resourceMackerelRoleImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {

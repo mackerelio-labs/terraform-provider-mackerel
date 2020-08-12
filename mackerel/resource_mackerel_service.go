@@ -1,9 +1,10 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 	"regexp"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
@@ -11,9 +12,9 @@ import (
 
 func resourceMackerelService() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelServiceCreate,
-		Read:   resourceMackerelServiceRead,
-		Delete: resourceMackerelServiceDelete,
+		CreateContext: resourceMackerelServiceCreate,
+		ReadContext:   resourceMackerelServiceRead,
+		DeleteContext: resourceMackerelServiceDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -37,21 +38,22 @@ func resourceMackerelService() *schema.Resource {
 	}
 }
 
-func resourceMackerelServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelServiceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	service, err := client.CreateService(expandCreateServiceParam(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(service.Name)
-	return resourceMackerelServiceRead(d, meta)
+	return resourceMackerelServiceRead(ctx, d, m)
 }
 
-func resourceMackerelServiceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelServiceRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	services, err := client.FindServices()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var service *mackerel.Service
@@ -62,15 +64,22 @@ func resourceMackerelServiceRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	if service == nil {
-		return fmt.Errorf("the name '%s' does not match any service in mackerel.io", d.Id())
+		return diag.Errorf("the name '%s' does not match any service in mackerel.io", d.Id())
 	}
-	return flattenService(service, d)
+	if err := flattenService(service, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
-func resourceMackerelServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelServiceDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteService(d.Id())
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func expandCreateServiceParam(d *schema.ResourceData) *mackerel.CreateServiceParam {

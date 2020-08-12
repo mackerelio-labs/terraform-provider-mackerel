@@ -1,8 +1,9 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
@@ -10,9 +11,9 @@ import (
 
 func resourceMackerelChannel() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelChannelCreate,
-		Read:   resourceMackerelChannelRead,
-		Delete: resourceMackerelChannelDelete,
+		CreateContext: resourceMackerelChannelCreate,
+		ReadContext:   resourceMackerelChannelRead,
+		DeleteContext: resourceMackerelChannelDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -69,25 +70,6 @@ func resourceMackerelChannel() *schema.Resource {
 							Type:     schema.TypeMap,
 							Optional: true,
 							ForceNew: true,
-							// Elem: &schema.Resource{
-							// 	Schema: map[string]*schema.Schema{
-							// 		"ok": {
-							// 			Type:     schema.TypeString,
-							// 			Optional: true,
-							// 			ForceNew: true,
-							// 		},
-							// 		"warning": {
-							// 			Type:     schema.TypeString,
-							// 			Optional: true,
-							// 			ForceNew: true,
-							// 		},
-							// 		"critical": {
-							// 			Type:     schema.TypeString,
-							// 			Optional: true,
-							// 			ForceNew: true,
-							// 		},
-							// 	},
-							// },
 						},
 						"enabled_graph_image": {
 							Type:     schema.TypeBool,
@@ -135,21 +117,22 @@ func resourceMackerelChannel() *schema.Resource {
 	}
 }
 
-func resourceMackerelChannelCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelChannelCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	channel, err := client.CreateChannel(expandChannel(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(channel.ID)
-	return resourceMackerelChannelRead(d, meta)
+	return resourceMackerelChannelRead(ctx, d, m)
 }
 
-func resourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelChannelRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	channels, err := client.FindChannels()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	var channel *mackerel.Channel
 	for _, c := range channels {
@@ -159,15 +142,22 @@ func resourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	if channel == nil {
-		return fmt.Errorf("the ID '%s' does not match any channel in mackerel.io", d.Id())
+		return diag.Errorf("the ID '%s' does not match any channel in mackerel.io", d.Id())
 	}
-	return flattenChannel(channel, d)
+	if err := flattenChannel(channel, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
-func resourceMackerelChannelDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelChannelDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteChannel(d.Id())
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func expandChannel(d *schema.ResourceData) *mackerel.Channel {

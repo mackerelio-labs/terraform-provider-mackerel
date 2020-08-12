@@ -1,8 +1,9 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
@@ -33,10 +34,10 @@ var monitorResource = &schema.Resource{
 
 func resourceMackerelNotificationGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelNotificationGroupCreate,
-		Read:   resourceMackerelNotificationGroupRead,
-		Update: resourceMackerelNotificationGroupUpdate,
-		Delete: resourceMackerelNotificationGroupDelete,
+		CreateContext: resourceMackerelNotificationGroupCreate,
+		ReadContext:   resourceMackerelNotificationGroupRead,
+		UpdateContext: resourceMackerelNotificationGroupUpdate,
+		DeleteContext: resourceMackerelNotificationGroupDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -75,21 +76,22 @@ func resourceMackerelNotificationGroup() *schema.Resource {
 	}
 }
 
-func resourceMackerelNotificationGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelNotificationGroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	group, err := client.CreateNotificationGroup(expandNotificationGroup(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(group.ID)
-	return resourceMackerelNotificationGroupRead(d, meta)
+	return resourceMackerelNotificationGroupRead(ctx, d, m)
 }
 
-func resourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelNotificationGroupRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	groups, err := client.FindNotificationGroups()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	var group *mackerel.NotificationGroup
 	for _, g := range groups {
@@ -99,25 +101,32 @@ func resourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interfac
 		}
 	}
 	if group == nil {
-		return fmt.Errorf("the ID '%s' does not match any notification-group in mackerel.io", d.Id())
+		return diag.Errorf("the ID '%s' does not match any notification-group in mackerel.io", d.Id())
 	}
-	return flattenNotificationGroup(group, d)
+	if err := flattenNotificationGroup(group, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
-func resourceMackerelNotificationGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelNotificationGroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	group, err := client.UpdateNotificationGroup(d.Id(), expandNotificationGroup(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(group.ID)
-	return resourceMackerelNotificationGroupRead(d, meta)
+	return resourceMackerelNotificationGroupRead(ctx, d, m)
 }
 
-func resourceMackerelNotificationGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelNotificationGroupDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteNotificationGroup(d.Id())
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func expandNotificationGroup(d *schema.ResourceData) *mackerel.NotificationGroup {

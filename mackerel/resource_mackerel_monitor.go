@@ -1,8 +1,10 @@
 package mackerel
 
 import (
+	"context"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
@@ -10,10 +12,10 @@ import (
 
 func resourceMackerelMonitor() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelMonitorCreate,
-		Read:   resourceMackerelMonitorRead,
-		Update: resourceMackerelMonitorUpdate,
-		Delete: resourceMackerelMonitorDelete,
+		CreateContext: resourceMackerelMonitorCreate,
+		ReadContext:   resourceMackerelMonitorRead,
+		UpdateContext: resourceMackerelMonitorUpdate,
+		DeleteContext: resourceMackerelMonitorDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -309,39 +311,47 @@ func resourceMackerelMonitor() *schema.Resource {
 	}
 }
 
-func resourceMackerelMonitorCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelMonitorCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	monitor, err := client.CreateMonitor(expandMonitor(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(monitor.MonitorID())
-	return resourceMackerelMonitorRead(d, meta)
+	return resourceMackerelMonitorRead(ctx, d, m)
 }
 
-func resourceMackerelMonitorRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelMonitorRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	monitor, err := client.GetMonitor(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return flattenMonitor(monitor, d)
+	if err := flattenMonitor(monitor, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
-func resourceMackerelMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelMonitorUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	monitor, err := client.UpdateMonitor(d.Id(), expandMonitor(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(monitor.MonitorID())
-	return resourceMackerelMonitorRead(d, meta)
+	return resourceMackerelMonitorRead(ctx, d, m)
 }
 
-func resourceMackerelMonitorDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelMonitorDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteMonitor(d.Id())
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func expandMonitor(d *schema.ResourceData) mackerel.Monitor {

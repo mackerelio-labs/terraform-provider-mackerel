@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -14,10 +15,10 @@ import (
 
 func resourceMackerelServiceMetadata() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelServiceMetadataCreate,
-		Read:   resourceMackerelServiceMetadataRead,
-		Update: resourceMackerelServiceMetadataUpdate,
-		Delete: resourceMackerelServiceMetadataDelete,
+		CreateContext: resourceMackerelServiceMetadataCreate,
+		ReadContext:   resourceMackerelServiceMetadataRead,
+		UpdateContext: resourceMackerelServiceMetadataUpdate,
+		DeleteContext: resourceMackerelServiceMetadataDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceMackerelServiceMetadataImport,
 		},
@@ -40,37 +41,45 @@ func resourceMackerelServiceMetadata() *schema.Resource {
 	}
 }
 
-func resourceMackerelServiceMetadataCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceMackerelServiceMetadataCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	service := d.Get("service").(string)
 	namespace := d.Get("namespace").(string)
 	metadata, err := expandServiceMetadata(d.Get("metadata_json").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 	if err := client.PutServiceMetaData(service, namespace, metadata); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(strings.Join([]string{service, namespace}, "/"))
-	return resourceMackerelServiceMetadataRead(d, meta)
+	return resourceMackerelServiceMetadataRead(ctx, d, m)
 }
 
-func resourceMackerelServiceMetadataRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelServiceMetadataRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	resp, err := client.GetServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return flattenServiceMetadata(resp.ServiceMetaData, d)
+	if err := flattenServiceMetadata(resp.ServiceMetaData, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
-func resourceMackerelServiceMetadataUpdate(d *schema.ResourceData, meta interface{}) error {
-	return resourceMackerelServiceMetadataCreate(d, meta)
+func resourceMackerelServiceMetadataUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	return resourceMackerelServiceMetadataCreate(ctx, d, m)
 }
 
-func resourceMackerelServiceMetadataDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
-	return client.DeleteServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
+func resourceMackerelServiceMetadataDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
+	if err := client.DeleteServiceMetaData(d.Get("service").(string), d.Get("namespace").(string)); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func resourceMackerelServiceMetadataImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
