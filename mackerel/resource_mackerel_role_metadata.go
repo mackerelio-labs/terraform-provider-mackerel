@@ -1,6 +1,7 @@
 package mackerel
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -18,7 +19,7 @@ func resourceMackerelRoleMetadata() *schema.Resource {
 		Update: resourceMackerelRoleMetadataUpdate,
 		Delete: resourceMackerelRoleMetadataDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceMackerelRoleMetadataImport,
+			StateContext: resourceMackerelRoleMetadataImport,
 		},
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -77,7 +78,7 @@ func resourceMackerelRoleMetadataDelete(d *schema.ResourceData, meta interface{}
 	return client.DeleteRoleMetaData(d.Get("service").(string), d.Get("role").(string), d.Get("namespace").(string))
 }
 
-func resourceMackerelRoleMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceMackerelRoleMetadataImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	r := regexp.MustCompile(`^([a-zA-Z0-9-_]+):([a-zA-Z0-9-_]+)/(.*)$`)
 	idParts := r.FindStringSubmatch(d.Id())
 	if idParts == nil || idParts[1] == "" || idParts[2] == "" || idParts[3] == "" {

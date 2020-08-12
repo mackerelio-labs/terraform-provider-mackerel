@@ -1,6 +1,7 @@
 package mackerel
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -18,7 +19,7 @@ func resourceMackerelServiceMetadata() *schema.Resource {
 		Update: resourceMackerelServiceMetadataUpdate,
 		Delete: resourceMackerelServiceMetadataDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceMackerelServiceMetadataImport,
+			StateContext: resourceMackerelServiceMetadataImport,
 		},
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -72,7 +73,7 @@ func resourceMackerelServiceMetadataDelete(d *schema.ResourceData, meta interfac
 	return client.DeleteServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
 }
 
-func resourceMackerelServiceMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceMackerelServiceMetadataImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	idParts := strings.SplitN(d.Id(), "/", 2)
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		return nil, fmt.Errorf("the ID must be in the form '<service name>/<namespace>'")

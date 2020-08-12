@@ -38,7 +38,7 @@ func resourceMackerelNotificationGroup() *schema.Resource {
 		Update: resourceMackerelNotificationGroupUpdate,
 		Delete: resourceMackerelNotificationGroupDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {

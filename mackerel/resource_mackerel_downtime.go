@@ -16,7 +16,7 @@ func resourceMackerelDowntime() *schema.Resource {
 		Update: resourceMackerelDowntimeUpdate,
 		Delete: resourceMackerelDowntimeDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {

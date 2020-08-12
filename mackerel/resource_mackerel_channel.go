@@ -14,7 +14,7 @@ func resourceMackerelChannel() *schema.Resource {
 		Read:   resourceMackerelChannelRead,
 		Delete: resourceMackerelChannelDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {

@@ -1,6 +1,7 @@
 package mackerel
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
@@ -16,7 +17,7 @@ func resourceMackerelRole() *schema.Resource {
 		Read:   resourceMackerelRoleRead,
 		Delete: resourceMackerelRoleDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceMackerelRoleImport,
+			StateContext: resourceMackerelRoleImport,
 		},
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -79,7 +80,7 @@ func resourceMackerelRoleDelete(d *schema.ResourceData, meta interface{}) error 
 	return err
 }
 
-func resourceMackerelRoleImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceMackerelRoleImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	idParts := strings.SplitN(d.Id(), ":", 2)
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		return nil, fmt.Errorf("the ID must be in the form '<service name>:<role name>'")
