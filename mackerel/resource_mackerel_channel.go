@@ -3,8 +3,8 @@ package mackerel
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -69,25 +69,25 @@ func resourceMackerelChannel() *schema.Resource {
 							Type:     schema.TypeMap,
 							Optional: true,
 							ForceNew: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"ok": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-									},
-									"warning": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-									},
-									"critical": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-									},
-								},
-							},
+							// Elem: &schema.Resource{
+							// 	Schema: map[string]*schema.Schema{
+							// 		"ok": {
+							// 			Type:     schema.TypeString,
+							// 			Optional: true,
+							// 			ForceNew: true,
+							// 		},
+							// 		"warning": {
+							// 			Type:     schema.TypeString,
+							// 			Optional: true,
+							// 			ForceNew: true,
+							// 		},
+							// 		"critical": {
+							// 			Type:     schema.TypeString,
+							// 			Optional: true,
+							// 			ForceNew: true,
+							// 		},
+							// 	},
+							// },
 						},
 						"enabled_graph_image": {
 							Type:     schema.TypeBool,

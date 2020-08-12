@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -91,7 +91,7 @@ func TestAccMackerelMonitor_Connectivity(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor connectivity %s", rand)
 	nameUpdated := fmt.Sprintf("tf-monitor connectivity %s updated", rand)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMackerelMonitorDestroy,
@@ -233,7 +233,7 @@ func TestAccMackerelMonitor_External(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-monitor external %s updated", rand)
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMackerelMonitorDestroy,
@@ -319,7 +319,7 @@ func TestAccMackerelMonitor_Expression(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor expression %s", rand)
 	nameUpdated := fmt.Sprintf("tf-monitor expression %s updated", rand)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMackerelMonitorDestroy,
