@@ -28,6 +28,17 @@ func Provider() terraform.ResourceProvider {
 			"mackerel_service_metadata":   resourceMackerelServiceMetadata(),
 		},
 
+		DataSourcesMap: map[string]*schema.Resource{
+			"mackerel_channel":            dataSourceMackerelChannel(),
+			"mackerel_downtime":           dataSourceMackerelDowntime(),
+			"mackerel_monitor":            dataSourceMackerelMonitor(),
+			"mackerel_notification_group": dataSourceMackerelNotificationGroup(),
+			"mackerel_role":               dataSourceMackerelRole(),
+			"mackerel_role_metadata":      dataSourceMackerelRoleMetadata(),
+			"mackerel_service":            dataSourceMackerelService(),
+			"mackerel_service_metadata":   dataSourceMackerelServiceMetadata(),
+		},
+
 		ConfigureFunc: providerConfigure,
 	}
 }
