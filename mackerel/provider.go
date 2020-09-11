@@ -35,13 +35,8 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	var diags diag.Diagnostics
 	config := Config{
 		APIKey: d.Get("api_key").(string),
 	}
-	client, err := config.Client()
-	if err != nil {
-		return nil, diag.FromErr(err)
-	}
-	return client, diags
+	return config.Client()
 }
