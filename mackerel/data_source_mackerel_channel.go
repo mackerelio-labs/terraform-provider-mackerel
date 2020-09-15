@@ -1,15 +1,16 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func dataSourceMackerelChannel() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMackerelChannelRead,
+		ReadContext: dataSourceMackerelChannelRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -55,22 +56,6 @@ func dataSourceMackerelChannel() *schema.Resource {
 						"mentions": {
 							Type:     schema.TypeMap,
 							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"ok": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"warning": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"critical": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-								},
-							},
 						},
 						"enabled_graph_image": {
 							Type:     schema.TypeBool,
@@ -105,14 +90,15 @@ func dataSourceMackerelChannel() *schema.Resource {
 	}
 }
 
-func dataSourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceMackerelChannelRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	id := d.Get("id").(string)
 
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 
 	channels, err := client.FindChannels()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var channel *mackerel.Channel
@@ -123,8 +109,11 @@ func dataSourceMackerelChannelRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	if channel == nil {
-		return fmt.Errorf(`the ID '%s' does not match any channel in mackerel.io`, id)
+		return diag.Errorf(`the ID '%s' does not match any channel in mackerel.io`, id)
 	}
 	d.SetId(channel.ID)
-	return flattenChannel(channel, d)
+	if err := flattenChannel(channel, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }

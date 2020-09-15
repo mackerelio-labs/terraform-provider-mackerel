@@ -1,13 +1,16 @@
 package mackerel
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func dataSourceMackerelMonitor() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMackerelMonitorRead,
+		ReadContext: dataSourceMackerelMonitorRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -254,14 +257,18 @@ func dataSourceMackerelMonitor() *schema.Resource {
 	}
 }
 
-func dataSourceMackerelMonitorRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceMackerelMonitorRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	id := d.Get("id").(string)
 
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 	monitor, err := client.GetMonitor(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(monitor.MonitorID())
-	return flattenMonitor(monitor, d)
+	if err := flattenMonitor(monitor, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }

@@ -1,20 +1,22 @@
 package mackerel
 
 import (
+	"context"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func resourceMackerelAlertGroupSetting() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelAlertGroupSettingCreate,
-		Read:   resourceMackerelAlertGroupSettingRead,
-		Update: resourceMackerelAlertGroupSettingUpdate,
-		Delete: resourceMackerelAlertGroupSettingDelete,
+		CreateContext: resourceMackerelAlertGroupSettingCreate,
+		ReadContext:   resourceMackerelAlertGroupSettingRead,
+		UpdateContext: resourceMackerelAlertGroupSettingUpdate,
+		DeleteContext: resourceMackerelAlertGroupSettingDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -48,39 +50,47 @@ func resourceMackerelAlertGroupSetting() *schema.Resource {
 	}
 }
 
-func resourceMackerelAlertGroupSettingCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelAlertGroupSettingCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	setting, err := client.CreateAlertGroupSetting(expandAlertGroupSetting(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(setting.ID)
-	return resourceMackerelAlertGroupSettingRead(d, meta)
+	return resourceMackerelAlertGroupSettingRead(ctx, d, m)
 }
 
-func resourceMackerelAlertGroupSettingRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelAlertGroupSettingRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	setting, err := client.GetAlertGroupSetting(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return flattenAlertGroupSetting(setting, d)
+	if err := flattenAlertGroupSetting(setting, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
-func resourceMackerelAlertGroupSettingUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelAlertGroupSettingUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	setting, err := client.UpdateAlertGroupSetting(d.Id(), expandAlertGroupSetting(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(setting.ID)
-	return resourceMackerelAlertGroupSettingRead(d, meta)
+	return resourceMackerelAlertGroupSettingRead(ctx, d, m)
 }
 
-func resourceMackerelAlertGroupSettingDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelAlertGroupSettingDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteAlertGroupSetting(d.Id())
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func expandAlertGroupSetting(d *schema.ResourceData) *mackerel.AlertGroupSetting {
