@@ -32,14 +32,15 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"mackerel_channel":            dataSourceMackerelChannel(),
-			"mackerel_downtime":           dataSourceMackerelDowntime(),
-			"mackerel_monitor":            dataSourceMackerelMonitor(),
-			"mackerel_notification_group": dataSourceMackerelNotificationGroup(),
-			"mackerel_role":               dataSourceMackerelRole(),
-			"mackerel_role_metadata":      dataSourceMackerelRoleMetadata(),
-			"mackerel_service":            dataSourceMackerelService(),
-			"mackerel_service_metadata":   dataSourceMackerelServiceMetadata(),
+			"mackerel_alert_group_setting": dataSourceMackerelAlertGroupSetting(),
+			"mackerel_channel":             dataSourceMackerelChannel(),
+			"mackerel_downtime":            dataSourceMackerelDowntime(),
+			"mackerel_monitor":             dataSourceMackerelMonitor(),
+			"mackerel_notification_group":  dataSourceMackerelNotificationGroup(),
+			"mackerel_role":                dataSourceMackerelRole(),
+			"mackerel_role_metadata":       dataSourceMackerelRoleMetadata(),
+			"mackerel_service":             dataSourceMackerelService(),
+			"mackerel_service_metadata":    dataSourceMackerelServiceMetadata(),
 		},
 
 		ConfigureContextFunc: providerConfigure,
