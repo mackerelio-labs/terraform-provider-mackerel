@@ -112,7 +112,6 @@ func resourceMackerelDowntimeCreate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceMackerelDowntimeRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	client := m.(*mackerel.Client)
 	downtimes, err := client.FindDowntimes()
 	if err != nil {
@@ -128,10 +127,7 @@ func resourceMackerelDowntimeRead(_ context.Context, d *schema.ResourceData, m i
 	if downtime == nil {
 		return diag.Errorf("the ID '%s' does not match any downtime in mackerel.io", d.Id())
 	}
-	if err := flattenDowntime(downtime, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenDowntime(downtime, d)
 }
 
 func resourceMackerelDowntimeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -211,32 +207,4 @@ func expandDowntime(d *schema.ResourceData) *mackerel.Downtime {
 		downtime.Recurrence = &recurrence
 	}
 	return downtime
-}
-
-func flattenDowntime(downtime *mackerel.Downtime, d *schema.ResourceData) error {
-	d.Set("name", downtime.Name)
-	d.Set("memo", downtime.Memo)
-	d.Set("start", downtime.Start)
-	d.Set("duration", downtime.Duration)
-	if downtime.Recurrence != nil {
-		weekdays := make([]string, 0, len(downtime.Recurrence.Weekdays))
-		for _, weekday := range downtime.Recurrence.Weekdays {
-			weekdays = append(weekdays, weekday.String())
-		}
-		d.Set("recurrence", []map[string]interface{}{
-			{
-				"type":     downtime.Recurrence.Type.String(),
-				"interval": downtime.Recurrence.Interval,
-				"weekdays": flattenStringListToSet(weekdays),
-				"until":    downtime.Recurrence.Until,
-			},
-		})
-	}
-	d.Set("service_scopes", flattenStringListToSet(downtime.ServiceScopes))
-	d.Set("service_exclude_scopes", flattenStringListToSet(downtime.ServiceExcludeScopes))
-	d.Set("role_scopes", flattenStringListToSet(downtime.RoleScopes))
-	d.Set("role_exclude_scopes", flattenStringListToSet(downtime.RoleExcludeScopes))
-	d.Set("monitor_scopes", flattenStringListToSet(downtime.MonitorScopes))
-	d.Set("monitor_exclude_scopes", flattenStringListToSet(downtime.MonitorExcludeScopes))
-	return nil
 }

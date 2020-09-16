@@ -57,7 +57,6 @@ func resourceMackerelRoleCreate(ctx context.Context, d *schema.ResourceData, m i
 }
 
 func resourceMackerelRoleRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	client := m.(*mackerel.Client)
 	roles, err := client.FindRoles(d.Get("service").(string))
 	if err != nil {
@@ -73,10 +72,7 @@ func resourceMackerelRoleRead(_ context.Context, d *schema.ResourceData, m inter
 	if role == nil {
 		return diag.Errorf("the name '%s' does not match any role in mackerel.io", d.Get("name").(string))
 	}
-	if err := flattenRole(role, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenRole(role, d)
 }
 
 func resourceMackerelRoleDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -104,10 +100,4 @@ func expandCreateRoleParam(d *schema.ResourceData) *mackerel.CreateRoleParam {
 		Name: d.Get("name").(string),
 		Memo: d.Get("memo").(string),
 	}
-}
-
-func flattenRole(role *mackerel.Role, d *schema.ResourceData) error {
-	d.Set("name", role.Name)
-	d.Set("memo", role.Memo)
-	return nil
 }

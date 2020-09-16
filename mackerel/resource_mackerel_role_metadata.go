@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
@@ -62,16 +61,12 @@ func resourceMackerelRoleMetadataCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceMackerelRoleMetadataRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	client := m.(*mackerel.Client)
 	resp, err := client.GetRoleMetaData(d.Get("service").(string), d.Get("role").(string), d.Get("namespace").(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	if err := flattenRoleMetadata(resp.RoleMetaData, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenRoleMetadata(resp.RoleMetaData, d)
 }
 
 func resourceMackerelRoleMetadataUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -104,13 +99,4 @@ func expandRoleMetadata(jsonString string) (mackerel.RoleMetaData, error) {
 	var metadata mackerel.RoleMetaData
 	err := json.Unmarshal([]byte(jsonString), &metadata)
 	return metadata, err
-}
-
-func flattenRoleMetadata(metadata mackerel.RoleMetaData, d *schema.ResourceData) error {
-	metadataJSON, err := structure.FlattenJsonToString(metadata.(map[string]interface{}))
-	if err != nil {
-		return err
-	}
-	d.Set("metadata_json", metadataJSON)
-	return nil
 }

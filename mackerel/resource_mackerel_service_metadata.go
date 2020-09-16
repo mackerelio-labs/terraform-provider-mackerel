@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
@@ -57,16 +56,12 @@ func resourceMackerelServiceMetadataCreate(ctx context.Context, d *schema.Resour
 }
 
 func resourceMackerelServiceMetadataRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	client := m.(*mackerel.Client)
 	resp, err := client.GetServiceMetaData(d.Get("service").(string), d.Get("namespace").(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	if err := flattenServiceMetadata(resp.ServiceMetaData, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenServiceMetadata(resp.ServiceMetaData, d)
 }
 
 func resourceMackerelServiceMetadataUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -97,13 +92,4 @@ func expandServiceMetadata(jsonString string) (mackerel.ServiceMetaData, error) 
 	var metadata mackerel.ServiceMetaData
 	err := json.Unmarshal([]byte(jsonString), &metadata)
 	return metadata, err
-}
-
-func flattenServiceMetadata(metadata mackerel.ServiceMetaData, d *schema.ResourceData) error {
-	metadataJSON, err := structure.FlattenJsonToString(metadata.(map[string]interface{}))
-	if err != nil {
-		return err
-	}
-	d.Set("metadata_json", metadataJSON)
-	return nil
 }

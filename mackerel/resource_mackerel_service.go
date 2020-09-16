@@ -49,7 +49,6 @@ func resourceMackerelServiceCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceMackerelServiceRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	client := m.(*mackerel.Client)
 	services, err := client.FindServices()
 	if err != nil {
@@ -66,10 +65,7 @@ func resourceMackerelServiceRead(_ context.Context, d *schema.ResourceData, m in
 	if service == nil {
 		return diag.Errorf("the name '%s' does not match any service in mackerel.io", d.Id())
 	}
-	if err := flattenService(service, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenService(service, d)
 }
 
 func resourceMackerelServiceDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -89,8 +85,8 @@ func expandCreateServiceParam(d *schema.ResourceData) *mackerel.CreateServicePar
 	}
 }
 
-func flattenService(service *mackerel.Service, d *schema.ResourceData) error {
-	d.Set("name", service.Name)
-	d.Set("memo", service.Memo)
-	return nil
-}
+// func flattenService(service *mackerel.Service, d *schema.ResourceData) error {
+// 	d.Set("name", service.Name)
+// 	d.Set("memo", service.Memo)
+// 	return nil
+// }

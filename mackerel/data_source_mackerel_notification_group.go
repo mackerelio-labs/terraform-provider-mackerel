@@ -50,7 +50,6 @@ func dataSourceMackerelNotificationGroup() *schema.Resource {
 }
 
 func dataSourceMackerelNotificationGroupRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	id := d.Get("id").(string)
 
 	client := m.(*mackerel.Client)
@@ -70,8 +69,5 @@ func dataSourceMackerelNotificationGroupRead(_ context.Context, d *schema.Resour
 		return diag.Errorf("the ID '%s' does not match any notification-group in mackerel.io", id)
 	}
 	d.SetId(group.ID)
-	if err := flattenNotificationGroup(group, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenNotificationGroup(group, d)
 }
