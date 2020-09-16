@@ -128,7 +128,6 @@ func resourceMackerelChannelCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceMackerelChannelRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	client := m.(*mackerel.Client)
 	channels, err := client.FindChannels()
 	if err != nil {
@@ -144,10 +143,7 @@ func resourceMackerelChannelRead(_ context.Context, d *schema.ResourceData, m in
 	if channel == nil {
 		return diag.Errorf("the ID '%s' does not match any channel in mackerel.io", d.Id())
 	}
-	if err := flattenChannel(channel, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenChannel(channel, d)
 }
 
 func resourceMackerelChannelDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -199,45 +195,4 @@ func expandChannel(d *schema.ResourceData) *mackerel.Channel {
 		channel.Events = &events
 	}
 	return channel
-}
-
-func flattenChannel(channel *mackerel.Channel, d *schema.ResourceData) error {
-	d.Set("name", channel.Name)
-	switch channel.Type {
-	case "email":
-		d.Set("email", []map[string]interface{}{
-			{
-				"emails":   flattenStringListToSet(*channel.Emails),
-				"user_ids": flattenStringListToSet(*channel.UserIDs),
-				"events":   flattenStringListToSet(*channel.Events),
-			},
-		})
-	case "slack":
-		mentions := make(map[string]string)
-		for k, v := range map[string]string{
-			"ok":       channel.Mentions.OK,
-			"warning":  channel.Mentions.Warning,
-			"critical": channel.Mentions.Critical,
-		} {
-			if v != "" {
-				mentions[k] = v
-			}
-		}
-		d.Set("slack", []map[string]interface{}{
-			{
-				"url":                 channel.URL,
-				"mentions":            mentions,
-				"enabled_graph_image": channel.EnabledGraphImage,
-				"events":              flattenStringListToSet(*channel.Events),
-			},
-		})
-	case "webhook":
-		d.Set("webhook", []map[string]interface{}{
-			{
-				"url":    channel.URL,
-				"events": flattenStringListToSet(*channel.Events),
-			},
-		})
-	}
-	return nil
 }

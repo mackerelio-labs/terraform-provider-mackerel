@@ -258,7 +258,6 @@ func dataSourceMackerelMonitor() *schema.Resource {
 }
 
 func dataSourceMackerelMonitorRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	id := d.Get("id").(string)
 
 	client := m.(*mackerel.Client)
@@ -267,8 +266,5 @@ func dataSourceMackerelMonitorRead(_ context.Context, d *schema.ResourceData, m 
 		return diag.FromErr(err)
 	}
 	d.SetId(monitor.MonitorID())
-	if err := flattenMonitor(monitor, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenMonitor(monitor, d)
 }

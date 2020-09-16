@@ -91,7 +91,6 @@ func dataSourceMackerelChannel() *schema.Resource {
 }
 
 func dataSourceMackerelChannelRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	id := d.Get("id").(string)
 
 	client := m.(*mackerel.Client)
@@ -112,8 +111,5 @@ func dataSourceMackerelChannelRead(_ context.Context, d *schema.ResourceData, m 
 		return diag.Errorf(`the ID '%s' does not match any channel in mackerel.io`, id)
 	}
 	d.SetId(channel.ID)
-	if err := flattenChannel(channel, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenChannel(channel, d)
 }

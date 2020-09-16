@@ -31,7 +31,6 @@ func dataSourceMackerelRole() *schema.Resource {
 }
 
 func dataSourceMackerelRoleRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	service := d.Get("service").(string)
 	name := d.Get("name").(string)
 
@@ -52,8 +51,5 @@ func dataSourceMackerelRoleRead(_ context.Context, d *schema.ResourceData, m int
 		return diag.Errorf("the name '%s' does not match any role in mackerel.io", name)
 	}
 	d.SetId(fmt.Sprintf("%s:%s", service, role.Name))
-	if err := flattenRole(role, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenRole(role, d)
 }

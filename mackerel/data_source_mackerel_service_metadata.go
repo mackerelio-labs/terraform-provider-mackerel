@@ -30,7 +30,6 @@ func dataSourceMackerelServiceMetadata() *schema.Resource {
 }
 
 func dataSourceMackerelServiceMetadataRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	service := d.Get("service").(string)
 	namespace := d.Get("namespace").(string)
 
@@ -40,8 +39,5 @@ func dataSourceMackerelServiceMetadataRead(_ context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 	d.SetId(strings.Join([]string{service, namespace}, "/"))
-	if err := flattenServiceMetadata(resp.ServiceMetaData, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenServiceMetadata(resp.ServiceMetaData, d)
 }

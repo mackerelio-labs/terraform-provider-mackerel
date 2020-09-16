@@ -26,7 +26,6 @@ func dataSourceMackerelService() *schema.Resource {
 }
 
 func dataSourceMackerelServiceRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	name := d.Get("name").(string)
 
 	client := m.(*mackerel.Client)
@@ -46,8 +45,5 @@ func dataSourceMackerelServiceRead(_ context.Context, d *schema.ResourceData, m 
 		return diag.Errorf("the name '%s' does not match any service in mackerel.io", name)
 	}
 	d.SetId(service.Name)
-	if err := flattenService(service, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenService(service, d)
 }

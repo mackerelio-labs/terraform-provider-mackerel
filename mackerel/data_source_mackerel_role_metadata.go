@@ -35,7 +35,6 @@ func dataSourceMackerelRoleMetadata() *schema.Resource {
 }
 
 func dataSourceMackerelRoleMetadataRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	service := d.Get("service").(string)
 	role := d.Get("role").(string)
 	namespace := d.Get("namespace").(string)
@@ -46,8 +45,5 @@ func dataSourceMackerelRoleMetadataRead(_ context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 	d.SetId(fmt.Sprintf("%s:%s/%s", service, role, namespace))
-	if err := flattenRoleMetadata(resp.RoleMetaData, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenRoleMetadata(resp.RoleMetaData, d)
 }

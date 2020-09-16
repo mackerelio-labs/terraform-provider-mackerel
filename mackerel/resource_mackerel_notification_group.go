@@ -87,7 +87,6 @@ func resourceMackerelNotificationGroupCreate(ctx context.Context, d *schema.Reso
 }
 
 func resourceMackerelNotificationGroupRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	client := m.(*mackerel.Client)
 	groups, err := client.FindNotificationGroups()
 	if err != nil {
@@ -103,10 +102,7 @@ func resourceMackerelNotificationGroupRead(_ context.Context, d *schema.Resource
 	if group == nil {
 		return diag.Errorf("the ID '%s' does not match any notification-group in mackerel.io", d.Id())
 	}
-	if err := flattenNotificationGroup(group, d); err != nil {
-		return diag.FromErr(err)
-	}
-	return diags
+	return flattenNotificationGroup(group, d)
 }
 
 func resourceMackerelNotificationGroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -140,16 +136,6 @@ func expandNotificationGroup(d *schema.ResourceData) *mackerel.NotificationGroup
 	}
 }
 
-func flattenNotificationGroup(group *mackerel.NotificationGroup, d *schema.ResourceData) error {
-	d.Set("name", group.Name)
-	d.Set("notification_level", group.NotificationLevel)
-	d.Set("child_notification_group_ids", flattenStringListToSet(group.ChildNotificationGroupIDs))
-	d.Set("child_channel_ids", flattenStringListToSet(group.ChildChannelIDs))
-	d.Set("monitor", flattenMonitors(group.Monitors))
-	d.Set("service", flattenServices(group.Services))
-	return nil
-}
-
 func expandMonitorSet(set *schema.Set) []*mackerel.NotificationGroupMonitor {
 	monitors := make([]*mackerel.NotificationGroupMonitor, 0, set.Len())
 	for _, monitor := range set.List() {
@@ -162,17 +148,6 @@ func expandMonitorSet(set *schema.Set) []*mackerel.NotificationGroupMonitor {
 	return monitors
 }
 
-func flattenMonitors(v []*mackerel.NotificationGroupMonitor) *schema.Set {
-	monitors := make([]interface{}, 0, len(v))
-	for _, monitor := range v {
-		monitors = append(monitors, map[string]interface{}{
-			"id":           monitor.ID,
-			"skip_default": monitor.SkipDefault,
-		})
-	}
-	return schema.NewSet(schema.HashResource(monitorResource), monitors)
-}
-
 func expandServiceSet(set *schema.Set) []*mackerel.NotificationGroupService {
 	services := make([]*mackerel.NotificationGroupService, 0, set.Len())
 	for _, service := range set.List() {
@@ -180,14 +155,4 @@ func expandServiceSet(set *schema.Set) []*mackerel.NotificationGroupService {
 		services = append(services, &mackerel.NotificationGroupService{Name: service["name"].(string)})
 	}
 	return services
-}
-
-func flattenServices(v []*mackerel.NotificationGroupService) *schema.Set {
-	services := make([]interface{}, 0, len(v))
-	for _, srv := range v {
-		services = append(services, map[string]interface{}{
-			"name": srv.Name,
-		})
-	}
-	return schema.NewSet(schema.HashResource(serviceResource), services)
 }
