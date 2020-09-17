@@ -84,9 +84,3 @@ func expandCreateServiceParam(d *schema.ResourceData) *mackerel.CreateServicePar
 		Memo: d.Get("memo").(string),
 	}
 }
-
-// func flattenService(service *mackerel.Service, d *schema.ResourceData) error {
-// 	d.Set("name", service.Name)
-// 	d.Set("memo", service.Memo)
-// 	return nil
-// }
