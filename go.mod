@@ -1,4 +1,4 @@
-module github.com/xcezx/terraform-provider-mackerel
+module github.com/mackerelio-labs/terraform-provider-mackerel
 
 go 1.15
 
