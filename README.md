@@ -1,5 +1,40 @@
 # Terraform provider for mackerel.io
-[![CI](https://github.com/xcezx/terraform-provider-mackerel/workflows/CI/badge.svg)](https://github.com/xcezx/terraform-provider-mackerel/actions?query=workflow%3ACI)
-[![codecov](https://codecov.io/gh/xcezx/terraform-provider-mackerel/branch/master/graph/badge.svg)](https://codecov.io/gh/xcezx/terraform-provider-mackerel)
+
+[![CI](https://github.com/mackerelio-labs/terraform-provider-mackerel/actions/workflows/ci.yml/badge.svg)](https://github.com/mackerelio-labs/terraform-provider-mackerel/actions/workflows/ci.yml)
 
 A [Terraform](https://www.terraform.io/) provider for [mackerel.io](https://mackerel.io/).
+
+- Terraform Website: https://terraform.io
+- Slack Workspace: https://mackerel-ug-slackin.herokuapp.com/
+
+## Usage example
+
+Terraform 0.14 and later
+
+```
+terraform {
+  required_providers {
+    mackerel = {
+      source  = "Mackerel/mackerel"
+      version = "~> 0.0.1"
+    }
+  }
+}
+
+resource "mackerel_service" "app" {
+  name = "app"
+}
+
+resource "mackerel_role" "compute" {
+  service = mackerel_service.app.name
+  name    = "ecs"
+}
+```
+
+## Requirements
+
+Terraform >= v0.14
+
+## Acknowledgements
+
+We thank @xcezx and @kjmkznr for contributing to terraform-provider-mackerel.
