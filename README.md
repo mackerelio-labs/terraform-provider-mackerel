@@ -1,6 +1,7 @@
 # Terraform provider for mackerel.io
 
 [![CI](https://github.com/mackerelio-labs/terraform-provider-mackerel/actions/workflows/ci.yml/badge.svg)](https://github.com/mackerelio-labs/terraform-provider-mackerel/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/mackerelio-labs/terraform-provider-mackerel/badge.svg)](https://coveralls.io/github/mackerelio-labs/terraform-provider-mackerel)
 
 A [Terraform](https://www.terraform.io/) provider for [mackerel.io](https://mackerel.io/).
 
