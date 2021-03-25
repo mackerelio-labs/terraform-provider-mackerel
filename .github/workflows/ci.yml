@@ -32,7 +32,8 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - run: go test ./... -v -timeout=120m -coverprofile=coverage.txt -covermode=atomic
+      - run: go test ./... -v -timeout=120m -coverprofile coverage.txt -covermode=atomic
+        shell: bash
         env:
           TF_ACC: 1
           MACKEREL_API_KEY: ${{ secrets.MACKEREL_API_KEY }}
