@@ -16,20 +16,39 @@ jobs:
           version: v1.30
 
   acceptance-test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ['ubuntu-18.04', 'macOS-10.15', 'windows-2019']
+        go: ['1.16.x', '1.15.x', '1.14.x']
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.15.x
+          go-version: ${{ matrix.go }}
       - uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - run: go test ./... -v -timeout=120m -coverprofile=coverage.txt -covermode=atomic
+      - run: go test ./... -v -timeout 120m -coverprofile coverage.txt -covermode atomic
         env:
           TF_ACC: 1
           MACKEREL_API_KEY: ${{ secrets.MACKEREL_API_KEY }}
-      - uses: codecov/codecov-action@v1
+      - name: Send coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-profile: coverage.txt
+          parallel: true
+          job-number: ${{ strategy.job-index }}
+
+  finish:
+    needs: acceptance-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
