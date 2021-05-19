@@ -33,9 +33,28 @@ resource "mackerel_role" "compute" {
 }
 ```
 
+## Authentication
+
+Mackerel terraform provider offers two ways of setting credential.
+
 ### Environment Variables
 
 You can provide your Mackerel API key using environment variables, `MACKEREL_API_KEY`.
+
+### Static credentials
+
+Static credentials can be provided by adding `mackerel_api_key`.
+
+Usage:
+
+```
+variable "mackerel_api_key" {
+}
+
+provider "mackerel" {
+  api_key = var.mackerel_api_key
+}
+```
 
 ## Argument Reference
 
