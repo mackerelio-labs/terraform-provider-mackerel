@@ -8,6 +8,10 @@ A [Terraform](https://www.terraform.io/) provider for [mackerel.io](https://mack
 - Terraform Website: https://terraform.io
 - Slack Workspace: https://mackerel-ug-slackin.herokuapp.com/
 
+## Requirements
+
+Terraform >= v0.14
+
 ## Usage example
 
 Terraform 0.14 and later
@@ -32,9 +36,28 @@ resource "mackerel_role" "compute" {
 }
 ```
 
-## Requirements
+## Authentication
 
-Terraform >= v0.14
+Mackerel terraform provider offers two ways of setting credential.
+
+### Environment Variables
+
+You can provide your Mackerel API key using environment variables, `MACKEREL_API_KEY`.
+
+### Static credentials
+
+Static credentials can be provided by adding `mackerel_api_key`.
+
+Usage:
+
+```
+variable "mackerel_api_key" {
+}
+
+provider "mackerel" {
+  api_key = var.mackerel_api_key
+}
+```
 
 ## Acknowledgements
 
