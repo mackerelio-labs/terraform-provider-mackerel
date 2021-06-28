@@ -406,11 +406,11 @@ func expandMonitorHostMetric(d *schema.ResourceData) *mackerel.MonitorHostMetric
 		Scopes:               expandStringListFromSet(d.Get("host_metric.0.scopes").(*schema.Set)),
 		ExcludeScopes:        expandStringListFromSet(d.Get("host_metric.0.exclude_scopes").(*schema.Set)),
 	}
-	if warning, ok := d.GetOk("host_metric.0.warning"); ok {
+	if warning, ok := d.GetOkExists("host_metric.0.warning"); ok {
 		warning := warning.(float64)
 		monitor.Warning = &warning
 	}
-	if critical, ok := d.GetOk("host_metric.0.critical"); ok {
+	if critical, ok := d.GetOkExists("host_metric.0.critical"); ok {
 		critical := critical.(float64)
 		monitor.Critical = &critical
 	}
@@ -497,14 +497,15 @@ func expandMonitorServiceMetric(d *schema.ResourceData) *mackerel.MonitorService
 		MissingDurationWarning:  uint64(d.Get("service_metric.0.missing_duration_warning").(int)),
 		MissingDurationCritical: uint64(d.Get("service_metric.0.missing_duration_critical").(int)),
 	}
-	if warning, ok := d.GetOk("service_metric.0.warning"); ok {
+	if warning, ok := d.GetOkExists("service_metric.0.warning"); ok {
 		warning := warning.(float64)
 		monitor.Warning = &warning
 	}
-	if critical, ok := d.GetOk("service_metric.0.critical"); ok {
+	if critical, ok := d.GetOkExists("service_metric.0.critical"); ok {
 		critical := critical.(float64)
 		monitor.Critical = &critical
 	}
+
 	return monitor
 }
 
@@ -550,11 +551,11 @@ func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternal
 		SkipCertificateVerification:     d.Get("external.0.skip_certificate_verification").(bool),
 		Headers:                         []mackerel.HeaderField{},
 	}
-	if responseTimeCritical, ok := d.GetOk("external.0.response_time_critical"); ok {
+	if responseTimeCritical, ok := d.GetOkExists("external.0.response_time_critical"); ok {
 		responseTimeCritical := responseTimeCritical.(float64)
 		monitor.ResponseTimeCritical = &responseTimeCritical
 	}
-	if responseTimeWarning, ok := d.GetOk("external.0.response_time_warning"); ok {
+	if responseTimeWarning, ok := d.GetOkExists("external.0.response_time_warning"); ok {
 		responseTimeWarning := responseTimeWarning.(float64)
 		monitor.ResponseTimeWarning = &responseTimeWarning
 	}
@@ -562,11 +563,11 @@ func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternal
 		responseTimeDuration := uint64(responseTimeDuration.(int))
 		monitor.ResponseTimeDuration = &responseTimeDuration
 	}
-	if certificationExpirationCritical, ok := d.GetOk("external.0.certification_expiration_critical"); ok {
+	if certificationExpirationCritical, ok := d.GetOkExists("external.0.certification_expiration_critical"); ok {
 		certificationExpirationCritical := uint64(certificationExpirationCritical.(int))
 		monitor.CertificationExpirationCritical = &certificationExpirationCritical
 	}
-	if certificationExpirationWarning, ok := d.GetOk("external.0.certification_expiration_warning"); ok {
+	if certificationExpirationWarning, ok := d.GetOkExists("external.0.certification_expiration_warning"); ok {
 		certificationExpirationWarning := uint64(certificationExpirationWarning.(int))
 		monitor.CertificationExpirationWarning = &certificationExpirationWarning
 	}
@@ -622,11 +623,11 @@ func expandMonitorExpression(d *schema.ResourceData) *mackerel.MonitorExpression
 		Warning:              nil,
 		Critical:             nil,
 	}
-	if warning, ok := d.GetOk("expression.0.warning"); ok {
+	if warning, ok := d.GetOkExists("expression.0.warning"); ok {
 		warning := warning.(float64)
 		monitor.Warning = &warning
 	}
-	if critical, ok := d.GetOk("expression.0.critical"); ok {
+	if critical, ok := d.GetOkExists("expression.0.critical"); ok {
 		critical := critical.(float64)
 		monitor.Critical = &critical
 	}
