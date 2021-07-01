@@ -38,7 +38,7 @@ resource "mackerel_notification_group" "example" {
 The following arguments are required:
 
 * `name` - (Required) The name of the notification group.
-* `notification_level` - The level of notification ("all" or "critical").
+* `notification_level` - The level of notification ("all" or "critical". Default "all").
 * `child_notification_group_ids"` - The set of notification group IDs.
 * `child_channel_ids` -  The set of notification channel IDs.
 * `monitor` - Configuration block(s) with monitor rules. See [Monitor](#monitor) below for details.
