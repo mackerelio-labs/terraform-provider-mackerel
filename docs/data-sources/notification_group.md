@@ -25,7 +25,7 @@ data "mackerel_notification_group" "this" {
 * `id` - The ID of notification group.
 * `name` - The name of notification group.
 * `notification_level` - The level of notification ("all" or "critical").
-* `child_notification_group_ids"` - The set of notification group IDs.
-* `child_channel_ids` -  The set of notification channel IDs.
-* `monitor` - The set of notification target monitor rules.
-* `service` - The set of notification target services.
+* `child_notification_group_ids"` - A set of notification group IDs.
+* `child_channel_ids` -  A set of notification channel IDs.
+* `monitor` - A set of notification target monitor rules.
+* `service` - A set of notification target services.
