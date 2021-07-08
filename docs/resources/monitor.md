@@ -174,7 +174,7 @@ The following arguments are required:
 * `scopes` - (Required) Expression of the monitoring target. Only valid for graph sequences that become one line.
 * `warning_sensitivity` - (Required, at least one of `warning_sensitivity` or `critical_sensitivity`) The sensitivity to generates warning alerts. Valid values are `insensitive`, `normal` and `sensitive`.
 * `critical_sensitivity` - (Required, at least one of `warning_sensitivity` or `critical_sensitivity`) The sensitivity to generates warning critical. Valid values are `insensitive`, `normal` and `sensitive`.
-* `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`.x
+* `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`.
 * `training_period_from` - Epoch seconds. Anomaly detection use metric data starting from the specified time.
 
 ## Attributes Reference
