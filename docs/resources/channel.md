@@ -60,21 +60,21 @@ The following arguments are required:
 
 ### email
 
-* `emails` - An array of email addresses to receive notifications.
-* `user_ids` - An array of user IDs to receive notifications.
-* `events` - An array of notification events. Valid values are `alert` or `alertGroup`.
+* `emails` - A set of email addresses to receive notifications.
+* `user_ids` - A set of user IDs to receive notifications.
+* `events` - A set of notification events. Valid values are `alert` or `alertGroup`.
 
 ### slack
 
 * `url` - Incoming Webhook URL for Slack.
 * `mentions` - A map of mentions. Valid values are `ok`, `warning`, or `critical`.
 * `enabled_graph_image` - A boolean value whether to post the corresponding graph. Default `falsse`.
-* `events` - An array of notification events. Valid values are `alert` or `alertGroup`.
+* `events` - A set of notification events. Valid values are `alert` or `alertGroup`.
 
 ### webhook
 
 * `url` - URL to receive HTTP request.
-* `events` - An array of notification events. Valid values are `alert` or `alertGroup`.
+* `events` - A set of notification events. Valid values are `alert` or `alertGroup`.
 
 ## Attributes Reference
 
