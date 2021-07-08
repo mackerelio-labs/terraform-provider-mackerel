@@ -35,12 +35,12 @@ The following arguments are required:
 * `start` - (Required) The starting time in epoch seconds.
 * `duration` - (Required) The duration of downtime in minutes.
 * `memo` - Notes for the downtime.
-* `monitor_scopes` - An array of monitor ids that scope of target monitor configurations.
-* `monitor_exclude_scopes` - An array of excluded monitor ids that scope of target monitor configurations.
-* `service_scopes` - An array of services that scope of target monitor configurations.
-* `service_exclude_scopes` - An array of excluded services that scope of target monitor configurations.
-* `role_scopes` - An array of roles that scope of target monitor configurations.
-* `role_exclude_scopes` - An array of excluded roles that scope of target monitor configurations.
+* `monitor_scopes` - A set of monitor ids that scope of target monitor configurations.
+* `monitor_exclude_scopes` - A set of excluded monitor ids that scope of target monitor configurations.
+* `service_scopes` - A set of services that scope of target monitor configurations.
+* `service_exclude_scopes` - A set of excluded services that scope of target monitor configurations.
+* `role_scopes` - A set of roles that scope of target monitor configurations.
+* `role_exclude_scopes` - A set of excluded roles that scope of target monitor configurations.
 * `recurrence` - The configuration for recurrence. See [Recurrence](#recurrence) below for details.
 
 ### Recurrence
