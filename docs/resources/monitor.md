@@ -85,7 +85,7 @@ resource "mackerel_monitor" "role_avg" {
   name = "role average"
 
   expression {
-    expression = "avg(roleSlots(server:role,loadavg5)))"
+    expression = "avg(roleSlots(service:role,loadavg5)))"
     operator   = ">"
     warning    = 5
     critical   = 10
