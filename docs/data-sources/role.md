@@ -24,4 +24,6 @@ data "mackerel_role" "bar" {
 
 ## Attributes Reference
 
+In addition to all arguments above, the following attributes are exported:
+
 * `memo` - Notes related to this role.

@@ -27,6 +27,10 @@ resource "mackerel_role" "bar" {
 * `service` - (Required) The name of service.
 * `memo` - Notes related to this role.
 
+## Attributes Reference
+
+No additional attributes are exported.
+
 ## Import
 
 Role setting can be imported using their <service_name>:<role_name>, e.g.

@@ -22,4 +22,6 @@ data "mackerel_service" "foo" {
 
 ## Attributes Reference
 
+In addition to all arguments above, the following attributes are exported:
+
 * `memo` - Notes related to this service.

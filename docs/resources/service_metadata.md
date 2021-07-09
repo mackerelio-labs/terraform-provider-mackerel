@@ -30,6 +30,10 @@ resource "mackerel_service_metadata" "foo" {
 * `namespace` - (Required) Identifier for the metadata
 * `metadata_json` - (Required) Arbitrary JSON data for the service.
 
+## Attributes Reference
+
+No additional attributes are exported.
+
 ## Import
 
 Service metadata can be imported using their <service_name>/<namespace>, e.g.

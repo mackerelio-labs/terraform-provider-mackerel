@@ -21,6 +21,10 @@ resource "mackerel_service" "foo" {
 * `name` - (Required) The name of role.
 * `memo` - Notes related to this service.
 
+## Attributes Reference
+
+No additional attributes are exported.
+
 ## Import
 
 Service setting can be imported using their name, e.g.

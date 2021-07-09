@@ -24,4 +24,6 @@ data "mackerel_service_metadata" "foo" {
 
 ## Attributes Reference
 
+In addition to all arguments above, the following attributes are exported:
+
 * `metadata_json` - Arbitrary JSON data for the service.
