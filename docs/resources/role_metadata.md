@@ -16,13 +16,14 @@ resource "mackerel_service" "foo" {
 
 resource "mackerel_role" "bar" {
   service = mackerel_service.foo.id
-  name = "bar"
+  name    = "bar"
 }
 
 resource "mackerel_role_metadata" "bar" {
-  service = mackerel_service.foo.name
-  role = mackerel_role.bar.name
+  service   = mackerel_service.foo.name
+  role      = mackerel_role.bar.name
   namespace = "bar"
+
   metadata_json = jsonencode({
     id = 1
   })

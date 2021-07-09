@@ -13,7 +13,7 @@ Use this data source allows access to details of a specific Role.
 ```terraform
 data "mackerel_role" "bar" {
   service = "foo"
-  name = "bar"
+  name    = "bar"
 }
 ```
 

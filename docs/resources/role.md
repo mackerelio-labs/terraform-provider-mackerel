@@ -16,8 +16,8 @@ resource "mackerel_service" "foo" {
 
 resource "mackerel_role" "bar" {
   service = mackerel_service.foo.name
-  name = "bar"
-  memo = "foo:bar is managed by Terraform"
+  name    = "bar"
+  memo    = "foo:bar is managed by Terraform"
 }
 ```
 

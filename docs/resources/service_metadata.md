@@ -15,8 +15,9 @@ resource "mackerel_service" "foo" {
 }
 
 resource "mackerel_service_metadata" "foo" {
-  service = mackerel_service.foo.id
+  service   = mackerel_service.foo.id
   namespace = "bar"
+
   metadata_json = jsonencode({
     id = 1
   })

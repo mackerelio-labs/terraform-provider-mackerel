@@ -12,7 +12,7 @@ Use this data source allows access to details of a specific Service Metadata.
 
 ```terraform
 data "mackerel_service_metadata" "foo" {
-  service = "foo"
+  service   = "foo"
   namespace = "bar"
 }
 ```

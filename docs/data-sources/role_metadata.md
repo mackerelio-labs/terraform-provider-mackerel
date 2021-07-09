@@ -12,8 +12,8 @@ Use this data source allows access to details of a specific Role Metadata.
 
 ```terraform
 data "mackerel_role_metadata" "bar" {
-  service = "foo"
-  role = "bar"
+  service   = "foo"
+  role      = "bar"
   namespace = "foo"
 }
 ```
