@@ -32,3 +32,11 @@ resource "mackerel_role" "bar" {
 * `name` - The name of service.
 * `service` - The name of service.
 * `memo` - Notes related to this service.
+
+## Import
+
+Role setting can be imported using their <service_name>:<role_name>, e.g.
+
+```
+$ terraform import mackerel_role.foo foo:bar
+```

@@ -43,3 +43,10 @@ resource "mackerel_role_metadata" "bar" {
 * `namespace` - Identifier for the metadata
 * `metadata_json` - Arbitrary JSON data for the service.
 
+## Import
+
+Role metadata can be imported using their <service_name>:<role_name>/<metadata>, e.g.
+
+```
+$ terraform import mackerel_role.foo foo:bar/bar
+```

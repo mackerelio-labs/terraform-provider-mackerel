@@ -26,3 +26,10 @@ resource "mackerel_service" "foo" {
 * `name` - The name of service.
 * `memo` - Notes related to this service.
 
+## Import
+
+Service setting can be imported using their name, e.g.
+
+```
+$ terraform import mackerel_service.foo name
+```
