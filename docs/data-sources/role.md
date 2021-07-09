@@ -11,9 +11,9 @@ Use this data source allows access to details of a specific Role.
 ## Example Usage
 
 ```terraform
-data "mackerel_role" "foo" {
-  service = mackerel_role.foo.service
-  name = mackerel_role.foo.name
+data "mackerel_role" "bar" {
+  service = "foo"
+  name = "bar"
 }
 ```
 

@@ -11,8 +11,8 @@ Use this data source allows access to details of a specific Service.
 ## Example Usage
 
 ```terraform
-data "mackerel_service" "this" {
-  name = "example_service"
+data "mackerel_service" "foo" {
+  name = "foo"
 }
 ```
 

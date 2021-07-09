@@ -11,21 +11,9 @@ Use this data source allows access to details of a specific Service Metadata.
 ## Example Usage
 
 ```terraform
-resource "mackerel_service" "foo" {
-  name = "foo"
-}
-
-resource "mackerel_service_metadata" "foo" {
-  service = mackerel_service.foo.name
-  namespace = "foo"
-  metadata_json = jsonencode({
-    id = 1
-  })
-}
-
 data "mackerel_service_metadata" "foo" {
-  service = mackerel_service_metadata.foo.service
-  namespace = mackerel_service_metadata.foo.namespace
+  service = "foo"
+  namespace = "bar"
 }
 ```
 

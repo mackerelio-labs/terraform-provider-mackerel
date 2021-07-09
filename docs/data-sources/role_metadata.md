@@ -11,28 +11,10 @@ Use this data source allows access to details of a specific Role Metadata.
 ## Example Usage
 
 ```terraform
-resource "mackerel_service" "foo" {
-  name = "foo"
-}
-
-resource "mackerel_role" "bar" {
-  service = mackerel_service.foo.name
-  name = "bar"
-}
-
-resource "mackerel_role_metadata" "bar" {
-  service = mackerel_role.foo.service
-  role = mackerel_role.bar.name
-  namespace = "bar"
-  metadata_json = jsonencode({
-    id = 1
-  })
-}
-
 data "mackerel_role_metadata" "bar" {
-  service = mackerel_role_metadata.foo.service
-  role = mackerel_role_metadata.bar.role
-  namespace = mackerel_role_metadata.bar.namespace
+  service = "foo"
+  role = "bar"
+  namespace = "foo"
 }
 ```
 
