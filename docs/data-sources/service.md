@@ -22,5 +22,4 @@ data "mackerel_service" "foo" {
 
 ## Attributes Reference
 
-* `name` - The name of the service.
 * `memo` - Notes related to this service.

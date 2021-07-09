@@ -26,7 +26,4 @@ data "mackerel_role_metadata" "bar" {
 
 ## Attributes Reference
 
-* `service` - The name of the service.
-* `role` - The name of the role.
-* `namespace` - Identifier for the metadata
 * `metadata_json` - Arbitrary JSON data for the role.

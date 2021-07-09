@@ -24,6 +24,4 @@ data "mackerel_role" "bar" {
 
 ## Attributes Reference
 
-* `service` - The name of the service.
-* `name` - The name of the role.
 * `memo` - Notes related to this role.

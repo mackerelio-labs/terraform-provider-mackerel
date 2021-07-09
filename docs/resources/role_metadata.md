@@ -37,13 +37,6 @@ resource "mackerel_role_metadata" "bar" {
 * `namespace` - (Required) Identifier for the metadata
 * `metadata_json` - (Required) Arbitrary JSON data for the service.
 
-## Attributes Reference
-
-* `service` - The name of the service.
-* `role` - The name of the role.
-* `namespace` - Identifier for the metadata
-* `metadata_json` - Arbitrary JSON data for the service.
-
 ## Import
 
 Role metadata can be imported using their <service_name>:<role_name>/<metadata>, e.g.

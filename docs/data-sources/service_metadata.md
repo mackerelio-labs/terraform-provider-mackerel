@@ -24,6 +24,4 @@ data "mackerel_service_metadata" "foo" {
 
 ## Attributes Reference
 
-* `service` - The name of the service.
-* `namespace` - Identifier for the metadata
 * `metadata_json` - Arbitrary JSON data for the service.
