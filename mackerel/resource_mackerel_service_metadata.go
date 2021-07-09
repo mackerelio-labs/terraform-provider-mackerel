@@ -75,7 +75,7 @@ func resourceMackerelServiceMetadataDelete(d *schema.ResourceData, meta interfac
 func resourceMackerelServiceMetadataImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	idParts := strings.SplitN(d.Id(), "/", 2)
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
-		return nil, fmt.Errorf("the ID must be in the form '<service name>:<namespace>'")
+		return nil, fmt.Errorf("the ID must be in the form '<service name>/<namespace>'")
 	}
 	d.Set("service", idParts[0])
 	d.Set("namespace", idParts[1])
