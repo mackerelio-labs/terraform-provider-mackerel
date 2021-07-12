@@ -51,7 +51,7 @@ func TestAccMackerelServiceMetadata(t *testing.T) {
 			// Test: Import (invalid format)
 			{
 				ResourceName:  "mackerel_service_metadata.foo",
-				ExpectError:   regexp.MustCompile("the ID must be in the form '<service name>:<namespace>'"),
+				ExpectError:   regexp.MustCompile("the ID must be in the form '<service name>/<namespace>'"),
 				ImportState:   true,
 				ImportStateId: "invalid_format",
 			},
