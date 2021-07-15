@@ -6,6 +6,7 @@
 A [Terraform](https://www.terraform.io/) provider for [mackerel.io](https://mackerel.io/).
 
 - Terraform Website: https://terraform.io
+- Terraform Registry: https://registry.terraform.io/providers/mackerelio-labs/mackerel/latest
 - Slack Workspace: https://mackerel-ug-slackin.herokuapp.com/
 
 ## Requirements
