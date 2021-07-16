@@ -39,7 +39,7 @@ The following arguments are required:
 
 * `name` - (Required) The name of the notification group.
 * `notification_level` - The level of notification ("all" or "critical". Default "all").
-* `child_notification_group_ids"` - A set of notification group IDs.
+* `child_notification_group_ids` - A set of notification group IDs.
 * `child_channel_ids` -  A set of notification channel IDs.
 * `monitor` - Configuration block(s) with monitor rules. See [Monitor](#monitor) below for details.
 * `service` - Configuration block(s) with services. See [Service](#service) below for details.
