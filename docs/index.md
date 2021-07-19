@@ -13,7 +13,7 @@ The Mackerel provider provides resources to interact with a Mackerel API.
 
 Terraform 0.14 and later:
 
-```
+```terraform
 terraform {
   required_providers {
     mackerel = {
@@ -47,7 +47,7 @@ Static credentials can be provided by adding `mackerel_api_key`.
 
 Usage:
 
-```
+```terraform
 variable "mackerel_api_key" {
 }
 
