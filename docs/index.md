@@ -17,7 +17,7 @@ Terraform 0.14 and later:
 terraform {
   required_providers {
     mackerel = {
-      source  = "Mackerel/mackerel"
+      source  = "mackerelio-labs/mackerel"
       version = "~> 0.0.1"
     }
   }
