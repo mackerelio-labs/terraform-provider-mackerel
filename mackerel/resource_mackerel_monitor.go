@@ -47,6 +47,7 @@ func resourceMackerelMonitor() *schema.Resource {
 						"metric": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"operator": {
 							Type:         schema.TypeString,
@@ -121,6 +122,7 @@ func resourceMackerelMonitor() *schema.Resource {
 						"metric": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"operator": {
 							Type:         schema.TypeString,
