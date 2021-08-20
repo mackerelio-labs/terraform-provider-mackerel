@@ -16,6 +16,7 @@ func Provider() *schema.Provider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("MACKEREL_API_KEY", nil),
 				Description: "Mackerel API Key",
+				Sensitive:   true,
 			},
 		},
 

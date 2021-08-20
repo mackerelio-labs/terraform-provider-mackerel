@@ -32,7 +32,7 @@ func TestAccMackerelMonitor_HostMetric(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notification_interval", "0"),
 					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "1"),
 					resource.ComposeTestCheckFunc(
-						resource.TestCheckResourceAttr(resourceName, "host_metric.0.metric", "disk%"),
+						resource.TestCheckResourceAttr(resourceName, "host_metric.0.metric", "cpu.sys"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.operator", ">"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.warning", "75"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.critical", "0"),
@@ -59,7 +59,7 @@ func TestAccMackerelMonitor_HostMetric(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notification_interval", "30"),
 					resource.TestCheckResourceAttr(resourceName, "host_metric.#", "1"),
 					resource.ComposeTestCheckFunc(
-						resource.TestCheckResourceAttr(resourceName, "host_metric.0.metric", "disk%"),
+						resource.TestCheckResourceAttr(resourceName, "host_metric.0.metric", "cpu.usr"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.operator", ">"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.warning", "70"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.critical", "90"),
@@ -202,7 +202,7 @@ func TestAccMackerelMonitor_ServiceMetric(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "service_metric.#", "1"),
 					resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.service", serviceName),
-						resource.TestCheckResourceAttr(resourceName, "service_metric.0.metric", "custom.access.2xx_ratio"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.metric", "custom.access.5xx_ratio"),
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.operator", "<"),
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.warning", "99.9"),
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.critical", "99.99"),
@@ -488,7 +488,7 @@ func testAccMackerelMonitorConfigHostMetric(name string) string {
 resource "mackerel_monitor" "foo" {
   name = "%s"
   host_metric {
-    metric = "disk%%"
+    metric = "cpu.sys"
     operator = ">"
     warning = 75
     duration = 1
@@ -523,7 +523,7 @@ resource "mackerel_monitor" "foo" {
   is_mute = true
   notification_interval = 30
   host_metric {
-    metric = "disk%%"
+    metric = "cpu.usr"
     operator = ">"
     warning = 70
     critical = 90
@@ -619,7 +619,7 @@ resource "mackerel_monitor" "foo" {
   service_metric {
     service = mackerel_service.foo.name
     duration = 3
-    metric = "custom.access.2xx_ratio"
+    metric = "custom.access.5xx_ratio"
     operator = "<"
     warning = 99.9
     critical = 99.99
