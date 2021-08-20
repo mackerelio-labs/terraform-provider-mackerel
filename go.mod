@@ -4,6 +4,6 @@ go 1.15
 
 require (
 	github.com/golangci/golangci-lint v1.36.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.3.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.0
 	github.com/mackerelio/mackerel-client-go v0.14.0
 )
