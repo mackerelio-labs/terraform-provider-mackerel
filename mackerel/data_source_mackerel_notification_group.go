@@ -1,15 +1,16 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func dataSourceMackerelNotificationGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMackerelNotificationGroupRead,
+		ReadContext: dataSourceMackerelNotificationGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -48,14 +49,14 @@ func dataSourceMackerelNotificationGroup() *schema.Resource {
 	}
 }
 
-func dataSourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceMackerelNotificationGroupRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	id := d.Get("id").(string)
 
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 
 	groups, err := client.FindNotificationGroups()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	var group *mackerel.NotificationGroup
 	for _, g := range groups {
@@ -65,7 +66,7 @@ func dataSourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interf
 		}
 	}
 	if group == nil {
-		return fmt.Errorf("the ID '%s' does not match any notification-group in mackerel.io", id)
+		return diag.Errorf("the ID '%s' does not match any notification-group in mackerel.io", id)
 	}
 	d.SetId(group.ID)
 	return flattenNotificationGroup(group, d)

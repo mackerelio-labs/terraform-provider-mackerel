@@ -2,12 +2,11 @@ package mackerel
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -18,9 +17,9 @@ func TestAccMackerelNotificationGroup(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-notification-group %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelNotificationGroupDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelNotificationGroupDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -56,40 +55,6 @@ func TestAccMackerelNotificationGroup(t *testing.T) {
 			},
 		},
 	})
-}
-
-func TestAccMackerelNotificationGroup_ResourceNotFound(t *testing.T) {
-	rand := acctest.RandString(5)
-	name := fmt.Sprintf("tf-notification-group-%s", rand)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelNotificationGroupDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccMackerelNotificationGroupConfig(name),
-			},
-			{
-				PreConfig:   testAccDeleteMackerelNotificationGroup(name),
-				Config:      testAccMackerelNotificationGroupConfig(name),
-				ExpectError: regexp.MustCompile(`the ID '.*' does not match any notification-group in mackerel\.io`),
-			},
-		},
-	})
-}
-
-func testAccDeleteMackerelNotificationGroup(name string) func() {
-	return func() {
-		client := testAccProvider.Meta().(*mackerel.Client)
-		groups, _ := client.FindNotificationGroups()
-		for _, g := range groups {
-			if g.Name == name {
-				_, _ = client.DeleteNotificationGroup(g.ID)
-				break
-			}
-		}
-	}
 }
 
 func testAccCheckMackerelNotificationGroupDestroy(s *terraform.State) error {

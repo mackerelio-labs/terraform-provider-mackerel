@@ -1,22 +1,23 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func resourceMackerelDowntime() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelDowntimeCreate,
-		Read:   resourceMackerelDowntimeRead,
-		Update: resourceMackerelDowntimeUpdate,
-		Delete: resourceMackerelDowntimeDelete,
+		CreateContext: resourceMackerelDowntimeCreate,
+		ReadContext:   resourceMackerelDowntimeRead,
+		UpdateContext: resourceMackerelDowntimeUpdate,
+		DeleteContext: resourceMackerelDowntimeDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -100,21 +101,21 @@ func resourceMackerelDowntime() *schema.Resource {
 	}
 }
 
-func resourceMackerelDowntimeCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelDowntimeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	dt, err := client.CreateDowntime(expandDowntime(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(dt.ID)
-	return resourceMackerelDowntimeRead(d, meta)
+	return resourceMackerelDowntimeRead(ctx, d, m)
 }
 
-func resourceMackerelDowntimeRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelDowntimeRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	downtimes, err := client.FindDowntimes()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	var downtime *mackerel.Downtime
 	for _, dt := range downtimes {
@@ -124,24 +125,28 @@ func resourceMackerelDowntimeRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	if downtime == nil {
-		return fmt.Errorf("the ID '%s' does not match any downtime in mackerel.io", d.Id())
+		return diag.Errorf("the ID '%s' does not match any downtime in mackerel.io", d.Id())
 	}
 	return flattenDowntime(downtime, d)
 }
 
-func resourceMackerelDowntimeUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelDowntimeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	_, err := client.UpdateDowntime(d.Id(), expandDowntime(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return resourceMackerelDowntimeRead(d, meta)
+	return resourceMackerelDowntimeRead(ctx, d, m)
 }
 
-func resourceMackerelDowntimeDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceMackerelDowntimeDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	client := meta.(*mackerel.Client)
 	_, err := client.DeleteDowntime(d.Id())
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 var stringToRecurrenceType = map[string]mackerel.DowntimeRecurrenceType{
@@ -202,32 +207,4 @@ func expandDowntime(d *schema.ResourceData) *mackerel.Downtime {
 		downtime.Recurrence = &recurrence
 	}
 	return downtime
-}
-
-func flattenDowntime(downtime *mackerel.Downtime, d *schema.ResourceData) error {
-	d.Set("name", downtime.Name)
-	d.Set("memo", downtime.Memo)
-	d.Set("start", downtime.Start)
-	d.Set("duration", downtime.Duration)
-	if downtime.Recurrence != nil {
-		weekdays := make([]string, 0, len(downtime.Recurrence.Weekdays))
-		for _, weekday := range downtime.Recurrence.Weekdays {
-			weekdays = append(weekdays, weekday.String())
-		}
-		d.Set("recurrence", []map[string]interface{}{
-			{
-				"type":     downtime.Recurrence.Type.String(),
-				"interval": downtime.Recurrence.Interval,
-				"weekdays": flattenStringListToSet(weekdays),
-				"until":    downtime.Recurrence.Until,
-			},
-		})
-	}
-	d.Set("service_scopes", flattenStringListToSet(downtime.ServiceScopes))
-	d.Set("service_exclude_scopes", flattenStringListToSet(downtime.ServiceExcludeScopes))
-	d.Set("role_scopes", flattenStringListToSet(downtime.RoleScopes))
-	d.Set("role_exclude_scopes", flattenStringListToSet(downtime.RoleExcludeScopes))
-	d.Set("monitor_scopes", flattenStringListToSet(downtime.MonitorScopes))
-	d.Set("monitor_exclude_scopes", flattenStringListToSet(downtime.MonitorExcludeScopes))
-	return nil
 }

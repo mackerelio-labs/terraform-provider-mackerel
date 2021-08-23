@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestDataSourceMackerelRoleMetadata(t *testing.T) {
@@ -16,8 +16,8 @@ func TestDataSourceMackerelRoleMetadata(t *testing.T) {
 	namespace := fmt.Sprintf("tf-namespace-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelRoleMetadataConfig(service, role, namespace),
@@ -54,6 +54,7 @@ resource "mackerel_role_metadata" "foo" {
 }
 
 data "mackerel_role_metadata" "foo" {
+  depends_on = [mackerel_role_metadata.foo]
   service = mackerel_role_metadata.foo.service
   role = mackerel_role_metadata.foo.role
   namespace = mackerel_role_metadata.foo.namespace

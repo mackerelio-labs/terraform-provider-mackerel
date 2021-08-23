@@ -1,12 +1,14 @@
 package mackerel
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Provider returns a terraform.ResourceProvider.
-func Provider() terraform.ResourceProvider {
+// Provider returns a *schema.Provider
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"api_key": {
@@ -42,13 +44,13 @@ func Provider() terraform.ResourceProvider {
 			"mackerel_service_metadata":    dataSourceMackerelServiceMetadata(),
 		},
 
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 }
 
-func providerConfigure(data *schema.ResourceData) (interface{}, error) {
+func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	config := Config{
-		APIKey: data.Get("api_key").(string),
+		APIKey: d.Get("api_key").(string),
 	}
 	return config.Client()
 }

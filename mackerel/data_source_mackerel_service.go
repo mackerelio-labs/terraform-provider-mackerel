@@ -1,15 +1,16 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func dataSourceMackerelService() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMackerelServiceRead,
+		ReadContext: dataSourceMackerelServiceRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -24,13 +25,13 @@ func dataSourceMackerelService() *schema.Resource {
 	}
 }
 
-func dataSourceMackerelServiceRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceMackerelServiceRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	name := d.Get("name").(string)
 
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 	services, err := client.FindServices()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var service *mackerel.Service
@@ -41,7 +42,7 @@ func dataSourceMackerelServiceRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	if service == nil {
-		return fmt.Errorf("the name '%s' does not match any service in mackerel.io", name)
+		return diag.Errorf("the name '%s' does not match any service in mackerel.io", name)
 	}
 	d.SetId(service.Name)
 	return flattenService(service, d)

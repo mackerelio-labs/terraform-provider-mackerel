@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceMackerelMonitorHostMetric(t *testing.T) {
@@ -14,8 +14,8 @@ func TestAccDataSourceMackerelMonitorHostMetric(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigHostMetric(rand, name),
@@ -53,11 +53,11 @@ func TestAccDataSourceMackerelMonitorConnectivity(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMackerelMonitorConfigConnectivyty(rand, name),
+				Config: testAccDataSourceMackerelMonitorConfigConnectivity(rand, name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(dsName, "id"),
 					resource.TestCheckResourceAttr(dsName, "name", name),
@@ -87,8 +87,8 @@ func TestAccDataSourceMackerelMonitorServiceMetric(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigServiceMetric(serviceName, name),
@@ -128,8 +128,8 @@ func TestAccDataSourceMackerelMonitorExternal(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigExternal(serviceName, name),
@@ -173,11 +173,11 @@ func TestAccDataSourceMackerelMonitorExpression(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMackerelMonitorExpressin(name),
+				Config: testAccDataSourceMackerelMonitorExpression(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(dsName, "id"),
 					resource.TestCheckResourceAttr(dsName, "name", name),
@@ -208,8 +208,8 @@ func TestAccDataSourceMackerelMonitorAnomalyDetection(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigAnomalyDetection(rand, name),
@@ -285,7 +285,7 @@ data "mackerel_monitor" "foo" {
 `, rand, rand, rand, rand, name)
 }
 
-func testAccDataSourceMackerelMonitorConfigConnectivyty(rand, name string) string {
+func testAccDataSourceMackerelMonitorConfigConnectivity(rand, name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "scoped" {
   name = "tf-service-%s-scoped"
@@ -392,7 +392,7 @@ data "mackerel_monitor" "foo" {
 `, serviceName, name)
 }
 
-func testAccDataSourceMackerelMonitorExpressin(name string) string {
+func testAccDataSourceMackerelMonitorExpression(name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_monitor" "foo" {
   name = "%s"

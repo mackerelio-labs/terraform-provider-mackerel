@@ -2,12 +2,11 @@ package mackerel
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -18,9 +17,9 @@ func TestAccMackerelChannel_Email(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-channel email %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelChannelDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -66,10 +65,10 @@ func TestAccMackerelChannel_Slack(t *testing.T) {
 	name := fmt.Sprintf("tf-channel slack %s", rand)
 	nameUpdated := fmt.Sprintf("tf-channel slack %s updated", rand)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelChannelDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -117,10 +116,10 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 	name := fmt.Sprintf("tf-channel slack %s", rand)
 	nameUpdated := fmt.Sprintf("tf-channel slack %s updated", rand)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelChannelDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -156,40 +155,6 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 			},
 		},
 	})
-}
-
-func TestAccMackerelChannel_ResourceNotFound(t *testing.T) {
-	rand := acctest.RandString(5)
-	name := fmt.Sprintf("tf-channel-%s", rand)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelChannelDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccMackerelChannelConfigEmail(name),
-			},
-			{
-				PreConfig:   testAccDeleteMackerelChannel(name),
-				Config:      testAccMackerelChannelConfigEmail(name),
-				ExpectError: regexp.MustCompile(`the ID '.*' does not match any channel in mackerel\.io`),
-			},
-		},
-	})
-}
-
-func testAccDeleteMackerelChannel(name string) func() {
-	return func() {
-		client := testAccProvider.Meta().(*mackerel.Client)
-		channels, _ := client.FindChannels()
-		for _, c := range channels {
-			if c.Name == name {
-				_, _ = client.DeleteChannel(c.ID)
-				break
-			}
-		}
-	}
 }
 
 func testAccCheckMackerelChannelDestroy(s *terraform.State) error {

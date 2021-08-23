@@ -1,15 +1,17 @@
 package mackerel
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func dataSourceMackerelRole() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMackerelRoleRead,
+		ReadContext: dataSourceMackerelRoleRead,
 
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -28,14 +30,14 @@ func dataSourceMackerelRole() *schema.Resource {
 	}
 }
 
-func dataSourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceMackerelRoleRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	service := d.Get("service").(string)
 	name := d.Get("name").(string)
 
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 	roles, err := client.FindRoles(service)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var role *mackerel.Role
@@ -46,7 +48,7 @@ func dataSourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error 
 		}
 	}
 	if role == nil {
-		return fmt.Errorf("the name '%s' does not match any role in mackerel.io", name)
+		return diag.Errorf("the name '%s' does not match any role in mackerel.io", name)
 	}
 	d.SetId(fmt.Sprintf("%s:%s", service, role.Name))
 	return flattenRole(role, d)

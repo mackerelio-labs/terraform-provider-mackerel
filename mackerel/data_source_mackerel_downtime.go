@@ -1,15 +1,16 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func dataSourceMackerelDowntime() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMackerelDowntimeRead,
+		ReadContext: dataSourceMackerelDowntimeRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -91,14 +92,14 @@ func dataSourceMackerelDowntime() *schema.Resource {
 	}
 }
 
-func dataSourceMackerelDowntimeRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceMackerelDowntimeRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	id := d.Get("id").(string)
 
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 
 	downtimes, err := client.FindDowntimes()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	var downtime *mackerel.Downtime
 	for _, dt := range downtimes {
@@ -108,7 +109,7 @@ func dataSourceMackerelDowntimeRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 	if downtime == nil {
-		return fmt.Errorf("the ID '%s' does not match any downtime in mackerel.io", id)
+		return diag.Errorf("the ID '%s' does not match any downtime in mackerel.io", id)
 	}
 	d.SetId(downtime.ID)
 	return flattenDowntime(downtime, d)

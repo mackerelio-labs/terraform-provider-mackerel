@@ -1,10 +1,11 @@
 package mackerel
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -33,12 +34,12 @@ var monitorResource = &schema.Resource{
 
 func resourceMackerelNotificationGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelNotificationGroupCreate,
-		Read:   resourceMackerelNotificationGroupRead,
-		Update: resourceMackerelNotificationGroupUpdate,
-		Delete: resourceMackerelNotificationGroupDelete,
+		CreateContext: resourceMackerelNotificationGroupCreate,
+		ReadContext:   resourceMackerelNotificationGroupRead,
+		UpdateContext: resourceMackerelNotificationGroupUpdate,
+		DeleteContext: resourceMackerelNotificationGroupDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -75,21 +76,21 @@ func resourceMackerelNotificationGroup() *schema.Resource {
 	}
 }
 
-func resourceMackerelNotificationGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelNotificationGroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	group, err := client.CreateNotificationGroup(expandNotificationGroup(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(group.ID)
-	return resourceMackerelNotificationGroupRead(d, meta)
+	return resourceMackerelNotificationGroupRead(ctx, d, m)
 }
 
-func resourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelNotificationGroupRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	groups, err := client.FindNotificationGroups()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	var group *mackerel.NotificationGroup
 	for _, g := range groups {
@@ -99,25 +100,29 @@ func resourceMackerelNotificationGroupRead(d *schema.ResourceData, meta interfac
 		}
 	}
 	if group == nil {
-		return fmt.Errorf("the ID '%s' does not match any notification-group in mackerel.io", d.Id())
+		return diag.Errorf("the ID '%s' does not match any notification-group in mackerel.io", d.Id())
 	}
 	return flattenNotificationGroup(group, d)
 }
 
-func resourceMackerelNotificationGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelNotificationGroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	group, err := client.UpdateNotificationGroup(d.Id(), expandNotificationGroup(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(group.ID)
-	return resourceMackerelNotificationGroupRead(d, meta)
+	return resourceMackerelNotificationGroupRead(ctx, d, m)
 }
 
-func resourceMackerelNotificationGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelNotificationGroupDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteNotificationGroup(d.Id())
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func expandNotificationGroup(d *schema.ResourceData) *mackerel.NotificationGroup {
@@ -129,16 +134,6 @@ func expandNotificationGroup(d *schema.ResourceData) *mackerel.NotificationGroup
 		Monitors:                  expandMonitorSet(d.Get("monitor").(*schema.Set)),
 		Services:                  expandServiceSet(d.Get("service").(*schema.Set)),
 	}
-}
-
-func flattenNotificationGroup(group *mackerel.NotificationGroup, d *schema.ResourceData) error {
-	d.Set("name", group.Name)
-	d.Set("notification_level", group.NotificationLevel)
-	d.Set("child_notification_group_ids", flattenStringListToSet(group.ChildNotificationGroupIDs))
-	d.Set("child_channel_ids", flattenStringListToSet(group.ChildChannelIDs))
-	d.Set("monitor", flattenMonitors(group.Monitors))
-	d.Set("service", flattenServices(group.Services))
-	return nil
 }
 
 func expandMonitorSet(set *schema.Set) []*mackerel.NotificationGroupMonitor {
@@ -153,17 +148,6 @@ func expandMonitorSet(set *schema.Set) []*mackerel.NotificationGroupMonitor {
 	return monitors
 }
 
-func flattenMonitors(v []*mackerel.NotificationGroupMonitor) *schema.Set {
-	monitors := make([]interface{}, 0, len(v))
-	for _, monitor := range v {
-		monitors = append(monitors, map[string]interface{}{
-			"id":           monitor.ID,
-			"skip_default": monitor.SkipDefault,
-		})
-	}
-	return schema.NewSet(schema.HashResource(monitorResource), monitors)
-}
-
 func expandServiceSet(set *schema.Set) []*mackerel.NotificationGroupService {
 	services := make([]*mackerel.NotificationGroupService, 0, set.Len())
 	for _, service := range set.List() {
@@ -171,14 +155,4 @@ func expandServiceSet(set *schema.Set) []*mackerel.NotificationGroupService {
 		services = append(services, &mackerel.NotificationGroupService{Name: service["name"].(string)})
 	}
 	return services
-}
-
-func flattenServices(v []*mackerel.NotificationGroupService) *schema.Set {
-	services := make([]interface{}, 0, len(v))
-	for _, srv := range v {
-		services = append(services, map[string]interface{}{
-			"name": srv.Name,
-		})
-	}
-	return schema.NewSet(schema.HashResource(serviceResource), services)
 }

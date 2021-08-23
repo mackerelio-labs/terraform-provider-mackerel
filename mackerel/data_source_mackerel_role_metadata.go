@@ -1,15 +1,17 @@
 package mackerel
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func dataSourceMackerelRoleMetadata() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMackerelRoleMetadataRead,
+		ReadContext: dataSourceMackerelRoleMetadataRead,
 
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -32,15 +34,15 @@ func dataSourceMackerelRoleMetadata() *schema.Resource {
 	}
 }
 
-func dataSourceMackerelRoleMetadataRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceMackerelRoleMetadataRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	service := d.Get("service").(string)
 	role := d.Get("role").(string)
 	namespace := d.Get("namespace").(string)
 
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 	resp, err := client.GetRoleMetaData(service, role, namespace)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(fmt.Sprintf("%s:%s/%s", service, role, namespace))
 	return flattenRoleMetadata(resp.RoleMetaData, d)

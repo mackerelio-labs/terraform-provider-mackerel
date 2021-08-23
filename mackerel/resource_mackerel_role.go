@@ -1,22 +1,24 @@
 package mackerel
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func resourceMackerelRole() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelRoleCreate,
-		Read:   resourceMackerelRoleRead,
-		Delete: resourceMackerelRoleDelete,
+		CreateContext: resourceMackerelRoleCreate,
+		ReadContext:   resourceMackerelRoleRead,
+		DeleteContext: resourceMackerelRoleDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceMackerelRoleImport,
+			StateContext: resourceMackerelRoleImport,
 		},
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -43,22 +45,22 @@ func resourceMackerelRole() *schema.Resource {
 	}
 }
 
-func resourceMackerelRoleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceMackerelRoleCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	service := d.Get("service").(string)
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 	role, err := client.CreateRole(service, expandCreateRoleParam(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(fmt.Sprintf("%s:%s", service, role.Name))
-	return resourceMackerelRoleRead(d, meta)
+	return resourceMackerelRoleRead(ctx, d, m)
 }
 
-func resourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelRoleRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	roles, err := client.FindRoles(d.Get("service").(string))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	var role *mackerel.Role
 	for _, r := range roles {
@@ -68,18 +70,22 @@ func resourceMackerelRoleRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if role == nil {
-		return fmt.Errorf("the name '%s' does not match any role in mackerel.io", d.Get("name").(string))
+		return diag.Errorf("the name '%s' does not match any role in mackerel.io", d.Get("name").(string))
 	}
 	return flattenRole(role, d)
 }
 
-func resourceMackerelRoleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelRoleDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteRole(d.Get("service").(string), d.Get("name").(string))
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
-func resourceMackerelRoleImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceMackerelRoleImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	idParts := strings.SplitN(d.Id(), ":", 2)
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		return nil, fmt.Errorf("the ID must be in the form '<service name>:<role name>'")
@@ -94,10 +100,4 @@ func expandCreateRoleParam(d *schema.ResourceData) *mackerel.CreateRoleParam {
 		Name: d.Get("name").(string),
 		Memo: d.Get("memo").(string),
 	}
-}
-
-func flattenRole(role *mackerel.Role, d *schema.ResourceData) error {
-	d.Set("name", role.Name)
-	d.Set("memo", role.Memo)
-	return nil
 }

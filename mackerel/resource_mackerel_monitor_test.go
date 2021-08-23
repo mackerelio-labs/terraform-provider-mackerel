@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -17,9 +17,9 @@ func TestAccMackerelMonitor_HostMetric(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-monitor host_metric %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -91,10 +91,10 @@ func TestAccMackerelMonitor_Connectivity(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor connectivity %s", rand)
 	nameUpdated := fmt.Sprintf("tf-monitor connectivity %s updated", rand)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -156,9 +156,9 @@ func TestAccMackerelMonitor_ServiceMetric(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -233,10 +233,10 @@ func TestAccMackerelMonitor_External(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-monitor external %s updated", rand)
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -319,10 +319,10 @@ func TestAccMackerelMonitor_Expression(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor expression %s", rand)
 	nameUpdated := fmt.Sprintf("tf-monitor expression %s updated", rand)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -386,9 +386,9 @@ func TestAccMackerelMonitor_AnomalyDetection(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-monitor anomaly_detection %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelMonitorDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{

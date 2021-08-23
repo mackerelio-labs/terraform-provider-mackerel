@@ -2,12 +2,11 @@ package mackerel
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -18,9 +17,9 @@ func TestAccMackerelDowntime(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-downtime-%s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelDowntimeDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelDowntimeDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -70,40 +69,6 @@ func TestAccMackerelDowntime(t *testing.T) {
 			},
 		},
 	})
-}
-
-func TestAccMackerelDowntime_ResourceNotFound(t *testing.T) {
-	rand := acctest.RandString(5)
-	name := fmt.Sprintf("tf-downtime-%s", rand)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelDowntimeDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccMackerelDowntimeConfig(name),
-			},
-			{
-				PreConfig:   testAccDeleteMackerelDowntime(name),
-				Config:      testAccMackerelDowntimeConfig(name),
-				ExpectError: regexp.MustCompile(`the ID '.*' does not match any downtime in mackerel\.io`),
-			},
-		},
-	})
-}
-
-func testAccDeleteMackerelDowntime(name string) func() {
-	return func() {
-		client := testAccProvider.Meta().(*mackerel.Client)
-		downtimes, _ := client.FindDowntimes()
-		for _, dt := range downtimes {
-			if dt.Name == name {
-				_, _ = client.DeleteDowntime(dt.ID)
-				break
-			}
-		}
-	}
 }
 
 func testAccCheckMackerelDowntimeDestroy(s *terraform.State) error {

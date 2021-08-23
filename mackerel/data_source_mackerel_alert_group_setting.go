@@ -1,13 +1,16 @@
 package mackerel
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func dataSourceMackerelAlertGroupSetting() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMackerelAlertGroupSettingRead,
+		ReadContext: dataSourceMackerelAlertGroupSettingRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -45,14 +48,14 @@ func dataSourceMackerelAlertGroupSetting() *schema.Resource {
 	}
 }
 
-func dataSourceMackerelAlertGroupSettingRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceMackerelAlertGroupSettingRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	id := d.Get("id").(string)
 
-	client := meta.(*mackerel.Client)
+	client := m.(*mackerel.Client)
 
 	group, err := client.GetAlertGroupSetting(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(group.ID)
 	return flattenAlertGroupSetting(group, d)

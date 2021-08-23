@@ -2,12 +2,11 @@ package mackerel
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -19,9 +18,9 @@ func TestAccMackerelRole(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-rol-%s-updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMackerelRoleDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMackerelRoleDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -48,13 +47,6 @@ func TestAccMackerelRole(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-			// Test: Import (invalid format)
-			{
-				ResourceName:  "mackerel_role.foo",
-				ExpectError:   regexp.MustCompile("the ID must be in the form '<service name>:<role name>'"),
-				ImportState:   true,
-				ImportStateId: "invalid_format",
 			},
 		},
 	})

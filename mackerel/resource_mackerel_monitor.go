@@ -1,21 +1,22 @@
 package mackerel
 
 import (
-	"strings"
+	"context"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
 func resourceMackerelMonitor() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMackerelMonitorCreate,
-		Read:   resourceMackerelMonitorRead,
-		Update: resourceMackerelMonitorUpdate,
-		Delete: resourceMackerelMonitorDelete,
+		CreateContext: resourceMackerelMonitorCreate,
+		ReadContext:   resourceMackerelMonitorRead,
+		UpdateContext: resourceMackerelMonitorUpdate,
+		DeleteContext: resourceMackerelMonitorDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -311,39 +312,43 @@ func resourceMackerelMonitor() *schema.Resource {
 	}
 }
 
-func resourceMackerelMonitorCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelMonitorCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	monitor, err := client.CreateMonitor(expandMonitor(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(monitor.MonitorID())
-	return resourceMackerelMonitorRead(d, meta)
+	return resourceMackerelMonitorRead(ctx, d, m)
 }
 
-func resourceMackerelMonitorRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelMonitorRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	monitor, err := client.GetMonitor(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return flattenMonitor(monitor, d)
 }
 
-func resourceMackerelMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelMonitorUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := m.(*mackerel.Client)
 	monitor, err := client.UpdateMonitor(d.Id(), expandMonitor(d))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(monitor.MonitorID())
-	return resourceMackerelMonitorRead(d, meta)
+	return resourceMackerelMonitorRead(ctx, d, m)
 }
 
-func resourceMackerelMonitorDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*mackerel.Client)
+func resourceMackerelMonitorDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := m.(*mackerel.Client)
 	_, err := client.DeleteMonitor(d.Id())
-	return err
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func expandMonitor(d *schema.ResourceData) mackerel.Monitor {
@@ -367,29 +372,6 @@ func expandMonitor(d *schema.ResourceData) mackerel.Monitor {
 		monitor = expandMonitorAnomalyDetection(d)
 	}
 	return monitor
-}
-
-func flattenMonitor(monitor mackerel.Monitor, d *schema.ResourceData) error {
-	var err error
-	if v, ok := monitor.(*mackerel.MonitorHostMetric); ok {
-		err = flattenMonitorHostMetric(v, d)
-	}
-	if v, ok := monitor.(*mackerel.MonitorConnectivity); ok {
-		err = flattenMonitorConnectivity(v, d)
-	}
-	if v, ok := monitor.(*mackerel.MonitorServiceMetric); ok {
-		err = flattenMonitorServiceMetric(v, d)
-	}
-	if v, ok := monitor.(*mackerel.MonitorExternalHTTP); ok {
-		err = flattenMonitorExternalHTTP(v, d)
-	}
-	if v, ok := monitor.(*mackerel.MonitorExpression); ok {
-		err = flattenMonitorExpression(v, d)
-	}
-	if v, ok := monitor.(*mackerel.MonitorAnomalyDetection); ok {
-		err = flattenMonitorAnomalyDetection(v, d)
-	}
-	return err
 }
 
 func expandMonitorHostMetric(d *schema.ResourceData) *mackerel.MonitorHostMetric {
@@ -419,34 +401,6 @@ func expandMonitorHostMetric(d *schema.ResourceData) *mackerel.MonitorHostMetric
 	return monitor
 }
 
-func flattenMonitorHostMetric(monitor *mackerel.MonitorHostMetric, d *schema.ResourceData) error {
-	d.Set("name", monitor.Name)
-	d.Set("memo", monitor.Memo)
-	d.Set("is_mute", monitor.IsMute)
-	d.Set("notification_interval", monitor.NotificationInterval)
-	normalizedScopes := make([]string, 0, len(monitor.Scopes))
-	for _, s := range monitor.Scopes {
-		normalizedScopes = append(normalizedScopes, strings.ReplaceAll(s, " ", ""))
-	}
-	normalizedExcludeScopes := make([]string, 0, len(monitor.ExcludeScopes))
-	for _, s := range monitor.ExcludeScopes {
-		normalizedExcludeScopes = append(normalizedExcludeScopes, strings.ReplaceAll(s, " ", ""))
-	}
-	d.Set("host_metric", []map[string]interface{}{
-		{
-			"metric":             monitor.Metric,
-			"operator":           monitor.Operator,
-			"warning":            monitor.Warning,
-			"critical":           monitor.Critical,
-			"duration":           monitor.Duration,
-			"max_check_attempts": monitor.MaxCheckAttempts,
-			"scopes":             flattenStringListToSet(normalizedScopes),
-			"exclude_scopes":     flattenStringListToSet(normalizedExcludeScopes),
-		},
-	})
-	return nil
-}
-
 func expandMonitorConnectivity(d *schema.ResourceData) *mackerel.MonitorConnectivity {
 	monitor := &mackerel.MonitorConnectivity{
 		Name:                 d.Get("name").(string),
@@ -458,28 +412,6 @@ func expandMonitorConnectivity(d *schema.ResourceData) *mackerel.MonitorConnecti
 		ExcludeScopes:        expandStringListFromSet(d.Get("connectivity.0.exclude_scopes").(*schema.Set)),
 	}
 	return monitor
-}
-
-func flattenMonitorConnectivity(monitor *mackerel.MonitorConnectivity, d *schema.ResourceData) error {
-	d.Set("name", monitor.Name)
-	d.Set("memo", monitor.Memo)
-	d.Set("is_mute", monitor.IsMute)
-	d.Set("notification_interval", monitor.NotificationInterval)
-	normalizedScopes := make([]string, 0, len(monitor.Scopes))
-	for _, s := range monitor.Scopes {
-		normalizedScopes = append(normalizedScopes, strings.ReplaceAll(s, " ", ""))
-	}
-	normalizedExcludeScopes := make([]string, 0, len(monitor.ExcludeScopes))
-	for _, s := range monitor.ExcludeScopes {
-		normalizedExcludeScopes = append(normalizedExcludeScopes, strings.ReplaceAll(s, " ", ""))
-	}
-	d.Set("connectivity", []map[string]interface{}{
-		{
-			"scopes":         flattenStringListToSet(normalizedScopes),
-			"exclude_scopes": flattenStringListToSet(normalizedExcludeScopes),
-		},
-	})
-	return nil
 }
 
 func expandMonitorServiceMetric(d *schema.ResourceData) *mackerel.MonitorServiceMetric {
@@ -509,27 +441,6 @@ func expandMonitorServiceMetric(d *schema.ResourceData) *mackerel.MonitorService
 	}
 
 	return monitor
-}
-
-func flattenMonitorServiceMetric(monitor *mackerel.MonitorServiceMetric, d *schema.ResourceData) error {
-	d.Set("name", monitor.Name)
-	d.Set("memo", monitor.Memo)
-	d.Set("is_mute", monitor.IsMute)
-	d.Set("notification_interval", monitor.NotificationInterval)
-	d.Set("service_metric", []map[string]interface{}{
-		{
-			"service":                   monitor.Service,
-			"metric":                    monitor.Metric,
-			"operator":                  monitor.Operator,
-			"warning":                   monitor.Warning,
-			"critical":                  monitor.Critical,
-			"duration":                  monitor.Duration,
-			"max_check_attempts":        monitor.MaxCheckAttempts,
-			"missing_duration_warning":  monitor.MissingDurationWarning,
-			"missing_duration_critical": monitor.MissingDurationCritical,
-		},
-	})
-	return nil
 }
 
 func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternalHTTP {
@@ -581,38 +492,6 @@ func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternal
 	return monitor
 }
 
-func flattenMonitorExternalHTTP(monitor *mackerel.MonitorExternalHTTP, d *schema.ResourceData) error {
-	d.Set("name", monitor.Name)
-	d.Set("memo", monitor.Memo)
-	d.Set("is_mute", monitor.IsMute)
-	d.Set("notification_interval", monitor.NotificationInterval)
-	external := map[string]interface{}{
-		"method":                            monitor.Method,
-		"url":                               monitor.URL,
-		"max_check_attempts":                monitor.MaxCheckAttempts,
-		"service":                           monitor.Service,
-		"response_time_critical":            monitor.ResponseTimeCritical,
-		"response_time_warning":             monitor.ResponseTimeWarning,
-		"response_time_duration":            monitor.ResponseTimeDuration,
-		"request_body":                      monitor.RequestBody,
-		"contains_string":                   monitor.ContainsString,
-		"certification_expiration_critical": monitor.CertificationExpirationCritical,
-		"certification_expiration_warning":  monitor.CertificationExpirationWarning,
-		"skip_certificate_verification":     monitor.SkipCertificateVerification,
-		"headers":                           flattenHeaderField(monitor.Headers),
-	}
-	d.Set("external", []map[string]interface{}{external})
-	return nil
-}
-
-func flattenHeaderField(fields []mackerel.HeaderField) map[string]interface{} {
-	headers := make(map[string]interface{}, len(fields))
-	for _, f := range fields {
-		headers[f.Name] = f.Value
-	}
-	return headers
-}
-
 func expandMonitorExpression(d *schema.ResourceData) *mackerel.MonitorExpression {
 	monitor := &mackerel.MonitorExpression{
 		Name:                 d.Get("name").(string),
@@ -636,22 +515,6 @@ func expandMonitorExpression(d *schema.ResourceData) *mackerel.MonitorExpression
 	return monitor
 }
 
-func flattenMonitorExpression(monitor *mackerel.MonitorExpression, d *schema.ResourceData) error {
-	d.Set("name", monitor.Name)
-	d.Set("memo", monitor.Memo)
-	d.Set("is_mute", monitor.IsMute)
-	d.Set("notification_interval", monitor.NotificationInterval)
-	d.Set("expression", []map[string]interface{}{
-		{
-			"expression": monitor.Expression,
-			"operator":   monitor.Operator,
-			"warning":    monitor.Warning,
-			"critical":   monitor.Critical,
-		},
-	})
-	return nil
-}
-
 func expandMonitorAnomalyDetection(d *schema.ResourceData) *mackerel.MonitorAnomalyDetection {
 	monitor := &mackerel.MonitorAnomalyDetection{
 		Name:                 d.Get("name").(string),
@@ -666,25 +529,4 @@ func expandMonitorAnomalyDetection(d *schema.ResourceData) *mackerel.MonitorAnom
 		Scopes:               expandStringListFromSet(d.Get("anomaly_detection.0.scopes").(*schema.Set)),
 	}
 	return monitor
-}
-
-func flattenMonitorAnomalyDetection(monitor *mackerel.MonitorAnomalyDetection, d *schema.ResourceData) error {
-	d.Set("name", monitor.Name)
-	d.Set("memo", monitor.Memo)
-	d.Set("is_mute", monitor.IsMute)
-	d.Set("notification_interval", monitor.NotificationInterval)
-	normalizedScopes := make([]string, 0, len(monitor.Scopes))
-	for _, s := range monitor.Scopes {
-		normalizedScopes = append(normalizedScopes, strings.ReplaceAll(s, " ", ""))
-	}
-	d.Set("anomaly_detection", []map[string]interface{}{
-		{
-			"warning_sensitivity":  monitor.WarningSensitivity,
-			"critical_sensitivity": monitor.CriticalSensitivity,
-			"training_period_from": monitor.TrainingPeriodFrom,
-			"max_check_attempts":   monitor.MaxCheckAttempts,
-			"scopes":               flattenStringListToSet(normalizedScopes),
-		},
-	})
-	return nil
 }
