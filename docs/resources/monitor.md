@@ -73,7 +73,7 @@ resource "mackerel_monitor" "external" {
     response_time_critical = 10000
     response_time_warning  = 5000
     response_time_duration = 3
-    headers                = { "name" : "Cache-Control", "value" : "no-cache" }
+    headers                = { Cache-Control = "no-cache" }
   }
 }
 ```
