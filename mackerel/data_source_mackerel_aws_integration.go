@@ -104,7 +104,7 @@ func dataSourceMackerelAWSIntegration() *schema.Resource {
 			},
 		},
 	}
-	for schemaKey, _ := range awsIntegrationServicesKey {
+	for schemaKey := range awsIntegrationServicesKey {
 		if schemaKey != "ec2" {
 			resource.Schema[schemaKey] = awsIntegrationServiceDataSchema
 		}
