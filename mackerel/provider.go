@@ -22,6 +22,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"mackerel_alert_group_setting": resourceMackerelAlertGroupSetting(),
+			"mackerel_aws_integration":     resourceMackerelAWSIntegration(),
 			"mackerel_channel":             resourceMackerelChannel(),
 			"mackerel_downtime":            resourceMackerelDowntime(),
 			"mackerel_monitor":             resourceMackerelMonitor(),
