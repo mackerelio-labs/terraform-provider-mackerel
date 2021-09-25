@@ -36,6 +36,9 @@ func TestAccMackerelAWSIntegrationIAMRole(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "region", "ap-northeast-1"),
 					resource.TestCheckResourceAttr(resourceName, "included_tags", "Name:staging-server,Environment:staging"),
 					resource.TestCheckResourceAttr(resourceName, "excluded_tags", "Name:develop-server,Environment:develop"),
+					resource.TestCheckResourceAttr(resourceName, "alb.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "rds.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "nlb.#", "1"),
 				),
 			},
 			// Test: Update
@@ -51,6 +54,11 @@ func TestAccMackerelAWSIntegrationIAMRole(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "region", "ap-northeast-1"),
 					resource.TestCheckResourceAttr(resourceName, "included_tags", "Name:production-server,Environment:production"),
 					resource.TestCheckResourceAttr(resourceName, "excluded_tags", "Name:staging-server,Environment:staging"),
+					resource.TestCheckResourceAttr(resourceName, "alb.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "rds.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "nlb.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ec2.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "lambda.#", "1"),
 				),
 			},
 			// Test: Import
@@ -90,6 +98,9 @@ func TestAccMackerelAWSIntegrationCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "region", "ap-northeast-1"),
 					resource.TestCheckResourceAttr(resourceName, "included_tags", "Name:staging-server,Environment:staging"),
 					resource.TestCheckResourceAttr(resourceName, "excluded_tags", "Name:develop-server,Environment:develop"),
+					resource.TestCheckResourceAttr(resourceName, "alb.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "rds.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "nlb.#", "1"),
 				),
 			},
 			// Test: Update
@@ -105,6 +116,11 @@ func TestAccMackerelAWSIntegrationCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "region", "ap-northeast-1"),
 					resource.TestCheckResourceAttr(resourceName, "included_tags", "Name:production-server,Environment:production"),
 					resource.TestCheckResourceAttr(resourceName, "excluded_tags", "Name:staging-server,Environment:staging"),
+					resource.TestCheckResourceAttr(resourceName, "alb.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "rds.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "nlb.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ec2.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "lambda.#", "1"),
 				),
 			},
 			// Test: Import
