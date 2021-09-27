@@ -80,7 +80,7 @@ resource "mackerel_service" "include" {
 
 resource "mackerel_role" "include" {
   service = mackerel_service.include.name
-  name = "tf-role-%s-include"
+  name    = "tf-role-%s-include"
 }
 
 resource "mackerel_aws_integration" "foo" {
@@ -102,13 +102,13 @@ resource "mackerel_aws_integration" "foo" {
 
   rds {
     enable           = true
-	role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
+    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
     excluded_metrics = ["rds.cpu.used"]
- }
+  }
 
   nlb {
     enable           = true
-	role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
+    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
     excluded_metrics = []
   }
 }
@@ -127,7 +127,7 @@ resource "mackerel_service" "include" {
 
 resource "mackerel_role" "include" {
   service = mackerel_service.include.name
-  name = "tf-role-%s-include"
+  name    = "tf-role-%s-include"
 }
 
 resource "mackerel_aws_integration" "foo" {
@@ -149,13 +149,13 @@ resource "mackerel_aws_integration" "foo" {
 
   rds {
     enable           = true
-	role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
+    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
     excluded_metrics = ["rds.cpu.used"]
- }
+  }
 
   nlb {
     enable           = true
-	role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
+    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
     excluded_metrics = []
   }
 }
