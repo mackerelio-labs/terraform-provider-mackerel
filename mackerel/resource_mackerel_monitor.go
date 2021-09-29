@@ -239,6 +239,10 @@ func resourceMackerelMonitor() *schema.Resource {
 							Sensitive: true,
 							Elem:      &schema.Schema{Type: schema.TypeString},
 						},
+						"follow_redirect": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 					},
 				},
 			},
