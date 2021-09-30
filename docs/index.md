@@ -59,3 +59,4 @@ provider "mackerel" {
 ## Argument Reference
 
 * `api_key` - (Optional) Mackerel API Key. It must be provided, but it can also be sourced from the `MACKEREL_API_KEY` environment variable.
+* `api_base` - (Optional) Mackerel API Endpoint. It can also be sourced from the `API_BASE` environment variable.
