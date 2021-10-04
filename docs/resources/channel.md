@@ -68,7 +68,7 @@ The following arguments are required:
 
 * `url` - Incoming Webhook URL for Slack.
 * `mentions` - A map of mentions. Valid values are `ok`, `warning`, or `critical`.
-* `enabled_graph_image` - A boolean value whether to post the corresponding graph. Default `falsse`.
+* `enabled_graph_image` - A boolean value whether to post the corresponding graph. Default `false`.
 * `events` - A set of notification events. Valid values are `alert` or `alertGroup`.
 
 ### webhook
