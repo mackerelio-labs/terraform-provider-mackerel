@@ -239,6 +239,10 @@ func resourceMackerelMonitor() *schema.Resource {
 							Sensitive: true,
 							Elem:      &schema.Schema{Type: schema.TypeString},
 						},
+						"follow_redirect": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -463,6 +467,7 @@ func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternal
 		CertificationExpirationWarning:  nil,
 		SkipCertificateVerification:     d.Get("external.0.skip_certificate_verification").(bool),
 		Headers:                         []mackerel.HeaderField{},
+		FollowRedirect:                  d.Get("external.0.follow_redirect").(bool),
 	}
 	if responseTimeCritical, ok := d.GetOkExists("external.0.response_time_critical"); ok {
 		responseTimeCritical := responseTimeCritical.(float64)

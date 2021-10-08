@@ -62,6 +62,7 @@ data "mackerel_monitor" "this" {
   * `skip_certificate_verification` - Whether verify the certificate when monitoring a server with a self-signed certificate or not.
   * `headers` - The values configured as the HTTP request header.
   * `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made.
+  * `follow_redirect` - Evaluates the response of the redirector as a result.
 * `expression` -  The settings for the monitor of expression monitoring.
   * `expression` - Expression of the monitoring target.
   * `operator` - The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right.
