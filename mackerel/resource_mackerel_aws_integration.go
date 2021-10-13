@@ -120,8 +120,9 @@ func resourceMackerelAWSIntegration() *schema.Resource {
 				Optional: true,
 			},
 			"external_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"region": {
 				Type:     schema.TypeString,

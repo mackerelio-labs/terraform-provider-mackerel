@@ -83,8 +83,9 @@ func dataSourceMackerelAWSIntegration() *schema.Resource {
 				Computed: true,
 			},
 			"external_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"region": {
 				Type:     schema.TypeString,
