@@ -34,7 +34,7 @@ func TestAccDataSourceMackerelAWSIntegrationIAMRole(t *testing.T) {
 					resource.TestCheckResourceAttr(dsName, "excluded_tags", "Name:develop-server,Environment:develop"),
 					resource.TestCheckResourceAttr(dsName, "alb.#", "1"),
 					resource.TestCheckResourceAttr(dsName, "rds.#", "1"),
-					resource.TestCheckResourceAttr(dsName, "nlb.#", "1"),
+					resource.TestCheckResourceAttr(dsName, "nlb.#", "0"),
 				),
 			},
 		},
@@ -66,7 +66,7 @@ func TestAccDataSourceMackerelAWSIntegrationCredential(t *testing.T) {
 					resource.TestCheckResourceAttr(dsName, "excluded_tags", "Name:develop-server,Environment:develop"),
 					resource.TestCheckResourceAttr(dsName, "alb.#", "1"),
 					resource.TestCheckResourceAttr(dsName, "rds.#", "1"),
-					resource.TestCheckResourceAttr(dsName, "nlb.#", "1"),
+					resource.TestCheckResourceAttr(dsName, "nlb.#", "0"),
 				),
 			},
 		},
@@ -108,9 +108,7 @@ resource "mackerel_aws_integration" "foo" {
   }
 
   nlb {
-    enable           = true
-    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
-    excluded_metrics = []
+    enable = false
   }
 }
 
@@ -155,9 +153,7 @@ resource "mackerel_aws_integration" "foo" {
   }
 
   nlb {
-    enable           = true
-    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
-    excluded_metrics = []
+    enable = false
   }
 }
 

@@ -210,15 +210,12 @@ resource "mackerel_aws_integration" "foo" {
   }
 
   rds {
-    enable           = true
     role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
     excluded_metrics = ["rds.cpu.used"]
   }
 
   nlb {
-    enable           = true
-    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
-    excluded_metrics = []
+    enable = false
   }
 }
 `, rand, rand, name, roleArn, externalID)
@@ -259,9 +256,7 @@ resource "mackerel_aws_integration" "foo" {
   }
 
   nlb {
-    enable           = true
-    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
-    excluded_metrics = []
+    enable = false
   }
 }
 `, rand, rand, name, awsAccessKey, awsSecretKey)

@@ -2,7 +2,6 @@ package mackerel
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -12,9 +11,9 @@ import (
 var awsIntegrationServiceEC2Resource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"enable": {
-			Type:         schema.TypeBool,
-			Required:     true,
-			ValidateFunc: isAWSIntegrationEnableTrue,
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  true,
 		},
 		"role": {
 			Type:     schema.TypeString,
@@ -37,9 +36,9 @@ var awsIntegrationServiceEC2Resource = &schema.Resource{
 var awsIntegrationServiceResource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"enable": {
-			Type:         schema.TypeBool,
-			Required:     true,
-			ValidateFunc: isAWSIntegrationEnableTrue,
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  true,
 		},
 		"role": {
 			Type:     schema.TypeString,
@@ -239,18 +238,6 @@ func expandAWSIntegrationServicesSet(d *schema.ResourceData) map[string]*mackere
 		}
 	}
 	return deleteAWSIntegrationDisableService(services)
-}
-
-func isAWSIntegrationEnableTrue(value interface{}, key string) (warns []string, errs []error) {
-	v, ok := value.(bool)
-	if !ok {
-		errs = append(errs, fmt.Errorf("expected type of %s to be bool", key))
-		return
-	}
-	if !v {
-		errs = append(errs, fmt.Errorf("expected enable to be true, got %t", v))
-	}
-	return
 }
 
 func toPointer(s string) *string {
