@@ -38,8 +38,8 @@ jobs:
           MACKEREL_API_KEY: ${{ secrets.MACKEREL_API_KEY }}
           EXTERNAL_ID: ${{ secrets.EXTERNAL_ID }}
           AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - name: Send coverage
         uses: shogo82148/actions-goveralls@v1
         with:

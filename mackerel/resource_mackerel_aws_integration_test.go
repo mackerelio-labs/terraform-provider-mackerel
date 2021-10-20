@@ -78,8 +78,8 @@ func TestAccMackerelAWSIntegrationCredentials(t *testing.T) {
 	rand := acctest.RandString(5)
 	name := fmt.Sprintf("tf-aws-integration-%s", rand)
 	nameUpdated := fmt.Sprintf("tf-aws-integration-%s-updated", rand)
-	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
-	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
+	awsAccessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
+	awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -88,12 +88,12 @@ func TestAccMackerelAWSIntegrationCredentials(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
-				Config: testAccSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKey, awsSecretKey),
+				Config: testAccSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKeyID, awsSecretAccessKey),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelAWSIntegrationExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "memo", "This aws integration is managed by Terraform."),
-					resource.TestCheckResourceAttr(resourceName, "key", awsAccessKey),
+					resource.TestCheckResourceAttr(resourceName, "key", awsAccessKeyID),
 					resource.TestCheckResourceAttr(resourceName, "role_arn", ""),
 					resource.TestCheckResourceAttr(resourceName, "external_id", ""),
 					resource.TestCheckResourceAttr(resourceName, "region", "ap-northeast-1"),
@@ -106,12 +106,12 @@ func TestAccMackerelAWSIntegrationCredentials(t *testing.T) {
 			},
 			// Test: Update
 			{
-				Config: testAccSourceMackerelAWSIntegrationConfigCredentialUpdate(rand, nameUpdated, awsAccessKey, awsSecretKey),
+				Config: testAccSourceMackerelAWSIntegrationConfigCredentialUpdate(rand, nameUpdated, awsAccessKeyID, awsSecretAccessKey),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelAWSIntegrationExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
 					resource.TestCheckResourceAttr(resourceName, "memo", "This aws integration is managed by Terraform."),
-					resource.TestCheckResourceAttr(resourceName, "key", awsAccessKey),
+					resource.TestCheckResourceAttr(resourceName, "key", awsAccessKeyID),
 					resource.TestCheckResourceAttr(resourceName, "role_arn", ""),
 					resource.TestCheckResourceAttr(resourceName, "external_id", ""),
 					resource.TestCheckResourceAttr(resourceName, "region", "ap-northeast-1"),
@@ -221,7 +221,7 @@ resource "mackerel_aws_integration" "foo" {
 `, rand, rand, name, roleArn, externalID)
 }
 
-func testAccSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKey, awsSecretKey string) string {
+func testAccSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKeyID, awsSecretAccessKey string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
   name = "tf-service-%s-include"
@@ -259,7 +259,7 @@ resource "mackerel_aws_integration" "foo" {
     enable = false
   }
 }
-`, rand, rand, name, awsAccessKey, awsSecretKey)
+`, rand, rand, name, awsAccessKeyID, awsSecretAccessKey)
 }
 
 func testAccSourceMackerelAWSIntegrationConfigIAMRoleUpdate(rand, name, roleArn, externalID string) string {
@@ -315,7 +315,7 @@ resource "mackerel_aws_integration" "foo" {
 `, rand, rand, name, roleArn, externalID)
 }
 
-func testAccSourceMackerelAWSIntegrationConfigCredentialUpdate(rand, name, awsAccessKey, awsSecretKey string) string {
+func testAccSourceMackerelAWSIntegrationConfigCredentialUpdate(rand, name, awsAccessKeyID, awsSecretAccessKey string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
   name = "tf-service-%s-include"
@@ -365,5 +365,5 @@ resource "mackerel_aws_integration" "foo" {
     enable = true
   }
 }
-`, rand, rand, name, awsAccessKey, awsSecretKey)
+`, rand, rand, name, awsAccessKeyID, awsSecretAccessKey)
 }

@@ -45,20 +45,20 @@ func TestAccDataSourceMackerelAWSIntegrationCredential(t *testing.T) {
 	dsName := "data.mackerel_aws_integration.foo"
 	rand := acctest.RandString(5)
 	name := fmt.Sprintf("tf-aws-integration-%s", rand)
-	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
-	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
+	awsAccessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
+	awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKey, awsSecretKey),
+				Config: testAccDataSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKeyID, awsSecretAccessKey),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(dsName, "id"),
 					resource.TestCheckResourceAttr(dsName, "name", name),
 					resource.TestCheckResourceAttr(dsName, "memo", "This aws integration is managed by Terraform."),
-					resource.TestCheckResourceAttr(dsName, "key", awsAccessKey),
+					resource.TestCheckResourceAttr(dsName, "key", awsAccessKeyID),
 					resource.TestCheckResourceAttr(dsName, "role_arn", ""),
 					resource.TestCheckResourceAttr(dsName, "external_id", ""),
 					resource.TestCheckResourceAttr(dsName, "region", "ap-northeast-1"),
@@ -118,7 +118,7 @@ data "mackerel_aws_integration" "foo" {
 `, rand, rand, name, roleArn, externalID)
 }
 
-func testAccDataSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKey, awsSecretKey string) string {
+func testAccDataSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKeyID, awsSecretAccessKey string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
   name = "tf-service-%s-include"
@@ -160,5 +160,5 @@ resource "mackerel_aws_integration" "foo" {
 data "mackerel_aws_integration" "foo" {
   id = mackerel_aws_integration.foo.id
 }
-`, rand, rand, name, awsAccessKey, awsSecretKey)
+`, rand, rand, name, awsAccessKeyID, awsSecretAccessKey)
 }
