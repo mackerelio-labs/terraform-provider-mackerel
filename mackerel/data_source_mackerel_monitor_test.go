@@ -158,6 +158,7 @@ func TestAccDataSourceMackerelMonitorExternal(t *testing.T) {
 						resource.TestCheckResourceAttr(dsName, "external.0.skip_certificate_verification", "true"),
 						resource.TestCheckResourceAttr(dsName, "external.0.headers.%", "1"),
 						resource.TestCheckResourceAttr(dsName, "external.0.headers.Cache-Control", "no-cache"),
+						resource.TestCheckResourceAttr(dsName, "external.0.follow_redirect", "true"),
 					),
 					resource.TestCheckResourceAttr(dsName, "expression.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
@@ -383,6 +384,7 @@ resource "mackerel_monitor" "foo" {
     headers = {
       Cache-Control = "no-cache"
     }
+    follow_redirect = true
   }
 }
 

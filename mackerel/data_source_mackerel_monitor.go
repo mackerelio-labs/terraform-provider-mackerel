@@ -197,6 +197,10 @@ func dataSourceMackerelMonitor() *schema.Resource {
 							Sensitive: true,
 							Elem:      &schema.Schema{Type: schema.TypeString},
 						},
+						"follow_redirect": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},

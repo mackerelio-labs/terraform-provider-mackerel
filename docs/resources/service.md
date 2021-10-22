@@ -18,7 +18,7 @@ resource "mackerel_service" "foo" {
 
 ## Argument Reference
 
-* `name` - (Required) The name of role.
+* `name` - (Required) The name of service.
 * `memo` - Notes related to this service.
 
 ## Attributes Reference

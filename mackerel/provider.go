@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // Provider returns a *schema.Provider
@@ -17,6 +18,14 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("MACKEREL_API_KEY", nil),
 				Description: "Mackerel API Key",
 				Sensitive:   true,
+			},
+			"api_base": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("API_BASE", nil),
+				Description:  "Mackerel API BASE URL",
+				Sensitive:    true,
+				ValidateFunc: validation.IsURLWithHTTPorHTTPS,
 			},
 		},
 
@@ -52,7 +61,8 @@ func Provider() *schema.Provider {
 
 func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	config := Config{
-		APIKey: d.Get("api_key").(string),
+		APIKey:  d.Get("api_key").(string),
+		APIBase: d.Get("api_base").(string),
 	}
 	return config.Client()
 }

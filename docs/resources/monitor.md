@@ -148,7 +148,7 @@ The following arguments are required:
 
 ### external
 
-* `method` - (Required) Request method.  Valid values are `GET`, `POST`, `PUT` or `DELETE`.
+* `method` - (Required) Request method. Valid values are `GET`, `POST`, `PUT` or `DELETE`.
 * `url` - (Required) Monitoring target URL.
 * `service` - Service name. When response time is monitored, it will be graphed as the service metrics of this.
 * `response_time_warning` - The response time threshold for warning alerts in milliseconds. Required with `service`.
@@ -161,6 +161,7 @@ The following arguments are required:
 * `skip_certificate_verification` - Whether verify the certificate when monitoring a server with a self-signed certificate or not. Valid values are `true` and `false`.
 * `headers` - The values configured as the HTTP request header.
 * `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`.
+* `follow_redirect` - Evaluates the response of the redirector as a result. Valid values are `true` and `false`. Default is `false`.
 
 ### expression
 
