@@ -303,3 +303,28 @@ func flattenAlertGroupSetting(setting *mackerel.AlertGroupSetting, d *schema.Res
 	d.Set("notification_interval", setting.NotificationInterval)
 	return diags
 }
+
+func flattenAWSIntegration(awsIntegration *mackerel.AWSIntegration, d *schema.ResourceData) (diags diag.Diagnostics) {
+	d.Set("name", awsIntegration.Name)
+	d.Set("memo", awsIntegration.Memo)
+	d.Set("key", awsIntegration.Key)
+	d.Set("role_arn", awsIntegration.RoleArn)
+	d.Set("external_id", awsIntegration.ExternalID)
+	d.Set("region", awsIntegration.Region)
+	d.Set("included_tags", awsIntegration.IncludedTags)
+	d.Set("excluded_tags", awsIntegration.ExcludedTags)
+
+	awsIntegration.Services = deleteAWSIntegrationDisableService(awsIntegration.Services)
+	for key, service := range awsIntegration.Services {
+		s := map[string]interface{}{
+			"enable":           service.Enable,
+			"role":             toString(service.Role),
+			"excluded_metrics": toSliceInterface(service.ExcludedMetrics),
+		}
+		if key == "EC2" {
+			s["retire_automatically"] = service.RetireAutomatically
+		}
+		d.Set(toAWSIntegrationServicesSchemaKey(key), schema.NewSet(schema.HashResource(awsIntegrationServiceResource), []interface{}{s}))
+	}
+	return diags
+}
