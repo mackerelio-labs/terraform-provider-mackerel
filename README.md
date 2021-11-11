@@ -43,7 +43,7 @@ Mackerel terraform provider offers two ways of setting credential.
 
 ### Environment Variables
 
-You can provide your Mackerel API key using environment variables, `MACKEREL_API_KEY`.
+You can provide your Mackerel API key using environment variables, `MACKEREL_APIKEY` or `MACKEREL_API_KEY`.
 
 ### Static credentials
 
