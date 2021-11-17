@@ -17,8 +17,8 @@ func TestAccDataSourceMackerelServiceMetricNames(t *testing.T) {
 			{
 				Config: testAccDataSourceMackerelServiceMetricNamesConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.mackerel_service.foo", "id", name),
-					resource.TestCheckResourceAttr("data.mackerel_service.foo", "name", name),
+					resource.TestCheckResourceAttr("data.mackerel_service_metric_names.foo", "id", name+":"),
+					resource.TestCheckResourceAttr("data.mackerel_service_metric_names.foo", "name", name),
 				),
 			},
 		},
@@ -27,8 +27,13 @@ func TestAccDataSourceMackerelServiceMetricNames(t *testing.T) {
 
 func testAccDataSourceMackerelServiceMetricNamesConfig(name string) string {
 	return fmt.Sprintf(`
-data "mackerel_service_metric_names" "foo" {
+resource "mackerel_service" "foo" {
   name = "%s"
+  memo = "This service is managed by Terraform."
+}
+
+data "mackerel_service_metric_names" "foo" {
+  name = mackerel_service.foo.name
 }
 `, name)
 }
