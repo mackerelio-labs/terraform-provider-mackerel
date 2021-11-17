@@ -24,6 +24,12 @@ func flattenServiceMetadata(metadata mackerel.ServiceMetaData, d *schema.Resourc
 	return diags
 }
 
+func flattenServiceMetricNames(name string, metricNames []string, d *schema.ResourceData) (diags diag.Diagnostics) {
+	d.Set("name", name)
+	d.Set("metric_names", flattenStringListToSet(metricNames))
+	return diags
+}
+
 func flattenRole(role *mackerel.Role, d *schema.ResourceData) (diags diag.Diagnostics) {
 	d.Set("name", role.Name)
 	d.Set("memo", role.Memo)
