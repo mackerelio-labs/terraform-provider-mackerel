@@ -25,7 +25,8 @@ func main() {
 	}
 
 	if debug {
-		if err := plugin.Debug(context.TODO(), providerAddr, opts); err != nil {
+		c := context.TODO() // to support cancellation operations such as signal handling in the future.
+		if err := plugin.Debug(c, providerAddr, opts); err != nil {
 			log.Fatal(err)
 		}
 		return
