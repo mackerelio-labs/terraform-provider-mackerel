@@ -1,4 +1,4 @@
-TF_ACC=1
+export TF_ACC=1
 
 .PHONY: test
 test:
