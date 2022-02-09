@@ -267,8 +267,8 @@ resource "mackerel_monitor" "foo" {
   host_metric {
     metric = "disk%%"
     operator = ">"
-    warning = 70
-    critical = 90
+    warning = "70"
+    critical = "90"
     duration = 3
     max_check_attempts = 5
     scopes = [
@@ -404,8 +404,8 @@ resource "mackerel_monitor" "foo" {
   expression {
     expression = "max(role(my-service:db, loadavg5))"
     operator = ">"
-    warning = 0.7
-    critical = 0.9
+    warning = "0.7"
+    critical = "0.9"
   }
 }
 
