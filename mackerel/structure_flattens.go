@@ -84,8 +84,8 @@ func flattenMonitorHostMetric(monitor *mackerel.MonitorHostMetric, d *schema.Res
 		{
 			"metric":             monitor.Metric,
 			"operator":           monitor.Operator,
-			"warning":            monitor.Warning,
-			"critical":           monitor.Critical,
+			"warning":            parseFloat64ToString(monitor.Warning),
+			"critical":           parseFloat64ToString(monitor.Critical),
 			"duration":           monitor.Duration,
 			"max_check_attempts": monitor.MaxCheckAttempts,
 			"scopes":             flattenStringListToSet(normalizedScopes),
@@ -127,8 +127,8 @@ func flattenMonitorServiceMetric(monitor *mackerel.MonitorServiceMetric, d *sche
 			"service":                   monitor.Service,
 			"metric":                    monitor.Metric,
 			"operator":                  monitor.Operator,
-			"warning":                   monitor.Warning,
-			"critical":                  monitor.Critical,
+			"warning":                   parseFloat64ToString(monitor.Warning),
+			"critical":                  parseFloat64ToString(monitor.Critical),
 			"duration":                  monitor.Duration,
 			"max_check_attempts":        monitor.MaxCheckAttempts,
 			"missing_duration_warning":  monitor.MissingDurationWarning,
@@ -176,8 +176,8 @@ func flattenMonitorExpression(monitor *mackerel.MonitorExpression, d *schema.Res
 		{
 			"expression": monitor.Expression,
 			"operator":   monitor.Operator,
-			"warning":    monitor.Warning,
-			"critical":   monitor.Critical,
+			"warning":    parseFloat64ToString(monitor.Warning),
+			"critical":   parseFloat64ToString(monitor.Critical),
 		},
 	})
 	return diags

@@ -343,8 +343,8 @@ resource "mackerel_monitor" "foo" {
     duration = 3
     metric = "custom.access.2xx_ratio"
     operator = "<"
-    warning = 99.9
-    critical = 99.99
+    warning = "99.9"
+    critical = "99.99"
     max_check_attempts = 5
     missing_duration_warning = 10
     missing_duration_critical = 10080

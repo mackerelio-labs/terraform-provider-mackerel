@@ -1,6 +1,8 @@
 package mackerel
 
 import (
+	"strconv"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -22,4 +24,11 @@ func flattenStringList(strings []string) []interface{} {
 
 func flattenStringListToSet(strings []string) *schema.Set {
 	return schema.NewSet(schema.HashString, flattenStringList(strings))
+}
+
+func parseFloat64ToString(f *float64) string {
+	if f == nil {
+		return ""
+	}
+	return strconv.FormatFloat(*f, 'f', -1, 64)
 }
