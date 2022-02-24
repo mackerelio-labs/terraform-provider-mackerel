@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -56,13 +57,15 @@ func resourceMackerelMonitor() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{">", "<"}, false),
 						},
 						"warning": {
-							Type:         schema.TypeFloat,
+							Type:         schema.TypeString,
 							Optional:     true,
+							ValidateFunc: ValidateFloatString,
 							AtLeastOneOf: []string{"host_metric.0.warning", "host_metric.0.critical"},
 						},
 						"critical": {
-							Type:         schema.TypeFloat,
+							Type:         schema.TypeString,
 							Optional:     true,
+							ValidateFunc: ValidateFloatString,
 							AtLeastOneOf: []string{"host_metric.0.warning", "host_metric.0.critical"},
 						},
 						"duration": {
@@ -131,13 +134,15 @@ func resourceMackerelMonitor() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{">", "<"}, false),
 						},
 						"warning": {
-							Type:         schema.TypeFloat,
+							Type:         schema.TypeString,
 							Optional:     true,
+							ValidateFunc: ValidateFloatString,
 							AtLeastOneOf: []string{"service_metric.0.warning", "service_metric.0.critical"},
 						},
 						"critical": {
-							Type:         schema.TypeFloat,
+							Type:         schema.TypeString,
 							Optional:     true,
+							ValidateFunc: ValidateFloatString,
 							AtLeastOneOf: []string{"service_metric.0.warning", "service_metric.0.critical"},
 						},
 						"duration": {
@@ -263,13 +268,15 @@ func resourceMackerelMonitor() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{">", "<"}, false),
 						},
 						"warning": {
-							Type:         schema.TypeFloat,
+							Type:         schema.TypeString,
 							Optional:     true,
+							ValidateFunc: ValidateFloatString,
 							AtLeastOneOf: []string{"expression.0.warning", "expression.0.critical"},
 						},
 						"critical": {
-							Type:         schema.TypeFloat,
+							Type:         schema.TypeString,
 							Optional:     true,
+							ValidateFunc: ValidateFloatString,
 							AtLeastOneOf: []string{"expression.0.warning", "expression.0.critical"},
 						},
 					},
@@ -394,14 +401,20 @@ func expandMonitorHostMetric(d *schema.ResourceData) *mackerel.MonitorHostMetric
 		Scopes:               expandStringListFromSet(d.Get("host_metric.0.scopes").(*schema.Set)),
 		ExcludeScopes:        expandStringListFromSet(d.Get("host_metric.0.exclude_scopes").(*schema.Set)),
 	}
+
 	if warning, ok := d.GetOkExists("host_metric.0.warning"); ok {
-		warning := warning.(float64)
-		monitor.Warning = &warning
+		w, err := strconv.ParseFloat(warning.(string), 64)
+		if err == nil {
+			monitor.Warning = &w
+		}
 	}
 	if critical, ok := d.GetOkExists("host_metric.0.critical"); ok {
-		critical := critical.(float64)
-		monitor.Critical = &critical
+		c, err := strconv.ParseFloat(critical.(string), 64)
+		if err == nil {
+			monitor.Critical = &c
+		}
 	}
+
 	return monitor
 }
 
@@ -435,13 +448,19 @@ func expandMonitorServiceMetric(d *schema.ResourceData) *mackerel.MonitorService
 		MissingDurationWarning:  uint64(d.Get("service_metric.0.missing_duration_warning").(int)),
 		MissingDurationCritical: uint64(d.Get("service_metric.0.missing_duration_critical").(int)),
 	}
+
 	if warning, ok := d.GetOkExists("service_metric.0.warning"); ok {
-		warning := warning.(float64)
-		monitor.Warning = &warning
+		w, err := strconv.ParseFloat(warning.(string), 64)
+		if err == nil {
+			monitor.Warning = &w
+		}
 	}
+
 	if critical, ok := d.GetOkExists("service_metric.0.critical"); ok {
-		critical := critical.(float64)
-		monitor.Critical = &critical
+		c, err := strconv.ParseFloat(critical.(string), 64)
+		if err == nil {
+			monitor.Critical = &c
+		}
 	}
 
 	return monitor
@@ -469,6 +488,7 @@ func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternal
 		Headers:                         []mackerel.HeaderField{},
 		FollowRedirect:                  d.Get("external.0.follow_redirect").(bool),
 	}
+
 	if responseTimeCritical, ok := d.GetOkExists("external.0.response_time_critical"); ok {
 		responseTimeCritical := responseTimeCritical.(float64)
 		monitor.ResponseTimeCritical = &responseTimeCritical
@@ -510,12 +530,16 @@ func expandMonitorExpression(d *schema.ResourceData) *mackerel.MonitorExpression
 		Critical:             nil,
 	}
 	if warning, ok := d.GetOkExists("expression.0.warning"); ok {
-		warning := warning.(float64)
-		monitor.Warning = &warning
+		w, err := strconv.ParseFloat(warning.(string), 64)
+		if err == nil {
+			monitor.Warning = &w
+		}
 	}
 	if critical, ok := d.GetOkExists("expression.0.critical"); ok {
-		critical := critical.(float64)
-		monitor.Critical = &critical
+		c, err := strconv.ParseFloat(critical.(string), 64)
+		if err == nil {
+			monitor.Critical = &c
+		}
 	}
 	return monitor
 }

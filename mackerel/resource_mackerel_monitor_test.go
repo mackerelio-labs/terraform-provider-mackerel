@@ -35,7 +35,7 @@ func TestAccMackerelMonitor_HostMetric(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.metric", "cpu.sys"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.operator", ">"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.warning", "75"),
-						resource.TestCheckResourceAttr(resourceName, "host_metric.0.critical", "0"),
+						resource.TestCheckResourceAttr(resourceName, "host_metric.0.critical", ""),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.duration", "1"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.max_check_attempts", "1"),
 						resource.TestCheckResourceAttr(resourceName, "host_metric.0.scopes.#", "0"),
@@ -177,7 +177,7 @@ func TestAccMackerelMonitor_ServiceMetric(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.metric", "custom.access.2xx_ratio"),
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.operator", "<"),
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.warning", "99.9"),
-						resource.TestCheckResourceAttr(resourceName, "service_metric.0.critical", "0"),
+						resource.TestCheckResourceAttr(resourceName, "service_metric.0.critical", ""),
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.duration", "1"),
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.max_check_attempts", "1"),
 						resource.TestCheckResourceAttr(resourceName, "service_metric.0.missing_duration_warning", "0"),
@@ -527,8 +527,8 @@ resource "mackerel_monitor" "foo" {
   host_metric {
     metric = "cpu.usr"
     operator = ">"
-    warning = 70
-    critical = 90
+    warning = "70"
+    critical = "90"
     duration = 3
     max_check_attempts = 5
     scopes = [
@@ -601,7 +601,7 @@ resource "mackerel_monitor" "foo" {
     duration = 1
     metric = "custom.access.2xx_ratio"
     operator = "<"
-    warning = 99.9
+    warning = "99.9"
   }
 }
 `, serviceName, name)
@@ -623,8 +623,8 @@ resource "mackerel_monitor" "foo" {
     duration = 3
     metric = "custom.access.5xx_ratio"
     operator = "<"
-    warning = 99.9
-    critical = 99.99
+    warning = "99.9"
+    critical = "99.99"
     max_check_attempts = 5
     missing_duration_warning = 10
     missing_duration_critical = 10080
@@ -685,7 +685,7 @@ resource "mackerel_monitor" "foo" {
   expression {
     expression = "max(role(my-service:db, loadavg5))"
     operator = ">"
-    warning = 0.7
+    warning = "0.7"
   }
 }
 `, name)
@@ -701,8 +701,8 @@ resource "mackerel_monitor" "foo" {
   expression {
     expression = "max(role(my-service:db, loadavg5))"
     operator = ">"
-    warning = 0.7
-    critical = 0.9
+    warning = "0.7"
+    critical = "0.9"
   }
 }
 `, name)

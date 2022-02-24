@@ -48,11 +48,11 @@ func dataSourceMackerelMonitor() *schema.Resource {
 							Computed: true,
 						},
 						"warning": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"critical": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"duration": {
@@ -112,11 +112,11 @@ func dataSourceMackerelMonitor() *schema.Resource {
 							Computed: true,
 						},
 						"warning": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"critical": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"duration": {
@@ -218,11 +218,11 @@ func dataSourceMackerelMonitor() *schema.Resource {
 							Computed: true,
 						},
 						"warning": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"critical": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
