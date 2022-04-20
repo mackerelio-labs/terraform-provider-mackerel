@@ -45,7 +45,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-profile: coverage.txt
           parallel: true
-          job-number: ${{ strategy.job-index }}
+          flag-name: Go-${{ matrix-os }}
 
   finish:
     needs: acceptance-test
