@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/golangci/golangci-lint v1.46.2
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.0
-	github.com/mackerelio/mackerel-client-go v0.19.0
+	github.com/mackerelio/mackerel-client-go v0.21.1
 )
 
 require (
