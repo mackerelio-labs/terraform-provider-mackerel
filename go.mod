@@ -1,6 +1,6 @@
 module github.com/mackerelio-labs/terraform-provider-mackerel
 
-go 1.17
+go 1.18
 
 require (
 	github.com/golangci/golangci-lint v1.46.2
