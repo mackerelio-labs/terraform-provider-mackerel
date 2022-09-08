@@ -9,7 +9,6 @@ issues:
 
 linters:
   enable:
-    - deadcode
     - errcheck
     - gofmt
     - goimports
@@ -17,9 +16,7 @@ linters:
     - ineffassign
     - misspell
     - staticcheck
-    - structcheck
     - unconvert
     - unused
-    - varcheck
     - vet
   disable-all: true
