@@ -12,6 +12,10 @@ OS_ARCH=darwin_amd64
 test:
 	go test ./... -v -timeout 120m -coverprofile coverage.txt -covermode atomic
 
+.PHONY: testacc
+testacc:
+	TF_ACC=1 go test -v ./mackerel/... -run $(TESTS) -timeout 120m
+
 .PHONY: local-build
 local-build:
 	go build -o ${BINARY}
