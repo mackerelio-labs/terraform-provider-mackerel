@@ -85,6 +85,10 @@ var awsIntegrationServicesKey = map[string]string{
 	"batch":       "Batch",
 	"waf":         "WAF",
 	"billing":     "Billing",
+	"route53":     "Route53",
+	"connect":     "Connect",
+	"docdb":       "DocDB",
+	"codebuild":   "CodeBuild",
 }
 
 func resourceMackerelAWSIntegration() *schema.Resource {
