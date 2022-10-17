@@ -5,8 +5,8 @@ HOSTNAME=registry.terraform.io
 NAMESPACE=mackerelio-labs
 NAME=mackerel
 BINARY=terraform-provider-${NAME}
-VERSION=9.9.9
-OS_ARCH=darwin_amd64 # change according to your environment
+VERSION=99.9.9
+OS_ARCH=$(shell go env GOHOSTOS)_$(shell go env GOHOSTARCH)
 
 .PHONY: test
 test:
