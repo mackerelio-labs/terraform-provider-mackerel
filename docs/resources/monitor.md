@@ -142,8 +142,8 @@ The following arguments are required:
 * `duration` - (Required) The duration of the monitor.
 * `warning` - (Required, at least one of `warning` or `critical`) The threshold that generates a warning alert.
 * `critical` - (Required, at least one of `warning` or `critical`) The threshold that generates a critical alert.
-* `missing_duration_warning` - The threshold in minutes to generate a warning alert for interruption monitoring. Valid values are multiples of 10 between 10 and 10080 (must be at least 10 minutes, at most 1 week=10080 minutes).
-* `missing_duration_critical` - The threshold in minutes to generate a critical alert for interruption monitoring. Valid values are multiples of 10 between 10 and 10080 (must be at least 10 minutes, at most 1 week=10080 minutes).
+* `missing_duration_warning` - The threshold in minutes to generate a warning alert for interruption monitoring. Valid values are multiples of 10 between `10` and `10080` inclusive (must be at least 10 minutes, at most 1 week=10080 minutes).
+* `missing_duration_critical` - The threshold in minutes to generate a critical alert for interruption monitoring. Valid values are multiples of 10 between `10` and `10080` inclusive (must be at least 10 minutes, at most 1 week=10080 minutes).
 * `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`. Valid values are numbers `1` through `10` inclusive.
 
 ### external
