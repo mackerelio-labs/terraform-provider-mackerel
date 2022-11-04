@@ -122,10 +122,10 @@ The following arguments are required:
 
 * `metric` - (Required) The name of the host metric targeted by monitoring.
 * `operator` - (Required) The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right. Valid values are `>` and `<`.
-* `duration` - (Required) The duration of the monitor.
+* `duration` - (Required) The duration of the monitor. Valid values are numbers `1` through `10` inclusive.
 * `warning` - (Required, at least one of `warning` or `critical`) The threshold that generates a warning alert.
 * `critical` - (Required, at least one of `warning` or `critical`) The threshold that generates a critical alert.
-* `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`.
+* `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`. Valid values are numbers `1` through `10` inclusive.
 * `scopes` - The set of monitoring target’s service name or role name.
 * `exclude_scopes` - The set of monitoring exclusion target’s service name or role name.
 
@@ -142,9 +142,9 @@ The following arguments are required:
 * `duration` - (Required) The duration of the monitor.
 * `warning` - (Required, at least one of `warning` or `critical`) The threshold that generates a warning alert.
 * `critical` - (Required, at least one of `warning` or `critical`) The threshold that generates a critical alert.
-* `missing_duration_warning` - The threshold in minutes to generate a warning alert for interruption monitoring.
-* `missing_duration_critical` - The threshold in minutes to generate a critical alert for interruption monitoring.
-* `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`.
+* `missing_duration_warning` - The threshold in minutes to generate a warning alert for interruption monitoring. Valid values are multiples of 10 between `10` and `10080` inclusive (must be at least 10 minutes, at most 1 week=10080 minutes).
+* `missing_duration_critical` - The threshold in minutes to generate a critical alert for interruption monitoring. Valid values are multiples of 10 between `10` and `10080` inclusive (must be at least 10 minutes, at most 1 week=10080 minutes).
+* `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`. Valid values are numbers `1` through `10` inclusive.
 
 ### external
 
@@ -153,14 +153,14 @@ The following arguments are required:
 * `service` - Service name. When response time is monitored, it will be graphed as the service metrics of this.
 * `response_time_warning` - The response time threshold for warning alerts in milliseconds. Required with `service`.
 * `response_time_critical` - The response time threshold for critical alerts in milliseconds. Required with `service`.
-* `response_time_duration` - The duration to monitor the average of response time. Required with `service`.
+* `response_time_duration` - The duration to monitor the average of response time. Required with `service`. Valid values are numbers `1` through `10` inclusive.
 * `request_body` - HTTP request body.
 * `contains_string` - String which should be contained by the response body.
 * `certification_expiration_warning` - Certification expiration date monitor’s “Warning” threshold. number of days remaining until expiration.
 * `certification_expiration_critical` - Certification expiration date monitor’s “Critical” threshold. number of days remaining until expiration.
 * `skip_certificate_verification` - Whether verify the certificate when monitoring a server with a self-signed certificate or not. Valid values are `true` and `false`.
 * `headers` - The values configured as the HTTP request header.
-* `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`.
+* `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`. Valid values are numbers `1` through `10` inclusive.
 * `follow_redirect` - Evaluates the response of the redirector as a result. Valid values are `true` and `false`. Default is `false`.
 
 ### expression
