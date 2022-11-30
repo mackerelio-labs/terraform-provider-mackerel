@@ -334,3 +334,31 @@ func flattenAWSIntegration(awsIntegration *mackerel.AWSIntegration, d *schema.Re
 	}
 	return diags
 }
+
+func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (diags diag.Diagnostics) {
+	d.Set("title", dashboard.Title)
+	d.Set("memo", dashboard.Memo)
+	d.Set("url_path", dashboard.URLPath)
+
+	for _, widget := range dashboard.Widgets {
+		layout := map[string]int{
+			"x":      int(widget.Layout.X),
+			"y":      int(widget.Layout.Y),
+			"width":  int(widget.Layout.Width),
+			"height": int(widget.Layout.Height),
+		}
+
+		switch widget.Type {
+		case "markdown":
+			d.Set("markdown", []map[string]interface{}{
+				{
+					"title":    widget.Title,
+					"markdown": widget.Markdown,
+					"layout":   []map[string]int{layout},
+				},
+			})
+		}
+	}
+
+	return diags
+}
