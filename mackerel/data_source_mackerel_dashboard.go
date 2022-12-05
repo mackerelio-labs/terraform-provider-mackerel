@@ -8,75 +8,6 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-var dashboardGraphDataResource = &schema.Resource{
-	Schema: map[string]*schema.Schema{
-		"host": {
-			Type:     schema.TypeList,
-			Computed: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"host_id": {
-						Type:     schema.TypeString,
-						Computed: true,
-					},
-					"name": {
-						Type:     schema.TypeString,
-						Computed: true,
-					},
-				},
-			},
-		},
-		"role": {
-			Type:     schema.TypeList,
-			Computed: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"role_fullname": {
-						Type:     schema.TypeString,
-						Computed: true,
-					},
-					"name": {
-						Type:     schema.TypeString,
-						Computed: true,
-					},
-					"is_stacked": {
-						Type:     schema.TypeBool,
-						Computed: true,
-					},
-				},
-			},
-		},
-		"service": {
-			Type:     schema.TypeList,
-			Computed: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"service_name": {
-						Type:     schema.TypeString,
-						Computed: true,
-					},
-					"name": {
-						Type:     schema.TypeString,
-						Computed: true,
-					},
-				},
-			},
-		},
-		"expression": {
-			Type:     schema.TypeList,
-			Computed: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"expression": {
-						Type:     schema.TypeString,
-						Computed: true,
-					},
-				},
-			},
-		},
-	},
-}
-
 var dashboardRangeDataResource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"relative": {
@@ -221,10 +152,69 @@ func dataSourceMackerelDashboard() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"graph": {
+						"host": {
 							Type:     schema.TypeList,
 							Computed: true,
-							Elem:     dashboardGraphDataResource,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"host_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"role": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"role_fullname": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"is_stacked": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"service": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"expression": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"expression": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
 						},
 						"range": {
 							Type:     schema.TypeList,

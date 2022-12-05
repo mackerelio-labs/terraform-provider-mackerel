@@ -24,17 +24,25 @@ func TestAccDataSourceMackerelDashboardGraph(t *testing.T) {
 					resource.TestCheckResourceAttr(dsName, "title", title),
 					resource.TestCheckResourceAttr(dsName, "memo", "This dashboard is managed by Terraform."),
 					resource.TestCheckResourceAttr(dsName, "url_path", rand),
-					resource.TestCheckResourceAttr(dsName, "graph.#", "1"),
+					resource.TestCheckResourceAttr(dsName, "graph.#", "2"),
 					resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttr(dsName, "graph.0.title", "test graph role"),
-						resource.TestCheckResourceAttr(dsName, "graph.0.graph.0.role.0.role_fullname", fmt.Sprintf("tf-service-%s-include:tf-role-%s-include", rand, rand)),
-						resource.TestCheckResourceAttr(dsName, "graph.0.graph.0.role.0.name", "loadavg5"),
+						resource.TestCheckResourceAttr(dsName, "graph.0.role.0.role_fullname", fmt.Sprintf("tf-service-%s-include:tf-role-%s-include", rand, rand)),
+						resource.TestCheckResourceAttr(dsName, "graph.0.role.0.name", "loadavg5"),
 						resource.TestCheckResourceAttr(dsName, "graph.0.range.0.relative.0.period", "3600"),
 						resource.TestCheckResourceAttr(dsName, "graph.0.range.0.relative.0.offset", "1800"),
-						resource.TestCheckResourceAttr(dsName, "graph.0.layout.0.x", "1"),
-						resource.TestCheckResourceAttr(dsName, "graph.0.layout.0.y", "2"),
-						resource.TestCheckResourceAttr(dsName, "graph.0.layout.0.width", "3"),
-						resource.TestCheckResourceAttr(dsName, "graph.0.layout.0.height", "4"),
+						resource.TestCheckResourceAttr(dsName, "graph.0.layout.0.x", "2"),
+						resource.TestCheckResourceAttr(dsName, "graph.0.layout.0.y", "12"),
+						resource.TestCheckResourceAttr(dsName, "graph.0.layout.0.width", "10"),
+						resource.TestCheckResourceAttr(dsName, "graph.0.layout.0.height", "8"),
+						resource.TestCheckResourceAttr(dsName, "graph.1.title", "test graph expression"),
+						resource.TestCheckResourceAttr(dsName, "graph.1.expression.0.expression", fmt.Sprintf("role(tf-service-%s-include:tf-role-%s-include, loadavg5)", rand, rand)),
+						resource.TestCheckResourceAttr(dsName, "graph.1.range.0.absolute.0.start", "1667275734"),
+						resource.TestCheckResourceAttr(dsName, "graph.1.range.0.absolute.0.end", "1672546734"),
+						resource.TestCheckResourceAttr(dsName, "graph.1.layout.0.x", "4"),
+						resource.TestCheckResourceAttr(dsName, "graph.1.layout.0.y", "32"),
+						resource.TestCheckResourceAttr(dsName, "graph.1.layout.0.width", "10"),
+						resource.TestCheckResourceAttr(dsName, "graph.1.layout.0.height", "8"),
 					),
 				),
 			},
@@ -89,18 +97,16 @@ resource "mackerel_role" "include" {
 	service = mackerel_service.include.name
 	name    = "tf-role-%s-include"
 }
-	
+
 resource "mackerel_dashboard" "foo" {
   title = "%s"
   memo = "This dashboard is managed by Terraform."
   url_path = "%s"
   // graph {
   //   title = "test graph host"
-	// 	graph {
-	// 		host {
-	// 			host_id = "<host_id>"
-	// 			name = "loadavg"
-	// 		}
+  //   host {
+	// 		host_id = "<host_id>"
+	// 		name = "loadavg"
 	// 	}
 	// 	range {
 	// 		relative {
@@ -111,18 +117,16 @@ resource "mackerel_dashboard" "foo" {
   //   layout {
 	// 		x = 1
 	// 		y = 2
-	// 		width = 3
-	// 		height = 4
+	// 		width = 10
+	// 		height = 8
 	// 	}
 	// }
 	graph {
 		title = "test graph role"
-		graph {
-			role {
-				role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
-				name = "loadavg5"
-				is_stacked = true
-			}
+		role {
+			role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
+			name = "loadavg5"
+			is_stacked = true
 		}
 		range {
 			relative {
@@ -131,32 +135,47 @@ resource "mackerel_dashboard" "foo" {
 			}
 		}
 		layout {
-			x = 1
-			y = 2
-			width = 3
-			height = 4
+			x = 2
+			y = 12
+			width = 10
+			height = 8
 		}
 	}
-	// TODO
+	// graph {
+	// 	title = "test graph service"
+	// 	service {
+	// 		service_name = "<service_name>"
+	// 		name = "<name>"
+	// 	}
+	// 	range {
+	// 		absolute {
+	// 			start = 1667275734
+	// 			end = 1672546734
+	// 		}
+	// 	}
+	// 	layout {
+	// 		x = 3
+	// 		y = 22
+	// 		width = 10
+	// 		height = 8
+	// 	}
+	// }
 	graph {
-		title = "test graph service"
-		graph {
-			service {
-				service_name = "hatena-mac"
-				name = "Sample.*"
-			}
+		title = "test graph expression"
+		expression {
+			expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
 		}
 		range {
 			absolute {
-				start = 1669794987
-				end = 1669798555
+				start = 1667275734
+				end = 1672546734
 			}
 		}
 		layout {
-			x = 2
-			y = 10
-			width = 4
-			height = 5
+			x = 4
+			y = 32
+			width = 10
+			height = 8
 		}
 	}
 }

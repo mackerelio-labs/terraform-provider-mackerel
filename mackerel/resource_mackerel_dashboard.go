@@ -8,76 +8,6 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-var dashboardGraphResource = &schema.Resource{
-	Schema: map[string]*schema.Schema{
-		"host": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"host_id": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"name": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-				},
-			},
-		},
-		"role": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"role_fullname": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"name": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"is_stacked": {
-						Type:     schema.TypeBool,
-						Optional: true,
-						Default:  false,
-					},
-				},
-			},
-		},
-		"service": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"service_name": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"name": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-				},
-			},
-		},
-		"expression": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"expression": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-				},
-			},
-		},
-	},
-}
-
 var dashboardRangeResource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"relative": {
@@ -216,10 +146,70 @@ func resourceMackerelDashboard() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"graph": {
+						"host": {
 							Type:     schema.TypeList,
-							Required: true,
-							Elem:     dashboardGraphResource,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"host_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"role": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"role_fullname": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"is_stacked": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+								},
+							},
+						},
+						"service": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"expression": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"expression": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
 						},
 						"range": {
 							Type:     schema.TypeList,
@@ -361,32 +351,45 @@ func expandDashboard(d *schema.ResourceData) *mackerel.Dashboard {
 func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 	var widgets []mackerel.Widget
 	if _, ok := d.GetOk("graph"); ok {
-		if _, ok := d.GetOk("graph.0.graph.0.host"); ok {
-			widgets = append(widgets, mackerel.Widget{
-				Type:  "graph",
-				Title: d.Get("graph.0.title").(string),
-				Graph: expandDashboardGraphHost(d),
-				Range: expandDashboardRange(d),
-				//Layout: expandDashboardLayout(d, "graph"),
-			})
-		}
-		if _, ok := d.GetOk("graph.0.graph.0.role"); ok {
-			widgets = append(widgets, mackerel.Widget{
-				Type:  "graph",
-				Title: d.Get("graph.0.title").(string),
-				Graph: expandDashboardGraphRole(d),
-				Range: expandDashboardRange(d),
-				//Layout: expandDashboardLayout(d, "graph"),
-			})
-		}
-		if _, ok := d.GetOk("graph.0.graph.0.service"); ok {
-			widgets = append(widgets, mackerel.Widget{
-				Type:  "graph",
-				Title: d.Get("graph.0.title").(string),
-				Graph: expandDashboardGraphService(d),
-				Range: expandDashboardRange(d),
-				//Layout: expandDashboardLayout(d, "graph"),
-			})
+		graphs := d.Get("graph").([]interface{})
+		for _, graph := range graphs {
+			g := graph.(map[string]interface{})
+			if len(g["host"].([]interface{})) > 0 {
+				widgets = append(widgets, mackerel.Widget{
+					Type:   "graph",
+					Title:  g["title"].(string),
+					Graph:  expandDashboardGraphHost(g["host"].([]interface{})),
+					Range:  expandDashboardRange(g["range"].([]interface{})),
+					Layout: expandDashboardLayout(g["layout"].([]interface{})[0].(map[string]interface{})),
+				})
+			}
+			if len(g["role"].([]interface{})) > 0 {
+				widgets = append(widgets, mackerel.Widget{
+					Type:   "graph",
+					Title:  g["title"].(string),
+					Graph:  expandDashboardGraphRole(g["role"].([]interface{})),
+					Range:  expandDashboardRange(g["range"].([]interface{})),
+					Layout: expandDashboardLayout(g["layout"].([]interface{})[0].(map[string]interface{})),
+				})
+			}
+			if len(g["service"].([]interface{})) > 0 {
+				widgets = append(widgets, mackerel.Widget{
+					Type:   "graph",
+					Title:  g["title"].(string),
+					Graph:  expandDashboardGraphService(g["service"].([]interface{})),
+					Range:  expandDashboardRange(g["range"].([]interface{})),
+					Layout: expandDashboardLayout(g["layout"].([]interface{})[0].(map[string]interface{})),
+				})
+			}
+			if len(g["expression"].([]interface{})) > 0 {
+				widgets = append(widgets, mackerel.Widget{
+					Type:   "graph",
+					Title:  g["title"].(string),
+					Graph:  expandDashboardGraphExpression(g["expression"].([]interface{})),
+					Range:  expandDashboardRange(g["range"].([]interface{})),
+					Layout: expandDashboardLayout(g["layout"].([]interface{})[0].(map[string]interface{})),
+				})
+			}
 		}
 	}
 	if _, ok := d.GetOk("markdown"); ok {
@@ -405,44 +408,51 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 	return widgets
 }
 
-func expandDashboardGraphHost(d *schema.ResourceData) mackerel.Graph {
+func expandDashboardGraphHost(host []interface{}) mackerel.Graph {
 	return mackerel.Graph{
 		Type:   "host",
-		HostID: d.Get("graph.0.graph.0.host.0.host_id").(string),
-		Name:   d.Get("graph.0.graph.0.host.0.name").(string),
+		HostID: host[0].(map[string]interface{})["host_id"].(string),
+		Name:   host[0].(map[string]interface{})["name"].(string),
 	}
 }
 
-func expandDashboardGraphRole(d *schema.ResourceData) mackerel.Graph {
+func expandDashboardGraphRole(role []interface{}) mackerel.Graph {
 	return mackerel.Graph{
 		Type:         "role",
-		RoleFullName: d.Get("graph.0.graph.0.role.0.role_fullname").(string),
-		Name:         d.Get("graph.0.graph.0.role.0.name").(string),
-		IsStacked:    d.Get("graph.0.graph.0.role.0.is_stacked").(bool),
+		RoleFullName: role[0].(map[string]interface{})["role_fullname"].(string),
+		Name:         role[0].(map[string]interface{})["name"].(string),
+		IsStacked:    role[0].(map[string]interface{})["is_stacked"].(bool),
 	}
 }
 
-func expandDashboardGraphService(d *schema.ResourceData) mackerel.Graph {
+func expandDashboardGraphService(service []interface{}) mackerel.Graph {
 	return mackerel.Graph{
-		Type:   "service",
-		HostID: d.Get("graph.0.graph.0.service.0.service_name").(string),
-		Name:   d.Get("graph.0.graph.0.service.0.name").(string),
+		Type:        "service",
+		ServiceName: service[0].(map[string]interface{})["service_name"].(string),
+		Name:        service[0].(map[string]interface{})["name"].(string),
 	}
 }
 
-func expandDashboardRange(d *schema.ResourceData) mackerel.Range {
-	if _, ok := d.GetOk("graph.0.range.0.relative"); ok {
+func expandDashboardGraphExpression(expression []interface{}) mackerel.Graph {
+	return mackerel.Graph{
+		Type:       "expression",
+		Expression: expression[0].(map[string]interface{})["expression"].(string),
+	}
+}
+
+func expandDashboardRange(r []interface{}) mackerel.Range {
+	if len(r[0].(map[string]interface{})["relative"].([]interface{})) > 0 {
 		return mackerel.Range{
 			Type:   "relative",
-			Period: int64(d.Get("graph.0.range.0.relative.0.period").(int)),
-			Offset: int64(d.Get("graph.0.range.0.relative.0.offset").(int)),
+			Period: int64(r[0].(map[string]interface{})["relative"].([]interface{})[0].(map[string]interface{})["period"].(int)),
+			Offset: int64(r[0].(map[string]interface{})["relative"].([]interface{})[0].(map[string]interface{})["offset"].(int)),
 		}
 	}
-	if _, ok := d.GetOk("graph.0.range.0.absolute"); ok {
+	if len(r[0].(map[string]interface{})["absolute"].([]interface{})) > 0 {
 		return mackerel.Range{
 			Type:  "absolute",
-			Start: int64(d.Get("graph.0.range.0.relative.0.start").(int)),
-			End:   int64(d.Get("graph.0.range.0.relative.0.end").(int)),
+			Start: int64(r[0].(map[string]interface{})["absolute"].([]interface{})[0].(map[string]interface{})["start"].(int)),
+			End:   int64(r[0].(map[string]interface{})["absolute"].([]interface{})[0].(map[string]interface{})["end"].(int)),
 		}
 	}
 	return mackerel.Range{}

@@ -340,6 +340,7 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 	d.Set("memo", dashboard.Memo)
 	d.Set("url_path", dashboard.URLPath)
 	var markdowns []interface{}
+	var graphs []interface{}
 
 	for _, widget := range dashboard.Widgets {
 		layout := map[string]int{
@@ -351,45 +352,68 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 
 		switch widget.Type {
 		case "graph":
-			g_range := map[string][]map[string]int64{
-				"relative": []map[string]int64{{
-					"period": widget.Range.Period,
-					"offset": widget.Range.Offset,
-				}},
+			var g_range map[string][]map[string]int64
+			switch widget.Range.Type {
+			case "relative":
+				g_range = map[string][]map[string]int64{
+					"relative": []map[string]int64{{
+						"period": widget.Range.Period,
+						"offset": widget.Range.Offset,
+					}},
+				}
+			case "absolute":
+				g_range = map[string][]map[string]int64{
+					"absolute": []map[string]int64{{
+						"start": widget.Range.Start,
+						"end":   widget.Range.End,
+					}},
+				}
 			}
 			switch widget.Graph.Type {
 			case "host":
-				host := map[string][]map[string]string{
-					"host": []map[string]string{{
-						"host_id": widget.Graph.HostID,
-						"name":    widget.Graph.Name,
-					}},
+				host := map[string]string{
+					"host_id": widget.Graph.HostID,
+					"name":    widget.Graph.Name,
 				}
-				d.Set("graph", []map[string]interface{}{
-					{
-						"title":  widget.Title,
-						"graph":  []map[string][]map[string]string{host},
-						"range":  []map[string][]map[string]int64{g_range},
-						"layout": []map[string]int{layout},
-					},
+				graphs = append(graphs, map[string]interface{}{
+					"title":  widget.Title,
+					"host":   []map[string]string{host},
+					"range":  []map[string][]map[string]int64{g_range},
+					"layout": []map[string]int{layout},
 				})
 			case "role":
-				role := map[string][]map[string]interface{}{
-					"role": []map[string]interface{}{{
-						"role_fullname": widget.Graph.RoleFullName,
-						"name":          widget.Graph.Name,
-						"is_stacked":    widget.Graph.IsStacked,
-					}},
+				role := map[string]interface{}{
+					"role_fullname": widget.Graph.RoleFullName,
+					"name":          widget.Graph.Name,
+					"is_stacked":    widget.Graph.IsStacked,
 				}
-				d.Set("graph", []map[string]interface{}{
-					{
-						"title":  widget.Title,
-						"graph":  []map[string][]map[string]interface{}{role},
-						"range":  []map[string][]map[string]int64{g_range},
-						"layout": []map[string]int{layout},
-					},
+				graphs = append(graphs, map[string]interface{}{
+					"title":  widget.Title,
+					"role":   []map[string]interface{}{role},
+					"range":  []map[string][]map[string]int64{g_range},
+					"layout": []map[string]int{layout},
 				})
-
+			case "service":
+				service := map[string]interface{}{
+					"service_name": widget.Graph.ServiceName,
+					"name":         widget.Graph.Name,
+				}
+				graphs = append(graphs, map[string]interface{}{
+					"title":   widget.Title,
+					"service": []map[string]interface{}{service},
+					"range":   []map[string][]map[string]int64{g_range},
+					"layout":  []map[string]int{layout},
+				})
+			case "expression":
+				expression := map[string]interface{}{
+					"expression": widget.Graph.Expression,
+				}
+				graphs = append(graphs, map[string]interface{}{
+					"title":      widget.Title,
+					"expression": []map[string]interface{}{expression},
+					"range":      []map[string][]map[string]int64{g_range},
+					"layout":     []map[string]int{layout},
+				})
 			}
 		case "markdown":
 			markdowns = append(markdowns, map[string]interface{}{
@@ -398,7 +422,8 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 				"layout":   []map[string]int{layout},
 			})
 		}
-	  d.Set("markdown", markdowns)
+		d.Set("markdown", markdowns)
+		d.Set("graph", graphs)
 	}
 
 	return diags
