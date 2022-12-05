@@ -234,12 +234,12 @@ func resourceMackerelDashboard() *schema.Resource {
 							Required: true,
 						},
 						"metric": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							Elem:     dashboardMetricResource,
 						},
 						"fraction_size": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeInt,
 							Optional: true,
 						},
 						"suffix": {
@@ -392,6 +392,45 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 			}
 		}
 	}
+	if _, ok := d.GetOk("value"); ok {
+		values := d.Get("value").([]interface{})
+		for _, value := range values {
+			v := value.(map[string]interface{})
+			host := v["metric"].([]interface{})[0].(map[string]interface{})["host"].([]interface{})
+			service := v["metric"].([]interface{})[0].(map[string]interface{})["service"].([]interface{})
+			expression := v["metric"].([]interface{})[0].(map[string]interface{})["expression"].([]interface{})
+			if len(host) > 0 {
+				widgets = append(widgets, mackerel.Widget{
+					Type:         "value",
+					Title:        v["title"].(string),
+					Metric:       expandDashboardValueHost(host),
+					FractionSize: pointer(int64(v["fraction_size"].(int))),
+					Suffix:       v["suffix"].(string),
+					Layout:       expandDashboardLayout(v["layout"].([]interface{})[0].(map[string]interface{})),
+				})
+			}
+			if len(service) > 0 {
+				widgets = append(widgets, mackerel.Widget{
+					Type:         "value",
+					Title:        v["title"].(string),
+					Metric:       expandDashboardValueService(service),
+					FractionSize: pointer(int64(v["fraction_size"].(int))),
+					Suffix:       v["suffix"].(string),
+					Layout:       expandDashboardLayout(v["layout"].([]interface{})[0].(map[string]interface{})),
+				})
+			}
+			if len(expression) > 0 {
+				widgets = append(widgets, mackerel.Widget{
+					Type:         "value",
+					Title:        v["title"].(string),
+					Metric:       expandDashboardValueExpression(expression),
+					FractionSize: pointer(int64(v["fraction_size"].(int))),
+					Suffix:       v["suffix"].(string),
+					Layout:       expandDashboardLayout(v["layout"].([]interface{})[0].(map[string]interface{})),
+				})
+			}
+		}
+	}
 	if _, ok := d.GetOk("markdown"); ok {
 		markdowns := d.Get("markdown").([]interface{})
 		for _, markdown := range markdowns {
@@ -406,6 +445,10 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 	}
 
 	return widgets
+}
+
+func pointer(x int64) *int64 {
+	return &x
 }
 
 func expandDashboardGraphHost(host []interface{}) mackerel.Graph {
@@ -435,6 +478,29 @@ func expandDashboardGraphService(service []interface{}) mackerel.Graph {
 
 func expandDashboardGraphExpression(expression []interface{}) mackerel.Graph {
 	return mackerel.Graph{
+		Type:       "expression",
+		Expression: expression[0].(map[string]interface{})["expression"].(string),
+	}
+}
+
+func expandDashboardValueHost(host []interface{}) mackerel.Metric {
+	return mackerel.Metric{
+		Type:   "host",
+		HostID: host[0].(map[string]interface{})["host_id"].(string),
+		Name:   host[0].(map[string]interface{})["name"].(string),
+	}
+}
+
+func expandDashboardValueService(service []interface{}) mackerel.Metric {
+	return mackerel.Metric{
+		Type:        "service",
+		ServiceName: service[0].(map[string]interface{})["service_name"].(string),
+		Name:        service[0].(map[string]interface{})["name"].(string),
+	}
+}
+
+func expandDashboardValueExpression(expression []interface{}) mackerel.Metric {
+	return mackerel.Metric{
 		Type:       "expression",
 		Expression: expression[0].(map[string]interface{})["expression"].(string),
 	}

@@ -341,6 +341,7 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 	d.Set("url_path", dashboard.URLPath)
 	var markdowns []interface{}
 	var graphs []interface{}
+	var values []interface{}
 
 	for _, widget := range dashboard.Widgets {
 		layout := map[string]int{
@@ -415,6 +416,37 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 					"layout":     []map[string]int{layout},
 				})
 			}
+		case "value":
+			var metric map[string][]map[string]string
+			switch widget.Metric.Type {
+			case "host":
+				metric = map[string][]map[string]string{
+					"host": []map[string]string{{
+						"host_id": widget.Metric.HostID,
+						"name":    widget.Metric.Name,
+					}},
+				}
+			case "service":
+				metric = map[string][]map[string]string{
+					"service": []map[string]string{{
+						"service_name": widget.Metric.ServiceName,
+						"name":         widget.Metric.Name,
+					}},
+				}
+			case "expression":
+				metric = map[string][]map[string]string{
+					"expression": []map[string]string{{
+						"expression": widget.Metric.Expression,
+					}},
+				}
+			}
+			values = append(values, map[string]interface{}{
+				"title":         widget.Title,
+				"metric":        []map[string][]map[string]string{metric},
+				"fraction_size": widget.FractionSize,
+				"suffix":        widget.Suffix,
+				"layout":        []map[string]int{layout},
+			})
 		case "markdown":
 			markdowns = append(markdowns, map[string]interface{}{
 				"title":    widget.Title,
@@ -424,6 +456,7 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 		}
 		d.Set("markdown", markdowns)
 		d.Set("graph", graphs)
+		d.Set("value", values)
 	}
 
 	return diags

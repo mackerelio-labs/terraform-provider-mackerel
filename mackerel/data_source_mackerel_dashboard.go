@@ -239,12 +239,12 @@ func dataSourceMackerelDashboard() *schema.Resource {
 							Computed: true,
 						},
 						"metric": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     dashboardMetricDataResource,
 						},
 						"fraction_size": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"suffix": {
@@ -252,7 +252,7 @@ func dataSourceMackerelDashboard() *schema.Resource {
 							Computed: true,
 						},
 						"layout": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     dashboardLayoutDataResource,
 						},

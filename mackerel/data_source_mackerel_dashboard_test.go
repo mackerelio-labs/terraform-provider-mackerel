@@ -50,6 +50,39 @@ func TestAccDataSourceMackerelDashboardGraph(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMackerelDashboardValue(t *testing.T) {
+	dsName := "data.mackerel_dashboard.foo"
+	rand := acctest.RandString(5)
+	title := fmt.Sprintf("tf-dashboard-%s", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMackerelDashboardConfigValue(rand, title),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(dsName, "id"),
+					resource.TestCheckResourceAttr(dsName, "title", title),
+					resource.TestCheckResourceAttr(dsName, "memo", "This dashboard is managed by Terraform."),
+					resource.TestCheckResourceAttr(dsName, "url_path", rand),
+					resource.TestCheckResourceAttr(dsName, "value.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(dsName, "value.0.title", "test value expression"),
+						resource.TestCheckResourceAttr(dsName, "value.0.metric.0.expression.0.expression", fmt.Sprintf("role(tf-service-%s-include:tf-role-%s-include, loadavg5)", rand, rand)),
+						resource.TestCheckResourceAttr(dsName, "value.0.fraction_size", "5"),
+						resource.TestCheckResourceAttr(dsName, "value.0.suffix", "test suffix"),
+						resource.TestCheckResourceAttr(dsName, "value.0.layout.0.x", "3"),
+						resource.TestCheckResourceAttr(dsName, "value.0.layout.0.y", "15"),
+						resource.TestCheckResourceAttr(dsName, "value.0.layout.0.width", "3"),
+						resource.TestCheckResourceAttr(dsName, "value.0.layout.0.height", "4"),
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceMackerelDashboardMarkdown(t *testing.T) {
 	dsName := "data.mackerel_dashboard.foo"
 	rand := acctest.RandString(5)
@@ -180,6 +213,79 @@ resource "mackerel_dashboard" "foo" {
 	}
 }
 
+
+data "mackerel_dashboard" "foo" {
+  id = mackerel_dashboard.foo.id
+}
+`, rand, rand, title, rand)
+}
+
+func testAccDataSourceMackerelDashboardConfigValue(rand, title string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "include" {
+	name = "tf-service-%s-include"
+}
+	
+resource "mackerel_role" "include" {
+	service = mackerel_service.include.name
+	name    = "tf-role-%s-include"
+}
+
+resource "mackerel_dashboard" "foo" {
+  title = "%s"
+  memo = "This dashboard is managed by Terraform."
+  url_path = "%s"
+  // value {
+  //   title = "test value host"
+  //   metric {
+	// 		host {
+	// 			host_id = "<host_id>"
+	// 			name = "loadavg5"
+	// 		}
+	// 	}
+	// 	fraction_size = 2
+	// 	suffix = "test suffix"
+  //   layout {
+	// 		x = 1
+	// 		y = 2
+	// 		width = 3
+	// 		height = 4
+	// 	}
+  // }
+	// value {
+  //   title = "test value service"
+  //   metric {
+	// 		service {
+	// 			service_name = "<service_name>"
+	// 			name = "<name>"
+	// 		}
+	// 	}
+	// 	fraction_size = 5
+	// 	suffix = "test suffix"
+  //   layout {
+	// 		x = 2
+	// 		y = 10
+	// 		width = 3
+	// 		height = 4
+	// 	}
+  // }
+	value {
+    title = "test value expression"
+    metric {
+			expression {
+				expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
+			}
+		}
+		fraction_size = 5
+		suffix = "test suffix"
+    layout {
+			x = 3
+			y = 15
+			width = 3
+			height = 4
+		}
+  }
+}
 
 data "mackerel_dashboard" "foo" {
   id = mackerel_dashboard.foo.id
