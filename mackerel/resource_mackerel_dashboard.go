@@ -65,7 +65,7 @@ var dashboardGraphResource = &schema.Resource{
 		},
 		"expression": {
 			Type:     schema.TypeList,
-			Required: true,
+			Optional: true,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"expression": {
@@ -217,12 +217,12 @@ func resourceMackerelDashboard() *schema.Resource {
 							Required: true,
 						},
 						"graph": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							Elem:     dashboardGraphResource,
 						},
 						"range": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     dashboardRangeResource,
 						},
@@ -360,23 +360,99 @@ func expandDashboard(d *schema.ResourceData) *mackerel.Dashboard {
 
 func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 	var widgets []mackerel.Widget
+	if _, ok := d.GetOk("graph"); ok {
+		if _, ok := d.GetOk("graph.0.graph.0.host"); ok {
+			widgets = append(widgets, mackerel.Widget{
+				Type:  "graph",
+				Title: d.Get("graph.0.title").(string),
+				Graph: expandDashboardGraphHost(d),
+				Range: expandDashboardRange(d),
+				//Layout: expandDashboardLayout(d, "graph"),
+			})
+		}
+		if _, ok := d.GetOk("graph.0.graph.0.role"); ok {
+			widgets = append(widgets, mackerel.Widget{
+				Type:  "graph",
+				Title: d.Get("graph.0.title").(string),
+				Graph: expandDashboardGraphRole(d),
+				Range: expandDashboardRange(d),
+				//Layout: expandDashboardLayout(d, "graph"),
+			})
+		}
+		if _, ok := d.GetOk("graph.0.graph.0.service"); ok {
+			widgets = append(widgets, mackerel.Widget{
+				Type:  "graph",
+				Title: d.Get("graph.0.title").(string),
+				Graph: expandDashboardGraphService(d),
+				Range: expandDashboardRange(d),
+				//Layout: expandDashboardLayout(d, "graph"),
+			})
+		}
+	}
 	if _, ok := d.GetOk("markdown"); ok {
-		widgets = append(widgets, mackerel.Widget{
-			Type:     "markdown",
-			Title:    d.Get("markdown.0.title").(string),
-			Markdown: d.Get("markdown.0.markdown").(string),
-			Layout:   expandDashboardLayout(d),
-		})
+		markdowns := d.Get("markdown").([]interface{})
+		for _, markdown := range markdowns {
+			m := markdown.(map[string]interface{})
+			widgets = append(widgets, mackerel.Widget{
+				Type:     "markdown",
+				Title:    m["title"].(string),
+				Markdown: m["markdown"].(string),
+				Layout:   expandDashboardLayout(m["layout"].([]interface{})[0].(map[string]interface{})),
+			})
+		}
 	}
 
 	return widgets
 }
 
-func expandDashboardLayout(d *schema.ResourceData) mackerel.Layout {
+func expandDashboardGraphHost(d *schema.ResourceData) mackerel.Graph {
+	return mackerel.Graph{
+		Type:   "host",
+		HostID: d.Get("graph.0.graph.0.host.0.host_id").(string),
+		Name:   d.Get("graph.0.graph.0.host.0.name").(string),
+	}
+}
+
+func expandDashboardGraphRole(d *schema.ResourceData) mackerel.Graph {
+	return mackerel.Graph{
+		Type:         "role",
+		RoleFullName: d.Get("graph.0.graph.0.role.0.role_fullname").(string),
+		Name:         d.Get("graph.0.graph.0.role.0.name").(string),
+		IsStacked:    d.Get("graph.0.graph.0.role.0.is_stacked").(bool),
+	}
+}
+
+func expandDashboardGraphService(d *schema.ResourceData) mackerel.Graph {
+	return mackerel.Graph{
+		Type:   "service",
+		HostID: d.Get("graph.0.graph.0.service.0.service_name").(string),
+		Name:   d.Get("graph.0.graph.0.service.0.name").(string),
+	}
+}
+
+func expandDashboardRange(d *schema.ResourceData) mackerel.Range {
+	if _, ok := d.GetOk("graph.0.range.0.relative"); ok {
+		return mackerel.Range{
+			Type:   "relative",
+			Period: int64(d.Get("graph.0.range.0.relative.0.period").(int)),
+			Offset: int64(d.Get("graph.0.range.0.relative.0.offset").(int)),
+		}
+	}
+	if _, ok := d.GetOk("graph.0.range.0.absolute"); ok {
+		return mackerel.Range{
+			Type:  "absolute",
+			Start: int64(d.Get("graph.0.range.0.relative.0.start").(int)),
+			End:   int64(d.Get("graph.0.range.0.relative.0.end").(int)),
+		}
+	}
+	return mackerel.Range{}
+}
+
+func expandDashboardLayout(layout map[string]interface{}) mackerel.Layout {
 	return mackerel.Layout{
-		X:      int64(d.Get("markdown.0.layout.0.x").(int)),
-		Y:      int64(d.Get("markdown.0.layout.0.y").(int)),
-		Width:  int64(d.Get("markdown.0.layout.0.width").(int)),
-		Height: int64(d.Get("markdown.0.layout.0.height").(int)),
+		X:      int64(layout["x"].(int)),
+		Y:      int64(layout["y"].(int)),
+		Width:  int64(layout["width"].(int)),
+		Height: int64(layout["height"].(int)),
 	}
 }

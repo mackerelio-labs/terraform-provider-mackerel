@@ -339,6 +339,7 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 	d.Set("title", dashboard.Title)
 	d.Set("memo", dashboard.Memo)
 	d.Set("url_path", dashboard.URLPath)
+	var markdowns []interface{}
 
 	for _, widget := range dashboard.Widgets {
 		layout := map[string]int{
@@ -349,15 +350,55 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 		}
 
 		switch widget.Type {
+		case "graph":
+			g_range := map[string][]map[string]int64{
+				"relative": []map[string]int64{{
+					"period": widget.Range.Period,
+					"offset": widget.Range.Offset,
+				}},
+			}
+			switch widget.Graph.Type {
+			case "host":
+				host := map[string][]map[string]string{
+					"host": []map[string]string{{
+						"host_id": widget.Graph.HostID,
+						"name":    widget.Graph.Name,
+					}},
+				}
+				d.Set("graph", []map[string]interface{}{
+					{
+						"title":  widget.Title,
+						"graph":  []map[string][]map[string]string{host},
+						"range":  []map[string][]map[string]int64{g_range},
+						"layout": []map[string]int{layout},
+					},
+				})
+			case "role":
+				role := map[string][]map[string]interface{}{
+					"role": []map[string]interface{}{{
+						"role_fullname": widget.Graph.RoleFullName,
+						"name":          widget.Graph.Name,
+						"is_stacked":    widget.Graph.IsStacked,
+					}},
+				}
+				d.Set("graph", []map[string]interface{}{
+					{
+						"title":  widget.Title,
+						"graph":  []map[string][]map[string]interface{}{role},
+						"range":  []map[string][]map[string]int64{g_range},
+						"layout": []map[string]int{layout},
+					},
+				})
+
+			}
 		case "markdown":
-			d.Set("markdown", []map[string]interface{}{
-				{
-					"title":    widget.Title,
-					"markdown": widget.Markdown,
-					"layout":   []map[string]int{layout},
-				},
+			markdowns = append(markdowns, map[string]interface{}{
+				"title":    widget.Title,
+				"markdown": widget.Markdown,
+				"layout":   []map[string]int{layout},
 			})
 		}
+	  d.Set("markdown", markdowns)
 	}
 
 	return diags

@@ -222,17 +222,17 @@ func dataSourceMackerelDashboard() *schema.Resource {
 							Computed: true,
 						},
 						"graph": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     dashboardGraphDataResource,
 						},
 						"range": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     dashboardRangeDataResource,
 						},
 						"layout": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     dashboardLayoutDataResource,
 						},
