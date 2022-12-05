@@ -284,7 +284,7 @@ func resourceMackerelDashboard() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"roll_fullname": {
+						"role_fullname": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -440,6 +440,18 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 				Title:    m["title"].(string),
 				Markdown: m["markdown"].(string),
 				Layout:   expandDashboardLayout(m["layout"].([]interface{})[0].(map[string]interface{})),
+			})
+		}
+	}
+	if _, ok := d.GetOk("alert_status"); ok {
+		alert_statuses := d.Get("alert_status").([]interface{})
+		for _, alert_status := range alert_statuses {
+			a := alert_status.(map[string]interface{})
+			widgets = append(widgets, mackerel.Widget{
+				Type:         "alertStatus",
+				Title:        a["title"].(string),
+				RoleFullName: a["role_fullname"].(string),
+				Layout:       expandDashboardLayout(a["layout"].([]interface{})[0].(map[string]interface{})),
 			})
 		}
 	}

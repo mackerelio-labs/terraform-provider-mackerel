@@ -120,6 +120,37 @@ func TestAccDataSourceMackerelDashboardMarkdown(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMackerelDashboardAlertStatus(t *testing.T) {
+	dsName := "data.mackerel_dashboard.foo"
+	rand := acctest.RandString(5)
+	title := fmt.Sprintf("tf-dashboard-%s", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMackerelDashboardConfigAlertStatus(rand, title),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(dsName, "id"),
+					resource.TestCheckResourceAttr(dsName, "title", title),
+					resource.TestCheckResourceAttr(dsName, "memo", "This dashboard is managed by Terraform."),
+					resource.TestCheckResourceAttr(dsName, "url_path", rand),
+					resource.TestCheckResourceAttr(dsName, "alert_status.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(dsName, "alert_status.0.title", "test alertStatus"),
+						resource.TestCheckResourceAttr(dsName, "alert_status.0.role_fullname", fmt.Sprintf("tf-service-%s-include:tf-role-%s-include", rand, rand)),
+						resource.TestCheckResourceAttr(dsName, "alert_status.0.layout.0.x", "1"),
+						resource.TestCheckResourceAttr(dsName, "alert_status.0.layout.0.y", "2"),
+						resource.TestCheckResourceAttr(dsName, "alert_status.0.layout.0.width", "3"),
+						resource.TestCheckResourceAttr(dsName, "alert_status.0.layout.0.height", "4"),
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceMackerelDashboardConfigGraph(rand, title string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
@@ -325,4 +356,37 @@ data "mackerel_dashboard" "foo" {
   id = mackerel_dashboard.foo.id
 }
 `, title, rand)
+}
+
+func testAccDataSourceMackerelDashboardConfigAlertStatus(rand, title string) string {
+	return fmt.Sprintf(`
+resource "mackerel_service" "include" {
+	name = "tf-service-%s-include"
+}
+	
+resource "mackerel_role" "include" {
+	service = mackerel_service.include.name
+	name    = "tf-role-%s-include"
+}
+
+resource "mackerel_dashboard" "foo" {
+  title = "%s"
+  memo = "This dashboard is managed by Terraform."
+  url_path = "%s"
+  alert_status {
+    title = "test alertStatus"
+    role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
+    layout {
+			x = 1
+			y = 2
+			width = 3
+			height = 4
+		}
+  }
+}
+
+data "mackerel_dashboard" "foo" {
+  id = mackerel_dashboard.foo.id
+}
+`, rand, rand, title, rand)
 }

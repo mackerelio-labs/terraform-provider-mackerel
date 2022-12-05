@@ -289,12 +289,12 @@ func dataSourceMackerelDashboard() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"roll_fullname": {
+						"role_fullname": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"layout": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     dashboardLayoutDataResource,
 						},

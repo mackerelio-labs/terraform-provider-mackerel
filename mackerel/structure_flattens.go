@@ -342,6 +342,7 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 	var markdowns []interface{}
 	var graphs []interface{}
 	var values []interface{}
+	var alert_statuses []interface{}
 
 	for _, widget := range dashboard.Widgets {
 		layout := map[string]int{
@@ -453,10 +454,17 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 				"markdown": widget.Markdown,
 				"layout":   []map[string]int{layout},
 			})
+		case "alertStatus":
+			alert_statuses = append(alert_statuses, map[string]interface{}{
+				"title":         widget.Title,
+				"role_fullname": widget.RoleFullName,
+				"layout":        []map[string]int{layout},
+			})
 		}
 		d.Set("markdown", markdowns)
 		d.Set("graph", graphs)
 		d.Set("value", values)
+		d.Set("alert_status", alert_statuses)
 	}
 
 	return diags
