@@ -358,14 +358,14 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 			switch widget.Range.Type {
 			case "relative":
 				g_range = map[string][]map[string]int64{
-					"relative": []map[string]int64{{
+					"relative": {{
 						"period": widget.Range.Period,
 						"offset": widget.Range.Offset,
 					}},
 				}
 			case "absolute":
 				g_range = map[string][]map[string]int64{
-					"absolute": []map[string]int64{{
+					"absolute": {{
 						"start": widget.Range.Start,
 						"end":   widget.Range.End,
 					}},
@@ -422,21 +422,21 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 			switch widget.Metric.Type {
 			case "host":
 				metric = map[string][]map[string]string{
-					"host": []map[string]string{{
+					"host": {{
 						"host_id": widget.Metric.HostID,
 						"name":    widget.Metric.Name,
 					}},
 				}
 			case "service":
 				metric = map[string][]map[string]string{
-					"service": []map[string]string{{
+					"service": {{
 						"service_name": widget.Metric.ServiceName,
 						"name":         widget.Metric.Name,
 					}},
 				}
 			case "expression":
 				metric = map[string][]map[string]string{
-					"expression": []map[string]string{{
+					"expression": {{
 						"expression": widget.Metric.Expression,
 					}},
 				}

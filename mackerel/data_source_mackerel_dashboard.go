@@ -327,6 +327,9 @@ func dataSourceMackerelDashboardRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	dashboardWithWidgets, err := client.FindDashboard(id)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	dashboard.Widgets = dashboardWithWidgets.Widgets
 
 	d.SetId(dashboard.ID)
