@@ -105,7 +105,7 @@ resource "mackerel_dashboard" "markdown" {
 }
 ```
 
-### Expression Widget
+### AlertStatus Widget
 
 ```terraform
 resource "mackerel_service" "foo" {
@@ -117,7 +117,7 @@ resource "mackerel_role" "foo" {
 	name    = "tf-role-foo"
 }
 
-resource "mackerel_dashboard" "expression" {
+resource "mackerel_dashboard" "alert_status" {
   title = "foo"
   memo = "This dashboard is managed by Terraform."
   url_path = "bar"
