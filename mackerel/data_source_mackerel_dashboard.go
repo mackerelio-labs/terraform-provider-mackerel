@@ -309,28 +309,10 @@ func dataSourceMackerelDashboardRead(_ context.Context, d *schema.ResourceData, 
 	id := d.Get("id").(string)
 
 	client := m.(*mackerel.Client)
-
-	dashboards, err := client.FindDashboards()
-
+	dashboard, err := client.FindDashboard(id)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var dashboard *mackerel.Dashboard
-	for _, a := range dashboards {
-		if a.ID == id {
-			dashboard = a
-			break
-		}
-	}
-	if dashboard == nil {
-		return diag.Errorf(`the id '%s' does not match any dashboard in mackerel.io`, id)
-	}
-
-	dashboardWithWidgets, err := client.FindDashboard(id)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	dashboard.Widgets = dashboardWithWidgets.Widgets
 
 	d.SetId(dashboard.ID)
 
