@@ -312,37 +312,37 @@ func testAccCheckMackerelDashboardExists(n string) resource.TestCheckFunc {
 func testAccMackerelDashboardConfigGraph(rand string, title string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
-	name = "tf-service-%s-include"
+  name = "tf-service-%s-include"
 }
 	
 resource "mackerel_role" "include" {
-	service = mackerel_service.include.name
-	name    = "tf-role-%s-include"
+  service = mackerel_service.include.name
+  name    = "tf-role-%s-include"
 }
 
 resource "mackerel_dashboard" "graph" {
-	title = "%s"
-	url_path = "%s"
-	graph {
-		title = "test graph role"
-		role {
-			role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
-			name = "loadavg5"
-			is_stacked = true
-		}
-		range {
-			relative {
-				period = 3600
-				offset = 1800
-			}
-		}
-		layout {
-			x = 2
-			y = 12
-			width = 10
-			height = 8
-		}
-	}
+  title = "%s"
+  url_path = "%s"
+  graph {
+    title = "test graph role"
+    role {
+      role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
+      name = "loadavg5"
+      is_stacked = true
+    }
+    range {
+      relative {
+        period = 3600
+        offset = 1800
+      }
+    }
+    layout {
+      x = 2
+      y = 12
+      width = 10
+      height = 8
+    }
+  }
 }
 `, rand, rand, title, rand)
 }
@@ -350,54 +350,54 @@ resource "mackerel_dashboard" "graph" {
 func testAccMackerelDashboardConfigGraphUpdated(rand string, title string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
-	name = "tf-service-%s-include"
+  name = "tf-service-%s-include"
 }
 
 resource "mackerel_role" "include" {
-	service = mackerel_service.include.name
-	name    = "tf-role-%s-include"
+  service = mackerel_service.include.name
+  name    = "tf-role-%s-include"
 }
 
 resource "mackerel_dashboard" "graph" {
-	title = "%s"
-	url_path = "%s"
+  title = "%s"
+  url_path = "%s"
+  graph {
+    title = "test graph role"
+    role {
+      role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
+      name = "loadavg5"
+      is_stacked = true
+    }
+    range {
+      relative {
+        period = 3600
+        offset = 1800
+      }
+    }
+    layout {
+      x = 2
+      y = 12
+      width = 10
+      height = 8
+    }
+  }
 	graph {
-		title = "test graph role"
-		role {
-			role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
-			name = "loadavg5"
-			is_stacked = true
-		}
-		range {
-			relative {
-				period = 3600
-				offset = 1800
-			}
-		}
-		layout {
-			x = 2
-			y = 12
-			width = 10
-			height = 8
-		}
-	}
-	graph {
-		title = "test graph expression"
-		expression {
-			expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
-		}
-		range {
-			absolute {
-				start = 1667275734
-				end = 1672546734
-			}
-		}
-		layout {
-			x = 4
-			y = 32
-			width = 10
-			height = 8
-		}
+	  title = "test graph expression"
+	  expression {
+	    expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
+	  }
+	  range {
+	    absolute {
+	      start = 1667275734
+	      end = 1672546734
+	    }
+	  }
+	  layout {
+	    x = 4
+	    y = 32
+	    width = 10
+	    height = 8
+	  }
 	}
 }
 `, rand, rand, title, rand)
@@ -406,33 +406,33 @@ resource "mackerel_dashboard" "graph" {
 func testAccMackerelDashboardConfigValue(rand string, title string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
-	name = "tf-service-%s-include"
+  name = "tf-service-%s-include"
 }
 	
 resource "mackerel_role" "include" {
-	service = mackerel_service.include.name
-	name    = "tf-role-%s-include"
+  service = mackerel_service.include.name
+  name    = "tf-role-%s-include"
 }
 
 resource "mackerel_dashboard" "value" {
   title = "%s"
   memo = "This dashboard is managed by Terraform."
   url_path = "%s"
-	value {
+  value {
     title = "test value expression"
     metric {
-			expression {
-				expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
-			}
-		}
-		fraction_size = 5
-		suffix = "test suffix"
+      expression {
+        expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
+      }
+    }
+    fraction_size = 5
+    suffix = "test suffix"
     layout {
-			x = 3
-			y = 15
-			width = 3
-			height = 4
-		}
+      x = 3
+      y = 15
+      width = 3
+      height = 4
+    }
   }
 }
 `, rand, rand, title, rand)
@@ -441,33 +441,33 @@ resource "mackerel_dashboard" "value" {
 func testAccMackerelDashboardConfigValueUpdated(rand string, title string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
-	name = "tf-service-%s-include"
+  name = "tf-service-%s-include"
 }
 	
 resource "mackerel_role" "include" {
-	service = mackerel_service.include.name
-	name    = "tf-role-%s-include"
+  service = mackerel_service.include.name
+  name    = "tf-role-%s-include"
 }
 
 resource "mackerel_dashboard" "value" {
   title = "%s"
   memo = "This dashboard is managed by Terraform."
   url_path = "%s"
-	value {
+  value {
     title = "test value expression"
     metric {
-			expression {
-				expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
-			}
-		}
-		fraction_size = 10
-		suffix = "test suffix"
+      expression {
+        expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
+      }
+    }
+    fraction_size = 10
+    suffix = "test suffix"
     layout {
-			x = 6
-			y = 15
-			width = 10
-			height = 7
-		}
+      x = 6
+      y = 15
+      width = 10
+      height = 7
+    }
   }
 }
 `, rand, rand, title, rand)
@@ -483,11 +483,11 @@ resource "mackerel_dashboard" "markdown" {
     title = "test markdown"
     markdown = "# h1"
     layout {
-			x = 1
-			y = 2
-			width = 3
-			height = 4
-		}
+      x = 1
+      y = 2
+      width = 3
+      height = 4
+    }
   }
 }
 `, title, rand)
@@ -503,21 +503,21 @@ resource "mackerel_dashboard" "markdown" {
     title = "test markdown"
     markdown = "# h1"
     layout {
-			x = 1
-			y = 2
-			width = 3
-			height = 4
-		}
+      x = 1
+      y = 2
+      width = 3
+      height = 4
+    }
   }
-	markdown {
+  markdown {
     title = "test markdown 2"
     markdown = "# h2"
     layout {
-			x = 2
-			y = 10
-			width = 3
-			height = 4
-		}
+      x = 2
+      y = 10
+      width = 3
+      height = 4
+    }
   }
 }
 `, title, rand)
@@ -526,12 +526,12 @@ resource "mackerel_dashboard" "markdown" {
 func testAccMackerelDashboardConfigAlertStatus(rand, title string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
-	name = "tf-service-%s-include"
+  name = "tf-service-%s-include"
 }
 	
 resource "mackerel_role" "include" {
-	service = mackerel_service.include.name
-	name    = "tf-role-%s-include"
+  service = mackerel_service.include.name
+  name    = "tf-role-%s-include"
 }
 
 resource "mackerel_dashboard" "alertstatus" {
@@ -542,11 +542,11 @@ resource "mackerel_dashboard" "alertstatus" {
     title = "test alertStatus"
     role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
     layout {
-			x = 1
-			y = 2
-			width = 3
-			height = 4
-		}
+      x = 1
+      y = 2
+      width = 3
+      height = 4
+    }
   }
 }
 `, rand, rand, title, rand)
@@ -555,12 +555,12 @@ resource "mackerel_dashboard" "alertstatus" {
 func testAccMackerelDashboardConfigAlertStatusUpdated(rand, title string) string {
 	return fmt.Sprintf(`
 resource "mackerel_service" "include" {
-	name = "tf-service-%s-include"
+  name = "tf-service-%s-include"
 }
 	
 resource "mackerel_role" "include" {
-	service = mackerel_service.include.name
-	name    = "tf-role-%s-include"
+  service = mackerel_service.include.name
+  name    = "tf-role-%s-include"
 }
 
 resource "mackerel_dashboard" "alertstatus" {
@@ -571,11 +571,11 @@ resource "mackerel_dashboard" "alertstatus" {
     title = "test alertStatus"
     role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
     layout {
-			x = 5
-			y = 7
-			width = 3
-			height = 4
-		}
+      x = 5
+      y = 7
+      width = 3
+      height = 4
+    }
   }
 }
 `, rand, rand, title, rand)

@@ -15,38 +15,38 @@ This resource allows creating and management of dashboard.
 
 ```terraform
 resource "mackerel_service" "foo" {
-	name = "tf-service-foo"
+  name = "tf-service-foo"
 }
 	
 resource "mackerel_role" "foo" {
-	service = mackerel_service.foo.name
-	name    = "tf-role-foo"
+  service = mackerel_service.foo.name
+  name    = "tf-role-foo"
 }
 
 resource "mackerel_dashboard" "graph" {
   title = "foo"
   memo = "This dashboard is managed by Terraform."
   url_path = "bar"
-	graph {
-		title = "graph role"
-		role {
-			role_fullname = "${mackerel_service.foo.name}:${mackerel_role.foo.name}"
-			name = "loadavg5"
-			is_stacked = true
-		}
-		range {
-			relative {
-				period = 3600
-				offset = 1800
-			}
-		}
-		layout {
-			x = 2
-			y = 12
-			width = 10
-			height = 8
-		}
-	}
+  graph {
+    title = "graph role"
+    role {
+      role_fullname = "${mackerel_service.foo.name}:${mackerel_role.foo.name}"
+      name = "loadavg5"
+      is_stacked = true
+    }
+    range {
+      relative {
+        period = 3600
+        offset = 1800
+      }
+    }
+    layout {
+      x = 2
+      y = 12
+      width = 10
+      height = 8
+    }
+  }
 }
 ```
 
@@ -54,33 +54,33 @@ resource "mackerel_dashboard" "graph" {
 
 ```terraform
 resource "mackerel_service" "foo" {
-	name = "tf-service-foo"
+  name = "tf-service-foo"
 }
 	
 resource "mackerel_role" "foo" {
-	service = mackerel_service.foo.name
-	name    = "tf-role-foo"
+  service = mackerel_service.foo.name
+  name    = "tf-role-foo"
 }
 
 resource "mackerel_dashboard" "value" {
   title = "foo"
   memo = "This dashboard is managed by Terraform."
   url_path = "bar"
-	value {
+  value {
     title = "test value expression"
     metric {
-			expression {
-				expression = "role(${mackerel_service.foo.name}:${mackerel_role.foo.name}, loadavg5)"
-			}
-		}
-		fraction_size = 5
-		suffix = "test suffix"
+      expression {
+        expression = "role(${mackerel_service.foo.name}:${mackerel_role.foo.name}, loadavg5)"
+  		}
+  	}
+  	fraction_size = 5
+  	suffix = "test suffix"
     layout {
-			x = 3
-			y = 15
-			width = 3
-			height = 4
-		}
+  	  x = 3
+  	  y = 15
+  	  width = 3
+  	  height = 4
+  	}
   }
 }
 ```
@@ -96,11 +96,11 @@ resource "mackerel_dashboard" "markdown" {
     title = "test markdown"
     markdown = "# h1"
     layout {
-			x = 1
-			y = 2
-			width = 3
-			height = 4
-		}
+      x = 1
+      y = 2
+      width = 3
+      height = 4
+    }
   }
 }
 ```
@@ -125,11 +125,11 @@ resource "mackerel_dashboard" "alert_status" {
     title = "test alertStatus"
     role_fullname = "${mackerel_service.foo.name}:${mackerel_role.foo.name}"
     layout {
-			x = 1
-			y = 2
-			width = 3
-			height = 4
-		}
+      x = 1
+      y = 2
+      width = 3
+      height = 4
+    }
   }
 }
 ```
