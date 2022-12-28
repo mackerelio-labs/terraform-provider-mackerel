@@ -231,18 +231,18 @@ resource "mackerel_dashboard" "foo" {
   value {
     title = "test value expression"
     metric {
-  		expression {
-  			expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
-  		}
-  	}
-  	fraction_size = 5
-  	suffix = "test suffix"
+      expression {
+        expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
+      }
+    }
+    fraction_size = 5
+    suffix = "test suffix"
     layout {
-  		x = 3
-  		y = 15
-  		width = 3
-  		height = 4
-  	}
+      x = 3
+      y = 15
+      width = 3
+      height = 4
+    }
   }
 }
 

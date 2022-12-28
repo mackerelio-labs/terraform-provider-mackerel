@@ -381,24 +381,24 @@ resource "mackerel_dashboard" "graph" {
       height = 8
     }
   }
-	graph {
-	  title = "test graph expression"
-	  expression {
-	    expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
-	  }
-	  range {
-	    absolute {
-	      start = 1667275734
-	      end = 1672546734
-	    }
-	  }
-	  layout {
-	    x = 4
-	    y = 32
-	    width = 10
-	    height = 8
-	  }
-	}
+  graph {
+    title = "test graph expression"
+    expression {
+      expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
+    }
+    range {
+      absolute {
+        start = 1667275734
+        end = 1672546734
+      }
+    }
+    layout {
+      x = 4
+      y = 32
+      width = 10
+      height = 8
+    }
+  }
 }
 `, rand, rand, title, rand)
 }

@@ -71,16 +71,16 @@ resource "mackerel_dashboard" "value" {
     metric {
       expression {
         expression = "role(${mackerel_service.foo.name}:${mackerel_role.foo.name}, loadavg5)"
-  		}
-  	}
-  	fraction_size = 5
-  	suffix = "test suffix"
+      }
+    }
+    fraction_size = 5
+    suffix = "test suffix"
     layout {
-  	  x = 3
-  	  y = 15
-  	  width = 3
-  	  height = 4
-  	}
+      x = 3
+      y = 15
+      width = 3
+      height = 4
+    }
   }
 }
 ```
@@ -109,12 +109,12 @@ resource "mackerel_dashboard" "markdown" {
 
 ```terraform
 resource "mackerel_service" "foo" {
-	name = "tf-service-foo"
+  name = "tf-service-foo"
 }
 	
 resource "mackerel_role" "foo" {
-	service = mackerel_service.foo.name
-	name    = "tf-role-foo"
+  service = mackerel_service.foo.name
+  name    = "tf-role-foo"
 }
 
 resource "mackerel_dashboard" "alert_status" {
