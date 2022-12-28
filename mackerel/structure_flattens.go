@@ -339,10 +339,12 @@ func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (di
 	d.Set("title", dashboard.Title)
 	d.Set("memo", dashboard.Memo)
 	d.Set("url_path", dashboard.URLPath)
-	var markdowns []interface{}
-	var graphs []interface{}
-	var values []interface{}
-	var alert_statuses []interface{}
+
+	widgetsLength := len(dashboard.Widgets)
+	markdowns := make([]interface{}, widgetsLength)
+	graphs := make([]interface{}, widgetsLength)
+	values := make([]interface{}, widgetsLength)
+	alert_statuses := make([]interface{}, widgetsLength)
 
 	for _, widget := range dashboard.Widgets {
 		layout := map[string]int{
