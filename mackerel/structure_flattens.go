@@ -334,3 +334,140 @@ func flattenAWSIntegration(awsIntegration *mackerel.AWSIntegration, d *schema.Re
 	}
 	return diags
 }
+
+func flattenDashboard(dashboard *mackerel.Dashboard, d *schema.ResourceData) (diags diag.Diagnostics) {
+	d.Set("title", dashboard.Title)
+	d.Set("memo", dashboard.Memo)
+	d.Set("url_path", dashboard.URLPath)
+
+	widgetsLength := len(dashboard.Widgets)
+	markdowns := make([]interface{}, widgetsLength)
+	graphs := make([]interface{}, widgetsLength)
+	values := make([]interface{}, widgetsLength)
+	alert_statuses := make([]interface{}, widgetsLength)
+
+	for _, widget := range dashboard.Widgets {
+		layout := map[string]int{
+			"x":      int(widget.Layout.X),
+			"y":      int(widget.Layout.Y),
+			"width":  int(widget.Layout.Width),
+			"height": int(widget.Layout.Height),
+		}
+
+		switch widget.Type {
+		case "graph":
+			var g_range map[string][]map[string]int64
+			switch widget.Range.Type {
+			case "relative":
+				g_range = map[string][]map[string]int64{
+					"relative": {{
+						"period": widget.Range.Period,
+						"offset": widget.Range.Offset,
+					}},
+				}
+			case "absolute":
+				g_range = map[string][]map[string]int64{
+					"absolute": {{
+						"start": widget.Range.Start,
+						"end":   widget.Range.End,
+					}},
+				}
+			}
+			switch widget.Graph.Type {
+			case "host":
+				host := map[string]string{
+					"host_id": widget.Graph.HostID,
+					"name":    widget.Graph.Name,
+				}
+				graphs = append(graphs, map[string]interface{}{
+					"title":  widget.Title,
+					"host":   []map[string]string{host},
+					"range":  []map[string][]map[string]int64{g_range},
+					"layout": []map[string]int{layout},
+				})
+			case "role":
+				role := map[string]interface{}{
+					"role_fullname": widget.Graph.RoleFullName,
+					"name":          widget.Graph.Name,
+					"is_stacked":    widget.Graph.IsStacked,
+				}
+				graphs = append(graphs, map[string]interface{}{
+					"title":  widget.Title,
+					"role":   []map[string]interface{}{role},
+					"range":  []map[string][]map[string]int64{g_range},
+					"layout": []map[string]int{layout},
+				})
+			case "service":
+				service := map[string]interface{}{
+					"service_name": widget.Graph.ServiceName,
+					"name":         widget.Graph.Name,
+				}
+				graphs = append(graphs, map[string]interface{}{
+					"title":   widget.Title,
+					"service": []map[string]interface{}{service},
+					"range":   []map[string][]map[string]int64{g_range},
+					"layout":  []map[string]int{layout},
+				})
+			case "expression":
+				expression := map[string]interface{}{
+					"expression": widget.Graph.Expression,
+				}
+				graphs = append(graphs, map[string]interface{}{
+					"title":      widget.Title,
+					"expression": []map[string]interface{}{expression},
+					"range":      []map[string][]map[string]int64{g_range},
+					"layout":     []map[string]int{layout},
+				})
+			}
+		case "value":
+			var metric map[string][]map[string]string
+			switch widget.Metric.Type {
+			case "host":
+				metric = map[string][]map[string]string{
+					"host": {{
+						"host_id": widget.Metric.HostID,
+						"name":    widget.Metric.Name,
+					}},
+				}
+			case "service":
+				metric = map[string][]map[string]string{
+					"service": {{
+						"service_name": widget.Metric.ServiceName,
+						"name":         widget.Metric.Name,
+					}},
+				}
+			case "expression":
+				metric = map[string][]map[string]string{
+					"expression": {{
+						"expression": widget.Metric.Expression,
+					}},
+				}
+			}
+			values = append(values, map[string]interface{}{
+				"title":         widget.Title,
+				"metric":        []map[string][]map[string]string{metric},
+				"fraction_size": widget.FractionSize,
+				"suffix":        widget.Suffix,
+				"layout":        []map[string]int{layout},
+			})
+		case "markdown":
+			markdowns = append(markdowns, map[string]interface{}{
+				"title":    widget.Title,
+				"markdown": widget.Markdown,
+				"layout":   []map[string]int{layout},
+			})
+		case "alertStatus":
+			alert_statuses = append(alert_statuses, map[string]interface{}{
+				"title":         widget.Title,
+				"role_fullname": widget.RoleFullName,
+				"layout":        []map[string]int{layout},
+			})
+		}
+		d.Set("markdown", markdowns)
+		d.Set("graph", graphs)
+		d.Set("value", values)
+		d.Set("alert_status", alert_statuses)
+	}
+
+	return diags
+}
