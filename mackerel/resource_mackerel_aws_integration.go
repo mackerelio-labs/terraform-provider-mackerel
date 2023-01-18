@@ -110,8 +110,8 @@ func resourceMackerelAWSIntegration() *schema.Resource {
 				Optional: true,
 			},
 			"key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
 				Sensitive: true,
 			},
 			"secret_key": {
@@ -120,8 +120,8 @@ func resourceMackerelAWSIntegration() *schema.Resource {
 				Sensitive: true,
 			},
 			"role_arn": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
 				Sensitive: true,
 			},
 			"external_id": {
