@@ -120,9 +120,8 @@ func resourceMackerelAWSIntegration() *schema.Resource {
 				Sensitive: true,
 			},
 			"role_arn": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"external_id": {
 				Type:      schema.TypeString,
