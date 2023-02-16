@@ -5,12 +5,14 @@ import (
 	"flag"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 
 	"github.com/mackerelio-labs/terraform-provider-mackerel/mackerel"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/mackerel-v1/provider"
 )
 
 const (
@@ -37,6 +39,7 @@ func main() {
 		func() tfprotov6.ProviderServer {
 			return upgradedSDKProvider
 		},
+		providerserver.NewProtocol6(provider.New()),
 	}
 
 	muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
