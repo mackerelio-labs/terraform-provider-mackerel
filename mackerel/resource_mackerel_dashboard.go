@@ -149,6 +149,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"host": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"host_id": {
@@ -165,6 +166,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"role": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"role_fullname": {
@@ -186,6 +188,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"service": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"service_name": {
@@ -202,6 +205,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"expression": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"expression": {
@@ -214,11 +218,13 @@ func resourceMackerelDashboard() *schema.Resource {
 						"range": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem:     dashboardRangeResource,
 						},
 						"layout": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardLayoutResource,
 						},
 					},
@@ -236,6 +242,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"metric": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardMetricResource,
 						},
 						"fraction_size": {
@@ -249,6 +256,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"layout": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardLayoutResource,
 						},
 					},
@@ -270,6 +278,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"layout": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardLayoutResource,
 						},
 					},
@@ -291,6 +300,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"layout": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardLayoutResource,
 						},
 					},
