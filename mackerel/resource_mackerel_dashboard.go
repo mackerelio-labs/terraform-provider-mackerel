@@ -138,7 +138,7 @@ func resourceMackerelDashboard() *schema.Resource {
 				Optional: true,
 			},
 			"graph": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -231,7 +231,7 @@ func resourceMackerelDashboard() *schema.Resource {
 				},
 			},
 			"value": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -263,7 +263,7 @@ func resourceMackerelDashboard() *schema.Resource {
 				},
 			},
 			"markdown": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -285,7 +285,7 @@ func resourceMackerelDashboard() *schema.Resource {
 				},
 			},
 			"alert_status": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
