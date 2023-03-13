@@ -361,8 +361,8 @@ func expandDashboard(d *schema.ResourceData) *mackerel.Dashboard {
 func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 	var widgets []mackerel.Widget
 	if _, ok := d.GetOk("graph"); ok {
-		graphs := d.Get("graph").([]interface{})
-		for _, graph := range graphs {
+		graphs := d.Get("graph").(*schema.Set)
+		for _, graph := range graphs.List() {
 			g := graph.(map[string]interface{})
 			var r mackerel.Range
 			if v, ok := g["range"].([]interface{}); ok && len(v) > 0 {
@@ -407,8 +407,8 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 		}
 	}
 	if _, ok := d.GetOk("value"); ok {
-		values := d.Get("value").([]interface{})
-		for _, value := range values {
+		values := d.Get("value").(*schema.Set)
+		for _, value := range values.List() {
 			v := value.(map[string]interface{})
 			host := v["metric"].([]interface{})[0].(map[string]interface{})["host"].([]interface{})
 			service := v["metric"].([]interface{})[0].(map[string]interface{})["service"].([]interface{})
@@ -446,8 +446,8 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 		}
 	}
 	if _, ok := d.GetOk("markdown"); ok {
-		markdowns := d.Get("markdown").([]interface{})
-		for _, markdown := range markdowns {
+		markdowns := d.Get("markdown").(*schema.Set)
+		for _, markdown := range markdowns.List() {
 			m := markdown.(map[string]interface{})
 			widgets = append(widgets, mackerel.Widget{
 				Type:     "markdown",
@@ -458,8 +458,8 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 		}
 	}
 	if _, ok := d.GetOk("alert_status"); ok {
-		alert_statuses := d.Get("alert_status").([]interface{})
-		for _, alert_status := range alert_statuses {
+		alert_statuses := d.Get("alert_status").(*schema.Set)
+		for _, alert_status := range alert_statuses.List() {
 			a := alert_status.(map[string]interface{})
 			widgets = append(widgets, mackerel.Widget{
 				Type:         "alertStatus",
