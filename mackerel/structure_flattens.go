@@ -320,6 +320,8 @@ func flattenAWSIntegration(awsIntegration *mackerel.AWSIntegration, d *schema.Re
 	d.Set("included_tags", awsIntegration.IncludedTags)
 	d.Set("excluded_tags", awsIntegration.ExcludedTags)
 
+	var supportedRetireAutomatically = map[string]bool{"EC2": true}
+
 	awsIntegration.Services = deleteAWSIntegrationDisableService(awsIntegration.Services)
 	for key, service := range awsIntegration.Services {
 		s := map[string]interface{}{
@@ -327,7 +329,7 @@ func flattenAWSIntegration(awsIntegration *mackerel.AWSIntegration, d *schema.Re
 			"role":             toString(service.Role),
 			"excluded_metrics": toSliceInterface(service.ExcludedMetrics),
 		}
-		if key == "EC2" {
+		if supportedRetireAutomatically[key] {
 			s["retire_automatically"] = service.RetireAutomatically
 		}
 		d.Set(toAWSIntegrationServicesSchemaKey(key), schema.NewSet(schema.HashResource(awsIntegrationServiceResource), []interface{}{s}))

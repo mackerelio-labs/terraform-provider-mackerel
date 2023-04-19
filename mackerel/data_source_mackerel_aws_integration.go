@@ -107,10 +107,11 @@ func dataSourceMackerelAWSIntegration() *schema.Resource {
 			},
 		},
 	}
+	var supportedRetireAutomatically = map[string]bool{"ec2": true}
 	for schemaKey := range awsIntegrationServicesKey {
-		if schemaKey == "ec2" {
+		if supportedRetireAutomatically[schemaKey] {
 			resource.Schema[schemaKey] = awsIntegrationServiceDataSchemaWithRetireAutomatically
-		} else if schemaKey != "ec2" {
+		} else if !supportedRetireAutomatically[schemaKey] {
 			resource.Schema[schemaKey] = awsIntegrationServiceDataSchema
 		}
 	}
