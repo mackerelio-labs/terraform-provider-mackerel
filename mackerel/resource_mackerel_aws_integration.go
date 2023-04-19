@@ -8,7 +8,7 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-var awsIntegrationServiceEC2Resource = &schema.Resource{
+var awsIntegrationServiceResourceWithRetireAutomatically = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"enable": {
 			Type:     schema.TypeBool,
@@ -31,6 +31,13 @@ var awsIntegrationServiceEC2Resource = &schema.Resource{
 			Optional: true,
 		},
 	},
+}
+
+var awsIntegrationServiceSchemaWithRetireAutomatically = &schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	MaxItems: 1,
+	Elem:     awsIntegrationServiceResourceWithRetireAutomatically,
 }
 
 var awsIntegrationServiceResource = &schema.Resource{
@@ -140,16 +147,12 @@ func resourceMackerelAWSIntegration() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"ec2": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     awsIntegrationServiceEC2Resource,
-			},
 		},
 	}
 	for schemaKey := range awsIntegrationServicesKey {
-		if schemaKey != "ec2" {
+		if schemaKey == "ec2" {
+			resource.Schema[schemaKey] = awsIntegrationServiceSchemaWithRetireAutomatically
+		} else if schemaKey != "ec2" {
 			resource.Schema[schemaKey] = awsIntegrationServiceSchema
 		}
 	}
