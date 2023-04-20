@@ -344,9 +344,10 @@ resource "mackerel_aws_integration" "foo" {
   }
 
   rds {
-    enable           = true
-    role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
-    excluded_metrics = ["rds.cpu.used"]
+    enable               = true
+    role                 = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
+    excluded_metrics     = ["rds.cpu.used"]
+    retire_automatically = true
   }
 
   nlb {
