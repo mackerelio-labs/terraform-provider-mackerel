@@ -8,7 +8,7 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-var awsIntegrationServiceEC2Resource = &schema.Resource{
+var awsIntegrationServiceResourceWithRetireAutomatically = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"enable": {
 			Type:     schema.TypeBool,
@@ -31,6 +31,13 @@ var awsIntegrationServiceEC2Resource = &schema.Resource{
 			Optional: true,
 		},
 	},
+}
+
+var awsIntegrationServiceSchemaWithRetireAutomatically = &schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	MaxItems: 1,
+	Elem:     awsIntegrationServiceResourceWithRetireAutomatically,
 }
 
 var awsIntegrationServiceResource = &schema.Resource{
@@ -140,16 +147,13 @@ func resourceMackerelAWSIntegration() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"ec2": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     awsIntegrationServiceEC2Resource,
-			},
 		},
 	}
+	var supportedRetireAutomatically = map[string]bool{"ec2": true, "rds": true}
 	for schemaKey := range awsIntegrationServicesKey {
-		if schemaKey != "ec2" {
+		if supportedRetireAutomatically[schemaKey] {
+			resource.Schema[schemaKey] = awsIntegrationServiceSchemaWithRetireAutomatically
+		} else if !supportedRetireAutomatically[schemaKey] {
 			resource.Schema[schemaKey] = awsIntegrationServiceSchema
 		}
 	}
@@ -227,6 +231,7 @@ func expandUpdateAWSIntegrationParam(d *schema.ResourceData) *mackerel.UpdateAWS
 }
 
 func expandAWSIntegrationServicesSet(d *schema.ResourceData) map[string]*mackerel.AWSIntegrationService {
+	var supportedRetireAutomatically = map[string]bool{"ec2": true, "rds": true}
 	services := make(map[string]*mackerel.AWSIntegrationService)
 	for schemaKey, mapKey := range awsIntegrationServicesKey {
 		if _, ok := d.GetOk(schemaKey); ok {
@@ -237,7 +242,7 @@ func expandAWSIntegrationServicesSet(d *schema.ResourceData) map[string]*mackere
 				Role:            toPointer(service["role"].(string)),
 				ExcludedMetrics: toSliceString(service["excluded_metrics"].([]interface{})),
 			}
-			if schemaKey == "ec2" {
+			if supportedRetireAutomatically[schemaKey] {
 				services[mapKey].RetireAutomatically = service["retire_automatically"].(bool)
 			}
 		}
