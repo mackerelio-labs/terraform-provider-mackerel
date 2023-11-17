@@ -149,6 +149,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"host": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"host_id": {
@@ -165,6 +166,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"role": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"role_fullname": {
@@ -186,6 +188,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"service": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"service_name": {
@@ -202,6 +205,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"expression": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"expression": {
@@ -214,11 +218,13 @@ func resourceMackerelDashboard() *schema.Resource {
 						"range": {
 							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem:     dashboardRangeResource,
 						},
 						"layout": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardLayoutResource,
 						},
 					},
@@ -236,6 +242,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"metric": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardMetricResource,
 						},
 						"fraction_size": {
@@ -249,6 +256,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"layout": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardLayoutResource,
 						},
 					},
@@ -270,6 +278,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"layout": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardLayoutResource,
 						},
 					},
@@ -291,6 +300,7 @@ func resourceMackerelDashboard() *schema.Resource {
 						"layout": {
 							Type:     schema.TypeList,
 							Required: true,
+							MaxItems: 1,
 							Elem:     dashboardLayoutResource,
 						},
 					},
@@ -354,12 +364,16 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 		graphs := d.Get("graph").([]interface{})
 		for _, graph := range graphs {
 			g := graph.(map[string]interface{})
+			var r mackerel.Range
+			if v, ok := g["range"].([]interface{}); ok && len(v) > 0 {
+				r = expandDashboardRange(v)
+			}
 			if len(g["host"].([]interface{})) > 0 {
 				widgets = append(widgets, mackerel.Widget{
 					Type:   "graph",
 					Title:  g["title"].(string),
 					Graph:  expandDashboardGraphHost(g["host"].([]interface{})),
-					Range:  expandDashboardRange(g["range"].([]interface{})),
+					Range:  r,
 					Layout: expandDashboardLayout(g["layout"].([]interface{})[0].(map[string]interface{})),
 				})
 			}
@@ -368,7 +382,7 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 					Type:   "graph",
 					Title:  g["title"].(string),
 					Graph:  expandDashboardGraphRole(g["role"].([]interface{})),
-					Range:  expandDashboardRange(g["range"].([]interface{})),
+					Range:  r,
 					Layout: expandDashboardLayout(g["layout"].([]interface{})[0].(map[string]interface{})),
 				})
 			}
@@ -377,7 +391,7 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 					Type:   "graph",
 					Title:  g["title"].(string),
 					Graph:  expandDashboardGraphService(g["service"].([]interface{})),
-					Range:  expandDashboardRange(g["range"].([]interface{})),
+					Range:  r,
 					Layout: expandDashboardLayout(g["layout"].([]interface{})[0].(map[string]interface{})),
 				})
 			}
@@ -386,7 +400,7 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 					Type:   "graph",
 					Title:  g["title"].(string),
 					Graph:  expandDashboardGraphExpression(g["expression"].([]interface{})),
-					Range:  expandDashboardRange(g["range"].([]interface{})),
+					Range:  r,
 					Layout: expandDashboardLayout(g["layout"].([]interface{})[0].(map[string]interface{})),
 				})
 			}

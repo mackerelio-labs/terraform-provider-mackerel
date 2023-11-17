@@ -142,7 +142,7 @@ resource "mackerel_dashboard" "alert_status" {
 
 ### graph
 
-* `title` - The title of graph widget.
+* `title` - (Required) The title of graph widget.
 * `host` - The host graph.
   * `host_id` - (Required) The ID of host.
   * `name` - (Required) The name of graph (e.g., "loadavg")
@@ -170,7 +170,7 @@ resource "mackerel_dashboard" "alert_status" {
 
 ### value
 
-* `title` - The title of value widget.
+* `title` - (Required) The title of value widget.
 * `metric` - The metric of value widget.
   * `host` - The host metric.
     * `host_id` - (Required) The ID of host.
@@ -190,7 +190,7 @@ resource "mackerel_dashboard" "alert_status" {
 
 ### markdown
 
-* `title` - The title of markdown widget.
+* `title` - (Required) The title of markdown widget.
 * `markdown` - (Required) String in Markdown format.
 * `layout` - (Required) The coordinates are specified with the upper left corner of the widget display area as the origin (x = 0, y = 0), with the x axis in the right direction and they axis in the down direction as the positive direction.
   * `x` - (Required) The x coordinate of widget.
@@ -200,7 +200,7 @@ resource "mackerel_dashboard" "alert_status" {
 
 ### alert_status
 
-* `title` - The title of alertStatus widget.
+* `title` - (Required) The title of alertStatus widget.
 * `role_fullname` - (Required) The service name and role name concatenated by `:`.
 * `layout` - (Required) The coordinates are specified with the upper left corner of the widget display area as the origin (x = 0, y = 0), with the x axis in the right direction and they axis in the down direction as the positive direction.
   * `x` - (Required) The x coordinate of widget.
