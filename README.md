@@ -8,7 +8,7 @@ A [Terraform](https://www.terraform.io/) provider for [mackerel.io](https://mack
 
 - Terraform Website: https://terraform.io
 - Terraform Registry: https://registry.terraform.io/providers/mackerelio-labs/mackerel/latest
-- Slack Workspace: https://mackerel-ug-slackin.herokuapp.com/
+- Slack Workspace: [Mackerel User Group](https://mackerel-ug.slack.com/join/shared_invite/zt-1hnm8pao4-zjwsJBEgP4uSMhwc0Sirqw#/shared-invite/email)
 
 ## Requirements
 
