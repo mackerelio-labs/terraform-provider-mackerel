@@ -41,6 +41,7 @@ func TestAccDataSourceMackerelMonitorHostMetric(t *testing.T) {
 					resource.TestCheckResourceAttr(dsName, "external.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "expression.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "query.#", "0"),
 				),
 			},
 		},
@@ -74,6 +75,7 @@ func TestAccDataSourceMackerelMonitorConnectivity(t *testing.T) {
 					resource.TestCheckResourceAttr(dsName, "external.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "expression.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "query.#", "0"),
 				),
 			},
 		},
@@ -115,6 +117,7 @@ func TestAccDataSourceMackerelMonitorServiceMetric(t *testing.T) {
 					resource.TestCheckResourceAttr(dsName, "external.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "expression.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "query.#", "0"),
 				),
 			},
 		},
@@ -162,6 +165,7 @@ func TestAccDataSourceMackerelMonitorExternal(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(dsName, "expression.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "query.#", "0"),
 				),
 			},
 		},
@@ -197,6 +201,7 @@ func TestAccDataSourceMackerelMonitorExpression(t *testing.T) {
 						resource.TestCheckResourceAttr(dsName, "expression.0.critical", "0.9"),
 					),
 					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "query.#", "0"),
 				),
 			},
 		},
@@ -232,6 +237,44 @@ func TestAccDataSourceMackerelMonitorAnomalyDetection(t *testing.T) {
 						resource.TestCheckResourceAttr(dsName, "anomaly_detection.0.max_check_attempts", "5"),
 						resource.TestCheckResourceAttr(dsName, "anomaly_detection.0.training_period_from", "1577836800"),
 						resource.TestCheckResourceAttr(dsName, "anomaly_detection.0.scopes.#", "1"),
+					),
+					resource.TestCheckResourceAttr(dsName, "query.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceMackerelMonitorQuery(t *testing.T) {
+	dsName := "data.mackerel_monitor.foo"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-monitor-%s", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMackerelMonitorConfigQuery(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(dsName, "id"),
+					resource.TestCheckResourceAttr(dsName, "name", name),
+					resource.TestCheckResourceAttr(dsName, "memo", "This monitor is managed by Terraform."),
+					resource.TestCheckResourceAttr(dsName, "is_mute", "true"),
+					resource.TestCheckResourceAttr(dsName, "notification_interval", "30"),
+					resource.TestCheckResourceAttr(dsName, "host_metric.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "connectivity.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "service_metric.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "external.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "expression.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "query.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(dsName, "query.0.query", "container.cpu.utilization{k8s.deployment.name=\"httpbin\"}"),
+						resource.TestCheckResourceAttr(dsName, "query.0.legend", "cpu.utilization {{k8s.node.name}}"),
+						resource.TestCheckResourceAttr(dsName, "query.0.operator", ">"),
+						resource.TestCheckResourceAttr(dsName, "query.0.warning", "70"),
+						resource.TestCheckResourceAttr(dsName, "query.0.critical", "90"),
 					),
 				),
 			},
@@ -444,4 +487,26 @@ data "mackerel_monitor" "foo" {
   id = mackerel_monitor.foo.id
 }
 `, rand, rand, name)
+}
+
+func testAccDataSourceMackerelMonitorConfigQuery(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_monitor" "foo" {
+  name = "%s"
+  memo = "This monitor is managed by Terraform."
+  is_mute = true
+  notification_interval = 30
+  query {
+    query = "container.cpu.utilization{k8s.deployment.name=\"httpbin\"}"
+    legend = "cpu.utilization {{k8s.node.name}}"
+    operator = ">"
+    warning = "70"
+    critical = "90"
+  }
+}
+
+data "mackerel_monitor" "foo" {
+  id = mackerel_monitor.foo.id
+}
+`, name)
 }
