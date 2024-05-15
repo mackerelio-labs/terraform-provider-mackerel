@@ -112,6 +112,22 @@ var dashboardMetricDataResource = &schema.Resource{
 				},
 			},
 		},
+		"query": {
+			Type:     schema.TypeList,
+			Computed: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"query": {
+						Type:     schema.TypeString,
+						Computed: true,
+					},
+					"legend": {
+						Type:     schema.TypeString,
+						Computed: true,
+					},
+				},
+			},
+		},
 	},
 }
 
@@ -210,6 +226,22 @@ func dataSourceMackerelDashboard() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"expression": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"query": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"query": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"legend": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
