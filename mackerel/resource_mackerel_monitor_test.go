@@ -514,7 +514,7 @@ func TestAccMackerelMonitor_Query(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "query.#", "1"),
 					resource.ComposeTestCheckFunc(
-						resource.TestCheckResourceAttr(resourceName, "query.0.query", "container.cpu.utilization{k8s.deployment.name=\"httpbin\"}"),
+						resource.TestCheckResourceAttr(resourceName, "query.0.query", "container.cpu.utilization{k8s.deployment.name=\"nginx\"}"),
 						resource.TestCheckResourceAttr(resourceName, "query.0.legend", "cpu.utilization {{k8s.node.name}}"),
 						resource.TestCheckResourceAttr(resourceName, "query.0.operator", ">"),
 						resource.TestCheckResourceAttr(resourceName, "query.0.warning", "70"),
@@ -860,7 +860,7 @@ resource "mackerel_monitor" "foo" {
   is_mute = true
   notification_interval = 30
   query {
-    query = "container.cpu.utilization{k8s.deployment.name=\"httpbin\"}"
+    query = "container.cpu.utilization{k8s.deployment.name=\"nginx\"}"
     legend = "cpu.utilization {{k8s.node.name}}"
     operator = ">"
     warning = "70"

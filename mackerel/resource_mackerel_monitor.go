@@ -341,6 +341,7 @@ func resourceMackerelMonitor() *schema.Resource {
 						"query": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"legend": {
 							Type:     schema.TypeString,
