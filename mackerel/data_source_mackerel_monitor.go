@@ -257,34 +257,34 @@ func dataSourceMackerelMonitor() *schema.Resource {
 					},
 				},
 			},
-            "query": {
-                Type: schema.TypeList,
-                Computed: true,
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "query": {
-                            Type: schema.TypeString,
-                            Computed: true,
-                        },
-                        "legend": {
-                            Type: schema.TypeString,
-                            Computed: true,
-                        },
-                        "operator": {
-                            Type: schema.TypeString,
-                            Computed: true,
-                        },
-                        "warning": {
-                            Type: schema.TypeString,
-                            Computed: true,
-                        },
-                        "critical": {
-                            Type: schema.TypeString,
-                            Computed: true,
-                        },
-                    },
-                },
-            },
+			"query": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"query": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"legend": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"operator": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"warning": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"critical": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
