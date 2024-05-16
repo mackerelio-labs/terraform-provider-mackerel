@@ -64,6 +64,9 @@ func flattenMonitor(monitor mackerel.Monitor, d *schema.ResourceData) (diags dia
 	if v, ok := monitor.(*mackerel.MonitorAnomalyDetection); ok {
 		diags = flattenMonitorAnomalyDetection(v, d)
 	}
+	if v, ok := monitor.(*mackerel.MonitorQuery); ok {
+		diags = flatternMonitorQuery(v, d)
+	}
 	return diags
 }
 
@@ -201,6 +204,25 @@ func flattenMonitorAnomalyDetection(monitor *mackerel.MonitorAnomalyDetection, d
 			"scopes":               flattenStringListToSet(normalizedScopes),
 		},
 	})
+	return diags
+}
+
+func flatternMonitorQuery(monitor *mackerel.MonitorQuery, d *schema.ResourceData) (diags diag.Diagnostics) {
+	d.Set("name", monitor.Name)
+	d.Set("memo", monitor.Memo)
+	d.Set("is_mute", monitor.IsMute)
+	d.Set("notification_interval", monitor.NotificationInterval)
+
+	d.Set("query", []map[string]any{
+		{
+			"query":    monitor.Query,
+			"operator": monitor.Operator,
+			"legend":   monitor.Legend,
+			"warning":  parseFloat64ToString(monitor.Warning),
+			"critical": parseFloat64ToString(monitor.Critical),
+		},
+	})
+
 	return diags
 }
 

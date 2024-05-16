@@ -10,6 +10,18 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
+var (
+	monitorTypes = []string{
+		"host_metric",
+		"connectivity",
+		"service_metric",
+		"external",
+		"expression",
+		"anomaly_detection",
+		"query",
+	}
+)
+
 func resourceMackerelMonitor() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMackerelMonitorCreate,
@@ -42,7 +54,7 @@ func resourceMackerelMonitor() *schema.Resource {
 			"host_metric": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
+				ExactlyOneOf: monitorTypes,
 				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -95,7 +107,7 @@ func resourceMackerelMonitor() *schema.Resource {
 			"connectivity": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
+				ExactlyOneOf: monitorTypes,
 				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -115,7 +127,7 @@ func resourceMackerelMonitor() *schema.Resource {
 			"service_metric": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
+				ExactlyOneOf: monitorTypes,
 				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -177,7 +189,7 @@ func resourceMackerelMonitor() *schema.Resource {
 			"external": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
+				ExactlyOneOf: monitorTypes,
 				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -254,7 +266,7 @@ func resourceMackerelMonitor() *schema.Resource {
 			"expression": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
+				ExactlyOneOf: monitorTypes,
 				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -285,7 +297,7 @@ func resourceMackerelMonitor() *schema.Resource {
 			"anomaly_detection": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ExactlyOneOf: []string{"host_metric", "connectivity", "service_metric", "external", "expression", "anomaly_detection"},
+				ExactlyOneOf: monitorTypes,
 				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -315,6 +327,42 @@ func resourceMackerelMonitor() *schema.Resource {
 							Type:     schema.TypeSet,
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+			"query": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				ExactlyOneOf: monitorTypes,
+				MaxItems:     1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"query": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"legend": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"operator": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{">", "<"}, false),
+						},
+						"warning": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: []string{"query.0.warning", "query.0.critical"},
+							ValidateFunc: ValidateFloatString,
+						},
+						"critical": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: []string{"query.0.warning", "query.0.critical"},
+							ValidateFunc: ValidateFloatString,
 						},
 					},
 				},
@@ -381,6 +429,9 @@ func expandMonitor(d *schema.ResourceData) mackerel.Monitor {
 	}
 	if _, ok := d.GetOk("anomaly_detection"); ok {
 		monitor = expandMonitorAnomalyDetection(d)
+	}
+	if _, ok := d.GetOk("query"); ok {
+		monitor = expandMonitorQuery(d)
 	}
 	return monitor
 }
@@ -556,6 +607,32 @@ func expandMonitorAnomalyDetection(d *schema.ResourceData) *mackerel.MonitorAnom
 		TrainingPeriodFrom:   uint64(d.Get("anomaly_detection.0.training_period_from").(int)),
 		MaxCheckAttempts:     uint64(d.Get("anomaly_detection.0.max_check_attempts").(int)),
 		Scopes:               expandStringListFromSet(d.Get("anomaly_detection.0.scopes").(*schema.Set)),
+	}
+	return monitor
+}
+
+func expandMonitorQuery(d *schema.ResourceData) *mackerel.MonitorQuery {
+	monitor := &mackerel.MonitorQuery{
+		Name:                 d.Get("name").(string),
+		Memo:                 d.Get("memo").(string),
+		Type:                 "query",
+		IsMute:               d.Get("is_mute").(bool),
+		NotificationInterval: uint64(d.Get("notification_interval").(int)),
+		Query:                d.Get("query.0.query").(string),
+		Legend:               d.Get("query.0.legend").(string),
+		Operator:             d.Get("query.0.operator").(string),
+		Warning:              nil,
+		Critical:             nil,
+	}
+	if warning, ok := d.GetOkExists("query.0.warning"); ok {
+		if w, err := strconv.ParseFloat(warning.(string), 64); err == nil {
+			monitor.Warning = &w
+		}
+	}
+	if critical, ok := d.GetOkExists("query.0.critical"); ok {
+		if c, err := strconv.ParseFloat(critical.(string), 64); err == nil {
+			monitor.Critical = &c
+		}
 	}
 	return monitor
 }
