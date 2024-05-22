@@ -13,8 +13,8 @@ func TestAccDataSourceMackerelService(t *testing.T) {
 	name := fmt.Sprintf("tf-service-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelServiceConfig(name),
@@ -45,8 +45,8 @@ func TestAccDataSourceMackerelServiceNotMatchAnyService(t *testing.T) {
 	name := fmt.Sprintf("tf-service-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      fmt.Sprintf(`data "mackerel_service" "foo" { name = "%s" }`, name),

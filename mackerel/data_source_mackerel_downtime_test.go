@@ -15,8 +15,8 @@ func TestAccDataSourceMackerelDowntime(t *testing.T) {
 	name := fmt.Sprintf("tf-downtime-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelDowntimeConfig(rand, name),
@@ -100,8 +100,8 @@ data "mackerel_downtime" "foo" {
 
 func TestAccDataSourceMackerelDowntimeNotMatchAnyDowntime(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data "mackerel_downtime" "foo" { id = "not-found" }`,

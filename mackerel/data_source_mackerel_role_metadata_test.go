@@ -16,8 +16,8 @@ func TestDataSourceMackerelRoleMetadata(t *testing.T) {
 	namespace := fmt.Sprintf("tf-namespace-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelRoleMetadataConfig(service, role, namespace),

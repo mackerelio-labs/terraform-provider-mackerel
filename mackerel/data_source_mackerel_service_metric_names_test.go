@@ -11,8 +11,8 @@ import (
 func TestAccDataSourceMackerelServiceMetricNames(t *testing.T) {
 	name := fmt.Sprintf("tf-service-%s", acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelServiceMetricNamesConfig(name),

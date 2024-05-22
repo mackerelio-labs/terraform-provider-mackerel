@@ -17,8 +17,8 @@ func TestAccDataSourceMackerelAWSIntegrationIAMRole(t *testing.T) {
 	awsRoleArn := os.Getenv("AWS_ROLE_ARN")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelAWSIntegrationConfigIAMRole(rand, name, awsRoleArn, externalID),
@@ -49,8 +49,8 @@ func TestAccDataSourceMackerelAWSIntegrationCredential(t *testing.T) {
 	awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelAWSIntegrationConfigCredential(rand, name, awsAccessKeyID, awsSecretAccessKey),

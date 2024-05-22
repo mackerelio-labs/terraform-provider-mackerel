@@ -17,9 +17,9 @@ func TestAccMackerelDashboardGraph(t *testing.T) {
 	titleUpdated := fmt.Sprintf("tf-dashboard graph %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelDashboardDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -84,9 +84,9 @@ func TestAccMackerelDashboardValue(t *testing.T) {
 	titleUpdated := fmt.Sprintf("tf-dashboard value %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelDashboardDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -147,9 +147,9 @@ func TestAccMackerelDashboardMarkdown(t *testing.T) {
 	titleUpdated := fmt.Sprintf("tf-dashboard markdown %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelDashboardDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -212,9 +212,9 @@ func TestAccMackerelDashboardAlertStatus(t *testing.T) {
 	titleUpdated := fmt.Sprintf("tf-dashboard alertstatus %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelDashboardDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{

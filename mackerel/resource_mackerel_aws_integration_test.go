@@ -20,9 +20,9 @@ func TestAccMackerelAWSIntegrationIAMRole(t *testing.T) {
 	awsRoleArn := os.Getenv("AWS_ROLE_ARN")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelAWSIntegrationDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelAWSIntegrationDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -82,9 +82,9 @@ func TestAccMackerelAWSIntegrationCredentials(t *testing.T) {
 	awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelAWSIntegrationDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelAWSIntegrationDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{

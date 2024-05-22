@@ -17,9 +17,9 @@ func TestAccMackerelChannel_Email(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-channel email %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelChannelDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -66,9 +66,9 @@ func TestAccMackerelChannel_Slack(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-channel slack %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelChannelDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -117,9 +117,9 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 	nameUpdated := fmt.Sprintf("tf-channel slack %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelChannelDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{

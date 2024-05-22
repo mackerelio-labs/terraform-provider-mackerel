@@ -14,8 +14,8 @@ func TestAccDataSourceMackerelMonitorHostMetric(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigHostMetric(rand, name),
@@ -54,8 +54,8 @@ func TestAccDataSourceMackerelMonitorConnectivity(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigConnectivity(rand, name),
@@ -89,8 +89,8 @@ func TestAccDataSourceMackerelMonitorServiceMetric(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigServiceMetric(serviceName, name),
@@ -131,8 +131,8 @@ func TestAccDataSourceMackerelMonitorExternal(t *testing.T) {
 	serviceName := fmt.Sprintf("tf-service-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigExternal(serviceName, name),
@@ -178,8 +178,8 @@ func TestAccDataSourceMackerelMonitorExpression(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorExpression(name),
@@ -214,8 +214,8 @@ func TestAccDataSourceMackerelMonitorAnomalyDetection(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigAnomalyDetection(rand, name),
@@ -251,8 +251,8 @@ func TestAccDataSourceMackerelMonitorQuery(t *testing.T) {
 	name := fmt.Sprintf("tf-monitor-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelMonitorConfigQuery(name),
