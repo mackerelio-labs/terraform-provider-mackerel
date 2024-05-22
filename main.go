@@ -5,7 +5,9 @@ import (
 	"flag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
+	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 
 	"github.com/mackerelio-labs/terraform-provider-mackerel/mackerel"
 )
@@ -15,22 +17,32 @@ const (
 )
 
 func main() {
+	ctx := context.Background()
+
 	var debug bool
 	flag.BoolVar(&debug, "debug", false, "run as debug-mode")
 
 	flag.Parse()
 
-	opts := &plugin.ServeOpts{
-		ProviderFunc: mackerel.Provider,
+	providers := []func() tfprotov5.ProviderServer{
+		mackerel.Provider().GRPCProvider,
 	}
 
+	muxServer, err := tf5muxserver.NewMuxServer(ctx, providers...)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var serveOpts []tf5server.ServeOpt
 	if debug {
-		c := context.TODO() // to support cancellation operations such as signal handling in the future.
-		if err := plugin.Debug(c, providerAddr, opts); err != nil {
-			log.Fatal(err)
-		}
-		return
+		serveOpts = append(serveOpts, tf5server.WithManagedDebug())
 	}
 
-	plugin.Serve(opts)
+	if err := tf5server.Serve(
+		providerAddr,
+		muxServer.ProviderServer,
+		serveOpts...,
+	); err != nil {
+		log.Fatal(err)
+	}
 }
