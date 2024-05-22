@@ -42,6 +42,9 @@ data "mackerel_dashboard" "this" {
     * `name` - The name of graph.
   * `expression` - The expression graph.
     * `expression` - The expression for graphs.
+  * `query` - The query graph.
+    * `query` - The PromQL-style query.
+    * `legend` - The query legend.
   * `range` - The display period for graphs. If unspecified, it will be variable and the display period can be changed from the controller displayed at the top of the dashboard.
     * `relative` - （The period from (current time + `offset` - `period`) to (current time + `offset`) is displayed. Negative values for `offset` can be used to display graphs for a specified period in the past.
       * `period` - Duration (seconds).
@@ -65,6 +68,9 @@ data "mackerel_dashboard" "this" {
       * `name` - The name of metric.
     * `expression` - The expression metric.
       * `expression` - The expression for metric.
+    * `query` - The query metric.
+      * `query` - The PromQL-style query.
+      * `legend` - The query legend.
   * `fraction_size` - Number of decimal places to display (0-16).
   * `suffix` - Units to be displayed after the numerical value.
   * `layout` - The coordinates are specified with the upper left corner of the widget display area as the origin (x = 0, y = 0), with the x axis in the right direction and they axis in the down direction as the positive direction.
