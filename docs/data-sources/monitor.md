@@ -68,6 +68,12 @@ data "mackerel_monitor" "this" {
   * `operator` - The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right.
   * `warning` - The threshold that generates a warning alert.
   * `critical` - The threshold that generates a critical alert.
+* `query` - The settings for the monitor of query monitoring.
+  * `query` - The PromQL-style query.
+  * `legend` - The query legend.
+  * `operator` - The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right.
+  * `warning` - The threshold that generates a warning alert.
+  * `critical` - The threshold that generates a critical alert.
 * `anomaly_detection` - The settings for the monitor of  Anomaly Detection for roles.
   * `scopes` - Expression of the monitoring target. Only valid for graph sequences that become one line.
   * `warning_sensitivity` - The sensitivity to generates warning alerts.

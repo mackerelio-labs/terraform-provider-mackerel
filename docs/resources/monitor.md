@@ -93,6 +93,22 @@ resource "mackerel_monitor" "role_avg" {
 }
 ```
 
+### query
+
+```terraform
+resource "mackerel_monitor" "httpbin_load" {
+  name = "httpbin load per node"
+
+  query {
+    query = "sum by (k8s.node.name) (container.cpu.utilization{k8s.deployment.name=\"httpbin\"})"
+    legend = "cpu.utilization {{k8s.node.name}}"
+    operator = ">"
+    warning = "0.7"
+    critical = "0.9"
+  }
+}
+```
+
 ### anomaly_detection
 
 ```terraform
@@ -166,6 +182,14 @@ The following arguments are required:
 ### expression
 
 * `expression` - (Required)
+* `operator` - (Required) The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right. Valid values are `>` and `<`.
+* `warning` - (Required, at least one of `warning` or `critical`) The threshold that generates a warning alert.
+* `critical` - (Required, at least one of `warning` or `critical`) The threshold that generates a critical alert.
+
+### query
+
+* `query` - (Required) The PromQL-style query.
+* `legend` - The query legend.
 * `operator` - (Required) The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right. Valid values are `>` and `<`.
 * `warning` - (Required, at least one of `warning` or `critical`) The threshold that generates a warning alert.
 * `critical` - (Required, at least one of `warning` or `critical`) The threshold that generates a critical alert.
