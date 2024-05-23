@@ -5,29 +5,26 @@ import (
 	"os"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 )
 
 var testAccProvider *schema.Provider
-var testAccProviderFactories map[string]func() (*schema.Provider, error)
 var testAccProtoV5ProviderFactories map[string]func() (tfprotov5.ProviderServer, error)
 
 func init() {
 	testAccProvider = Provider()
-	testAccProviderFactories = map[string]func() (*schema.Provider, error){
-		"mackerel": func() (*schema.Provider, error) {
-			return testAccProvider, nil
-		},
-	}
 	testAccProtoV5ProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
 		"mackerel": func() (tfprotov5.ProviderServer, error) {
 			ctx := context.Background()
 
 			providers := []func() tfprotov5.ProviderServer{
 				testAccProvider.GRPCProvider,
+                providerserver.NewProtocol5(provider.New()),
 			}
 
 			muxServer, err := tf5muxserver.NewMuxServer(ctx, providers...)
