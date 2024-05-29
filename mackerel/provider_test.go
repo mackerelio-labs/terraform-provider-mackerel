@@ -16,7 +16,7 @@ var testAccProtoV5ProviderFactories map[string]func() (tfprotov5.ProviderServer,
 func init() {
 	testAccProvider = Provider()
 
-    providerServer := protoV5ProviderServer(testAccProvider)
+	providerServer := protoV5ProviderServer(testAccProvider)
 	testAccProtoV5ProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
 		"mackerel": func() (tfprotov5.ProviderServer, error) {
 			return providerServer, nil

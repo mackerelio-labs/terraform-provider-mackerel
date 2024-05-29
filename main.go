@@ -14,6 +14,10 @@ const (
 )
 
 func main() {
+	// No timestamp to logs
+	// FYI: https://developer.hashicorp.com/terraform/plugin/log/writing#duplicate-timestamp-and-incorrect-level-messages
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+
 	var debug bool
 	flag.BoolVar(&debug, "debug", false, "run as debug-mode")
 
@@ -29,6 +33,7 @@ func main() {
 		mackerel.ProtoV5ProviderServer,
 		serveOpts...,
 	); err != nil {
-		log.Fatal(err)
+		log.Printf("[ERROR] failed to start server: %v", err)
+		panic(err)
 	}
 }
