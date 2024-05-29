@@ -28,11 +28,11 @@ func New() provider.Provider {
 	return &mackerelProvider{}
 }
 
-func (m *mackerelProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+func (m *mackerelProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "mackerel"
 }
 
-func (m *mackerelProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (m *mackerelProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"api_key": schema.StringAttribute{
@@ -95,10 +95,29 @@ func (m *mackerelProvider) Configure(ctx context.Context, req provider.Configure
 	resp.ResourceData = client
 }
 
-func (m *mackerelProvider) Resources(context.Context) []func() resource.Resource {
-	return []func() resource.Resource{}
+func (m *mackerelProvider) Resources(_ context.Context) []func() resource.Resource {
+	return []func() resource.Resource{
+		NewMackerelServiceResource,
+	}
 }
 
 func (m *mackerelProvider) DataSources(context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{}
+}
+
+func retrieveClientOnResource(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) (client *mackerel.Client, ok bool) {
+	if /* ConfigureProvider RPC is not called */ req.ProviderData == nil {
+		return
+	}
+
+	client, ok = req.ProviderData.(*mackerel.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+
+			"Unconfigured Mackerel Client",
+			fmt.Sprintf("Expected configured Mackerel client, but got: %T. Please report this issue.", req.ProviderData),
+		)
+		return
+	}
+	return
 }
