@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -105,17 +106,17 @@ func (m *mackerelProvider) DataSources(context.Context) []func() datasource.Data
 	return []func() datasource.DataSource{}
 }
 
-func retrieveClientOnResource(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) (client *mackerel.Client, ok bool) {
-	if /* ConfigureProvider RPC is not called */ req.ProviderData == nil {
+func retrieveClient(_ context.Context, providerData any) (client *mackerel.Client, diags diag.Diagnostics) {
+	if /* ConfigureProvider RPC is not called */ providerData == nil {
 		return
 	}
 
-	client, ok = req.ProviderData.(*mackerel.Client)
+	client, ok := providerData.(*mackerel.Client)
 	if !ok {
-		resp.Diagnostics.AddError(
+		diags.AddError(
 
 			"Unconfigured Mackerel Client",
-			fmt.Sprintf("Expected configured Mackerel client, but got: %T. Please report this issue.", req.ProviderData),
+			fmt.Sprintf("Expected configured Mackerel client, but got: %T. Please report this issue.", providerData),
 		)
 		return
 	}

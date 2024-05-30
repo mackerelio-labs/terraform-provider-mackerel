@@ -73,8 +73,9 @@ func (r *mackerelServiceResource) Schema(_ context.Context, _ resource.SchemaReq
 }
 
 func (r *mackerelServiceResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	client, ok := retrieveClientOnResource(ctx, req, resp)
-	if !ok {
+	client, diags := retrieveClient(ctx, req.ProviderData)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 	r.client = client
