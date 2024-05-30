@@ -44,6 +44,7 @@ func (r *mackerelServiceResource) Metadata(_ context.Context, req resource.Metad
 
 func (r *mackerelServiceResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "The `mackerel_service` resource allows creating and management of Service.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -52,7 +53,8 @@ func (r *mackerelServiceResource) Schema(_ context.Context, _ resource.SchemaReq
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "The name of service.",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(2, 63),
 					stringvalidator.RegexMatches(regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-_]+$`),
@@ -63,7 +65,8 @@ func (r *mackerelServiceResource) Schema(_ context.Context, _ resource.SchemaReq
 				},
 			},
 			"memo": schema.StringAttribute{
-				Optional: true,
+				Optional:    true,
+				Description: "Notes related to this service.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
