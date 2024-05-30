@@ -94,6 +94,7 @@ func (m *mackerelProvider) Configure(ctx context.Context, req provider.Configure
 	client.HTTPClient.Transport = logging.NewSubsystemLoggingHTTPTransport("Mackerel", http.DefaultTransport)
 
 	resp.ResourceData = client
+	resp.DataSourceData = client
 }
 
 func (m *mackerelProvider) Resources(_ context.Context) []func() resource.Resource {
@@ -103,7 +104,9 @@ func (m *mackerelProvider) Resources(_ context.Context) []func() resource.Resour
 }
 
 func (m *mackerelProvider) DataSources(context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		NewMackerelServiceDataSource,
+	}
 }
 
 func retrieveClient(_ context.Context, providerData any) (client *mackerel.Client, diags diag.Diagnostics) {

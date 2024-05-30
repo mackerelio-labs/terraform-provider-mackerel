@@ -32,7 +32,7 @@ type mackerelServiceResource struct {
 	client *mackerel.Client
 }
 
-type mackerelServiceResourceModel struct {
+type mackerelServiceModel struct {
 	ID   types.String `tfsdk:"id"`
 	Name types.String `tfsdk:"name"`
 	Memo types.String `tfsdk:"memo"`
@@ -85,7 +85,7 @@ func (r *mackerelServiceResource) Configure(ctx context.Context, req resource.Co
 }
 
 func (r *mackerelServiceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data mackerelServiceResourceModel
+	var data mackerelServiceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -100,7 +100,7 @@ func (r *mackerelServiceResource) Create(ctx context.Context, req resource.Creat
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create Service",
-			fmt.Sprintf("An unexpected error occurred while attempting to create the service: %+v", err),
+			fmt.Sprintf("An unexpected error occurred while attempting to create the service: %v", err),
 		)
 		return
 	}
@@ -116,7 +116,7 @@ func (r *mackerelServiceResource) Create(ctx context.Context, req resource.Creat
 }
 
 func (r *mackerelServiceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data mackerelServiceResourceModel
+	var data mackerelServiceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -133,12 +133,12 @@ func (r *mackerelServiceResource) Read(ctx context.Context, req resource.ReadReq
 func (r *mackerelServiceResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddError(
 		"Unable to update Service",
-		"Mackerel services are cannot be updated. Please report this issue.",
+		"Mackerel services are cannot be updated in-place. Please report this issue.",
 	)
 }
 
 func (r *mackerelServiceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data mackerelServiceResourceModel
+	var data mackerelServiceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -148,7 +148,7 @@ func (r *mackerelServiceResource) Delete(ctx context.Context, req resource.Delet
 	if _, err := r.client.DeleteService(id); err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to delete Service",
-			fmt.Sprintf("An unexpected error occurred while attempting to delete the service: %+v", err),
+			fmt.Sprintf("An unexpected error occurred while attempting to delete the service: %v", err),
 		)
 		return
 	}
@@ -158,31 +158,37 @@ func (r *mackerelServiceResource) ImportState(ctx context.Context, req resource.
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func (r *mackerelServiceResource) read(_ context.Context, data *mackerelServiceResourceModel) (diags diag.Diagnostics) {
-	id := data.ID.ValueString()
+func (r *mackerelServiceResource) read(_ context.Context, data *mackerelServiceModel) (diags diag.Diagnostics) {
 
 	services, err := r.client.FindServices()
 	if err != nil {
 		diags.AddError(
-			"Unable to read services",
-			fmt.Sprintf("An unexpected error occurred while attempting to fetch the services: %+v", err),
+			"Unable to fetch services",
+			fmt.Sprintf("An unexpected error occurred while attempting to fetch the services: %v", err),
 		)
 		return
 	}
 
+	id := data.ID.ValueString()
 	serviceIdx := slices.IndexFunc(services, func(s *mackerel.Service) bool {
 		return s.Name == id
 	})
 	if serviceIdx == -1 {
 		diags.AddError(
-			"No Service Found",
+			fmt.Sprintf("No Service Found: %s", id),
 			fmt.Sprintf("The name '%s' does not match any service in mackerel.io", id),
 		)
 		return
 	}
 
-	service := services[serviceIdx]
-	data.Name = types.StringValue(service.Name)
-	data.Memo = types.StringValue(service.Memo)
+	data.SetService(services[serviceIdx])
 	return
+}
+
+func (m *mackerelServiceModel) SetService(service *mackerel.Service) {
+	m.ID = types.StringValue(service.Name)
+	m.Name = types.StringValue(service.Name)
+	if service.Memo != "" || m.Memo.ValueString() != "" {
+		m.Memo = types.StringValue(service.Memo)
+	}
 }
