@@ -5,18 +5,21 @@ import (
 	"os"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 var testAccProvider *schema.Provider
-var testAccProviderFactories map[string]func() (*schema.Provider, error)
+var testAccProtoV5ProviderFactories map[string]func() (tfprotov5.ProviderServer, error)
 
 func init() {
 	testAccProvider = Provider()
-	testAccProviderFactories = map[string]func() (*schema.Provider, error){
-		"mackerel": func() (*schema.Provider, error) {
-			return testAccProvider, nil
+
+	providerServer := protoV5ProviderServer(testAccProvider)
+	testAccProtoV5ProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
+		"mackerel": func() (tfprotov5.ProviderServer, error) {
+			return providerServer, nil
 		},
 	}
 }

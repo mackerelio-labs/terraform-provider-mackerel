@@ -19,9 +19,9 @@ func TestAccMackerelService(t *testing.T) {
 	memoUpdated := fmt.Sprintf("%s is managed by Terraform.", nameUpdated)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckMackerelServiceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelServiceDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{

@@ -2,10 +2,17 @@ package mackerel
 
 import (
 	"context"
+	"log"
+	"os"
 
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	mackerelfwprovider "github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 )
 
 // Provider returns a *schema.Provider
@@ -63,6 +70,28 @@ func Provider() *schema.Provider {
 
 		ConfigureContextFunc: providerConfigure,
 	}
+}
+
+func ProtoV5ProviderServer() tfprotov5.ProviderServer {
+	return protoV5ProviderServer(Provider())
+}
+
+func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
+	fwFlag := os.Getenv("MACKEREL_EXPERIMENTAL_TFFRAMEWORK")
+	if fwFlag == "1" || fwFlag == "true" {
+		log.Printf("[INFO] mackerel: use terraform-plugin-framework based implementation")
+		mux, err := tf5muxserver.NewMuxServer(
+			context.Background(),
+			providerserver.NewProtocol5(mackerelfwprovider.New()),
+			provider.GRPCProvider,
+		)
+		if err != nil {
+			panic(err)
+		}
+		return mux.ProviderServer()
+	}
+
+	return provider.GRPCProvider()
 }
 
 func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {

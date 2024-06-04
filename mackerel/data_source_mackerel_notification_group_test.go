@@ -14,8 +14,8 @@ func TestAccDataSourceMackerelNotificationGroup(t *testing.T) {
 	name := fmt.Sprintf("tf-notification-group-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelNotificationGroupConfig(rand, name),

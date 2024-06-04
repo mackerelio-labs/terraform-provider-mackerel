@@ -1,11 +1,10 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
 
 	"github.com/mackerelio-labs/terraform-provider-mackerel/mackerel"
 )
@@ -15,22 +14,26 @@ const (
 )
 
 func main() {
+	// No timestamp to logs
+	// FYI: https://developer.hashicorp.com/terraform/plugin/log/writing#duplicate-timestamp-and-incorrect-level-messages
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+
 	var debug bool
 	flag.BoolVar(&debug, "debug", false, "run as debug-mode")
 
 	flag.Parse()
 
-	opts := &plugin.ServeOpts{
-		ProviderFunc: mackerel.Provider,
-	}
-
+	var serveOpts []tf5server.ServeOpt
 	if debug {
-		c := context.TODO() // to support cancellation operations such as signal handling in the future.
-		if err := plugin.Debug(c, providerAddr, opts); err != nil {
-			log.Fatal(err)
-		}
-		return
+		serveOpts = append(serveOpts, tf5server.WithManagedDebug())
 	}
 
-	plugin.Serve(opts)
+	if err := tf5server.Serve(
+		providerAddr,
+		mackerel.ProtoV5ProviderServer,
+		serveOpts...,
+	); err != nil {
+		log.Printf("[ERROR] failed to start server: %v", err)
+		panic(err)
+	}
 }

@@ -29,6 +29,6 @@ func (c *Config) Client() (client *mackerel.Client, diags diag.Diagnostics) {
 		}
 	}
 
-	client.HTTPClient.Transport = logging.NewTransport("Mackerel", http.DefaultTransport)
+	client.HTTPClient.Transport = logging.NewSubsystemLoggingHTTPTransport("Mackerel", http.DefaultTransport)
 	return client, diags
 }
