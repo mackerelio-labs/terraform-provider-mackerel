@@ -7,6 +7,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/validatorutil"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -20,7 +22,7 @@ func NewMackerelServiceDataSource() datasource.DataSource {
 }
 
 type mackerelServiceDataSource struct {
-	client *mackerel.Client
+	Client *mackerel.Client
 }
 
 func (d *mackerelServiceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -37,6 +39,7 @@ func (d *mackerelServiceDataSource) Schema(_ context.Context, _ datasource.Schem
 			"name": schema.StringAttribute{
 				Required:    true,
 				Description: "The name of the service.",
+				Validators:  []validator.String{validatorutil.MackerelServiceName()},
 			},
 			"memo": schema.StringAttribute{
 				Computed:    true,
@@ -52,7 +55,7 @@ func (d *mackerelServiceDataSource) Configure(ctx context.Context, req datasourc
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	d.client = client
+	d.Client = client
 }
 
 func (d *mackerelServiceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -62,7 +65,7 @@ func (d *mackerelServiceDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	services, err := d.client.FindServices()
+	services, err := d.Client.FindServices()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to read services",

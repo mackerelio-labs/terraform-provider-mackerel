@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/validatorutil"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -45,7 +46,7 @@ func (m *mackerelProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				Description: "Mackerel API BASE URL",
 				Optional:    true,
 				Sensitive:   true,
-				Validators:  []validator.String{IsURLWithHTTPorHTTPS()},
+				Validators:  []validator.String{validatorutil.IsURLWithHTTPorHTTPS()},
 			},
 		},
 	}

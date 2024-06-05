@@ -1,4 +1,4 @@
-package provider
+package validatorutil
 
 import (
 	"context"
@@ -60,12 +60,11 @@ func (uv *urlSchemeValidator) ValidateString(ctx context.Context, req validator.
 		)
 	}
 
-	isSchemeValid := slices.Index(uv.validSchemes, u.Scheme) > 0
-	if !isSchemeValid {
+	if !slices.Contains(uv.validSchemes, u.Scheme) {
 		resp.Diagnostics.AddAttributeError(
 			req.Path,
 			"Invalid Scheme",
-			fmt.Sprintf("expected to have a url with scheme of: %q", strings.Join(uv.validSchemes, ",")),
+			fmt.Sprintf("expected to have a url with scheme of: %q, but got: %s", strings.Join(uv.validSchemes, ","), u.Scheme),
 		)
 	}
 }

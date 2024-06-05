@@ -3,10 +3,8 @@ package provider
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"slices"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/validatorutil"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -29,7 +28,7 @@ func NewMackerelServiceResource() resource.Resource {
 }
 
 type mackerelServiceResource struct {
-	client *mackerel.Client
+	Client *mackerel.Client
 }
 
 type mackerelServiceModel struct {
@@ -56,9 +55,7 @@ func (r *mackerelServiceResource) Schema(_ context.Context, _ resource.SchemaReq
 				Required:    true,
 				Description: "The name of service.",
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(2, 63),
-					stringvalidator.RegexMatches(regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-_]+$`),
-						"Must include only alphabets, numbers, hyphen and underscore, and it can not begin a hyphen or underscore"),
+					validatorutil.MackerelServiceName(),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -81,7 +78,7 @@ func (r *mackerelServiceResource) Configure(ctx context.Context, req resource.Co
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	r.client = client
+	r.Client = client
 }
 
 func (r *mackerelServiceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -96,7 +93,7 @@ func (r *mackerelServiceResource) Create(ctx context.Context, req resource.Creat
 		Memo: data.Memo.ValueString(),
 	}
 
-	service, err := r.client.CreateService(&param)
+	service, err := r.Client.CreateService(&param)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create Service",
@@ -145,7 +142,7 @@ func (r *mackerelServiceResource) Delete(ctx context.Context, req resource.Delet
 	}
 	id := data.ID.ValueString()
 
-	if _, err := r.client.DeleteService(id); err != nil {
+	if _, err := r.Client.DeleteService(id); err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to delete Service",
 			fmt.Sprintf("An unexpected error occurred while attempting to delete the service: %v", err),
@@ -160,7 +157,7 @@ func (r *mackerelServiceResource) ImportState(ctx context.Context, req resource.
 
 func (r *mackerelServiceResource) read(_ context.Context, data *mackerelServiceModel) (diags diag.Diagnostics) {
 
-	services, err := r.client.FindServices()
+	services, err := r.Client.FindServices()
 	if err != nil {
 		diags.AddError(
 			"Unable to fetch services",
