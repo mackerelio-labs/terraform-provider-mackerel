@@ -4,12 +4,14 @@ import (
 	"context"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/mackerelio/mackerel-client-go"
 )
 
-func Test_Mackerel_ServiceNameValidator(t *testing.T) {
+func Test_ServiceNameValidator(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
@@ -53,6 +55,81 @@ func Test_Mackerel_ServiceNameValidator(t *testing.T) {
 				} else {
 					t.Errorf("unexpected error: %+v", resp.Diagnostics.Errors())
 				}
+			}
+		})
+	}
+}
+
+type serviceFinderFunc func() ([]*mackerel.Service, error)
+
+func (f serviceFinderFunc) FindServices() ([]*mackerel.Service, error) {
+	return f()
+}
+
+func Test_ReadService(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		inClient serviceFinderFunc
+		inName   string
+		want     *ServiceModel
+		wantFail bool
+	}{
+		"success": {
+			inClient: func() ([]*mackerel.Service, error) {
+				return []*mackerel.Service{
+					{
+						Name: "service0",
+					},
+					{
+						Name: "service1",
+						Memo: "memo",
+					},
+				}, nil
+			},
+			inName: "service1",
+			want: &ServiceModel{
+				ID:   types.StringValue("service1"),
+				Name: types.StringValue("service1"),
+				Memo: types.StringValue("memo"),
+			},
+		},
+		"no service": {
+			inClient: func() ([]*mackerel.Service, error) {
+				return []*mackerel.Service{
+					{
+						Name: "service0",
+					},
+					{
+						Name: "service1",
+						Memo: "memo",
+					},
+				}, nil
+			},
+			inName:   "service2",
+			wantFail: true,
+		},
+	}
+
+	ctx := context.Background()
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s, err := readServiceInner(ctx, tt.inClient, tt.inName)
+			if err != nil {
+				if !tt.wantFail {
+					t.Errorf("unexpected error: %+v", err)
+				}
+				return
+			}
+			if tt.wantFail {
+				t.Errorf("unexpected success")
+			}
+
+			if diff := cmp.Diff(tt.want, s); diff != "" {
+				t.Errorf("%s", diff)
 			}
 		})
 	}

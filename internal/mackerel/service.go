@@ -26,7 +26,15 @@ type ServiceModel struct {
 	Memo types.String `tfsdk:"memo"`
 }
 
-func ReadService(_ context.Context, client *Client, name string) (*ServiceModel, error) {
+func ReadService(ctx context.Context, client *Client, name string) (*ServiceModel, error) {
+	return readServiceInner(ctx, client, name)
+}
+
+type serviceFinder interface {
+	FindServices() ([]*mackerel.Service, error)
+}
+
+func readServiceInner(_ context.Context, client serviceFinder, name string) (*ServiceModel, error) {
 	services, err := client.FindServices()
 	if err != nil {
 		return nil, err
@@ -52,7 +60,9 @@ func (m *ServiceModel) Set(newData ServiceModel) {
 		m.ID = newData.ID
 	}
 	m.Name = newData.Name
-	if newData.Memo.ValueString() != "" || m.Memo.IsUnknown() {
+
+	// If Memo is an empty string, treat it as null
+	if newData.Memo.ValueString() != "" {
 		m.Memo = newData.Memo
 	}
 }
