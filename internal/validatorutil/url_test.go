@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -69,4 +70,21 @@ func Test_Validator_URL(t *testing.T) {
 			}
 		})
 	}
+}
+
+func assertDiagMatchPathExpr(t testing.TB, d diag.Diagnostic, pathExpr path.Expression) bool {
+	t.Helper()
+
+	dp, ok := d.(diag.DiagnosticWithPath)
+	if !ok {
+		t.Errorf("expected to have a path, but got no path: %+v", d)
+		return true
+	}
+
+	if !pathExpr.Matches(dp.Path()) {
+		t.Errorf("expteted to have a path that matches to %s, but got: %+v", pathExpr.String(), dp.Path())
+		return true
+	}
+
+	return false
 }

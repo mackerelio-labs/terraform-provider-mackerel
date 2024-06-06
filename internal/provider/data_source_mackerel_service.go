@@ -3,13 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
-	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/validatorutil"
-	"github.com/mackerelio/mackerel-client-go"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
 )
 
 var (
@@ -39,7 +37,7 @@ func (d *mackerelServiceDataSource) Schema(_ context.Context, _ datasource.Schem
 			"name": schema.StringAttribute{
 				Required:    true,
 				Description: "The name of the service.",
-				Validators:  []validator.String{validatorutil.MackerelServiceName()},
+				Validators:  []validator.String{mackerel.ServiceNameValidator()},
 			},
 			"memo": schema.StringAttribute{
 				Computed:    true,
@@ -59,35 +57,22 @@ func (d *mackerelServiceDataSource) Configure(ctx context.Context, req datasourc
 }
 
 func (d *mackerelServiceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data mackerelServiceModel
+	var data mackerel.ServiceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	services, err := d.Client.FindServices()
+	name := data.Name.ValueString()
+	newData, err := mackerel.ReadService(ctx, d.Client, name)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to read services",
-			fmt.Sprintf("An unexpected error occurred while attempting to fetch the services: %v", err),
+			fmt.Sprintf("Unable to read Service: %s", name),
+			err.Error(),
 		)
 		return
 	}
 
-	name := data.Name.ValueString()
-	serviceIdx := slices.IndexFunc(services, func(s *mackerel.Service) bool {
-		return s.Name == name
-	})
-	if serviceIdx == -1 {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("No Service Found: %s", name),
-			// FIXME: for backwards compatibility
-			fmt.Sprintf("the name '%s' does not match any service in mackerel.io", name),
-			// fmt.Sprintf("The name '%s' does not match any service in mackerel.io", name),
-		)
-		return
-	}
-
-	data.SetService(services[serviceIdx])
+	data.Set(*newData)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

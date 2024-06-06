@@ -2,9 +2,8 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"net/http"
-	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -12,17 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/validatorutil"
-	"github.com/mackerelio/mackerel-client-go"
 )
 
 type mackerelProvider struct{}
-type MackerelProviderModel struct {
-	APIKey  types.String `tfsdk:"api_key"`
-	APIBase types.String `tfsdk:"api_base"`
-}
 
 var _ provider.Provider = (*mackerelProvider)(nil)
 
@@ -53,52 +46,42 @@ func (m *mackerelProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 }
 
 func (m *mackerelProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data MackerelProviderModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	var schemaConfig mackerel.ClientConfigModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &schemaConfig)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	apiKey := data.APIKey.ValueString()
-	if data.APIKey.IsUnknown() || data.APIKey.IsNull() {
-		apiKey = os.Getenv("MACKEREL_APIKEY")
-		if apiKey == "" {
-			apiKey = os.Getenv("MACKEREL_API_KEY")
-		}
+	config := mackerel.NewClientConfigFromEnv()
+	// merge config
+	if config.APIKey.IsUnknown() {
+		config.APIKey = schemaConfig.APIKey
 	}
-	if apiKey == "" {
-		resp.Diagnostics.AddError(
-			"no API Key", "no API Key for Mackerel is found",
-		)
+	if config.APIBase.IsUnknown() {
+		config.APIBase = schemaConfig.APIBase
 	}
 
-	apiBase := data.APIBase.ValueString()
-	if data.APIBase.IsUnknown() || data.APIBase.IsNull() {
-		apiBase = os.Getenv("API_BASE")
-	}
-
-	var client *mackerel.Client
-	if apiBase == "" {
-		client = mackerel.NewClient(apiKey)
-	} else {
-		var err error
-		client, err = mackerel.NewClientWithOptions(apiKey, apiBase, false)
-		if err != nil {
+	client, err := config.NewClient()
+	if err != nil {
+		if errors.Is(err, mackerel.ErrNoAPIKey) {
 			resp.Diagnostics.AddError(
-				"failed to create mackerel client",
-				fmt.Sprintf("failed to create mackerel client: %v", err),
+				"No API Key",
+				err.Error(),
+			)
+		} else {
+			resp.Diagnostics.AddError(
+				"Unable to create Mackerel Client",
+				err.Error(),
 			)
 		}
+		return
 	}
-
-	// TODO: use logging transport with tflog (FYI: https://github.com/hashicorp/terraform-plugin-log/issues/91)
-	client.HTTPClient.Transport = logging.NewSubsystemLoggingHTTPTransport("Mackerel", http.DefaultTransport)
 
 	resp.ResourceData = client
 	resp.DataSourceData = client
 }
 
-func (m *mackerelProvider) Resources(_ context.Context) []func() resource.Resource {
+func (m *mackerelProvider) Resources(context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewMackerelServiceResource,
 	}
