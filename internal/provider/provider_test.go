@@ -43,7 +43,7 @@ func TestMackerelProvider_apiKey(t *testing.T) {
 	for name, tt := range testCases {
 		t.Run(name, func(t *testing.T) {
 			t.Setenv("MACKEREL_API_KEY", tt.MACKEREL_API_KEY)
-			t.Setenv("MACKERE_APIKEY", tt.MACKEREL_APIKEY)
+			t.Setenv("MACKEREL_APIKEY", tt.MACKEREL_APIKEY)
 
 			p := provider.New()
 
