@@ -47,7 +47,7 @@ func TestAccMackerelDashboardGraph(t *testing.T) {
 					testAccCheckMackerelDashboardExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "title", titleUpdated),
 					resource.TestCheckResourceAttr(resourceName, "url_path", rand),
-					resource.TestCheckResourceAttr(resourceName, "graph.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "graph.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.title", "test graph role"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.role.0.role_fullname", fmt.Sprintf("tf-service-%s-include:tf-role-%s-include", rand, rand)),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.role.0.name", "loadavg5"),
@@ -65,6 +65,15 @@ func TestAccMackerelDashboardGraph(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "graph.1.layout.0.y", "32"),
 					resource.TestCheckResourceAttr(resourceName, "graph.1.layout.0.width", "10"),
 					resource.TestCheckResourceAttr(resourceName, "graph.1.layout.0.height", "8"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.title", "test graph query"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.query.0.query", "container.cpu.utilization{k8s.deployment.name=\"httpbin\"}"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.query.0.legend", "{{k8s.node.name}}"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.range.0.relative.0.period", "3600"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.range.0.relative.0.offset", "1800"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.layout.0.x", "0"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.layout.0.y", "52"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.layout.0.width", "10"),
+					resource.TestCheckResourceAttr(resourceName, "graph.2.layout.0.height", "8"),
 				),
 			},
 			// Test: Import
@@ -119,11 +128,12 @@ func TestAccMackerelDashboardValue(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "url_path", rand),
 					resource.TestCheckResourceAttr(resourceName, "value.#", "1"),
 					resource.ComposeTestCheckFunc(
-						resource.TestCheckResourceAttr(resourceName, "value.0.title", "test value expression"),
-						resource.TestCheckResourceAttr(resourceName, "value.0.metric.0.expression.0.expression", fmt.Sprintf("role(tf-service-%s-include:tf-role-%s-include, loadavg5)", rand, rand)),
+						resource.TestCheckResourceAttr(resourceName, "value.0.title", "test value query"),
+						resource.TestCheckResourceAttr(resourceName, "value.0.metric.0.query.0.query", "avg(avg_over_time(container.cpu.utilization{k8s.deployment.name=\"httpbin\"}[1h]))"),
+						resource.TestCheckResourceAttr(resourceName, "value.0.metric.0.query.0.legend", "average utilization"),
 						resource.TestCheckResourceAttr(resourceName, "value.0.fraction_size", "10"),
 						resource.TestCheckResourceAttr(resourceName, "value.0.suffix", "test suffix"),
-						resource.TestCheckResourceAttr(resourceName, "value.0.layout.0.x", "6"),
+						resource.TestCheckResourceAttr(resourceName, "value.0.layout.0.x", "0"),
 						resource.TestCheckResourceAttr(resourceName, "value.0.layout.0.y", "15"),
 						resource.TestCheckResourceAttr(resourceName, "value.0.layout.0.width", "10"),
 						resource.TestCheckResourceAttr(resourceName, "value.0.layout.0.height", "7"),
@@ -399,6 +409,25 @@ resource "mackerel_dashboard" "graph" {
       height = 8
     }
   }
+  graph {
+    title = "test graph query"
+    query {
+      query = "container.cpu.utilization{k8s.deployment.name=\"httpbin\"}"
+      legend = "{{k8s.node.name}}"
+    }
+    range {
+      relative {
+        period = 3600
+        offset = 1800
+      }
+    }
+    layout {
+      x = 0
+      y = 52
+      width = 10
+      height = 8
+    }
+  }
 }
 `, rand, rand, title, rand)
 }
@@ -454,16 +483,17 @@ resource "mackerel_dashboard" "value" {
   memo = "This dashboard is managed by Terraform."
   url_path = "%s"
   value {
-    title = "test value expression"
+    title = "test value query"
     metric {
-      expression {
-        expression = "role(${mackerel_service.include.name}:${mackerel_role.include.name}, loadavg5)"
+      query {
+        query = "avg(avg_over_time(container.cpu.utilization{k8s.deployment.name=\"httpbin\"}[1h]))"
+        legend = "average utilization"
       }
     }
     fraction_size = 10
     suffix = "test suffix"
     layout {
-      x = 6
+      x = 0
       y = 15
       width = 10
       height = 7
