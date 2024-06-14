@@ -91,6 +91,10 @@ func dataSourceMackerelMonitor() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"alert_status_on_gone": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},

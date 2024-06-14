@@ -149,6 +149,7 @@ The following arguments are required:
 
 * `scopes` - The set of monitoring target’s service name or role name.
 * `exclude_scopes` - The set of monitoring exclusion target’s service name or role name.
+* `alert_status_on_gone` - The alert status when the monitoring target is gone. Valid values are `CRITICAL` and `WARNING`. Default is `CRITICAL`.
 
 ### service_metric
 

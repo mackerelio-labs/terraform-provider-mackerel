@@ -70,6 +70,7 @@ func TestAccDataSourceMackerelMonitorConnectivity(t *testing.T) {
 					resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttr(dsName, "connectivity.0.scopes.#", "2"),
 						resource.TestCheckResourceAttr(dsName, "connectivity.0.exclude_scopes.#", "2"),
+						resource.TestCheckResourceAttr(dsName, "connectivity.0.alert_status_on_gone", "WARNING"),
 					),
 					resource.TestCheckResourceAttr(dsName, "service_metric.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "external.#", "0"),
@@ -361,6 +362,7 @@ resource "mackerel_monitor" "foo" {
     exclude_scopes = [
       mackerel_service.not_scoped.name,
       mackerel_role.not_scoped.id]
+    alert_status_on_gone = "WARNING"
   }
 }
 

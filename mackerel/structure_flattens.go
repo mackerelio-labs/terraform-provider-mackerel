@@ -115,6 +115,7 @@ func flattenMonitorConnectivity(monitor *mackerel.MonitorConnectivity, d *schema
 		{
 			"scopes":         flattenStringListToSet(normalizedScopes),
 			"exclude_scopes": flattenStringListToSet(normalizedExcludeScopes),
+			"alert_status_on_gone": monitor.AlertStatusOnGone,
 		},
 	})
 	return diags
