@@ -121,6 +121,12 @@ func resourceMackerelMonitor() *schema.Resource {
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"alert_status_on_gone": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "CRITICAL",
+							ValidateFunc: validation.StringInSlice([]string{"CRITICAL", "WARNING"}, false),
+						},
 					},
 				},
 			},
@@ -478,6 +484,7 @@ func expandMonitorConnectivity(d *schema.ResourceData) *mackerel.MonitorConnecti
 		NotificationInterval: uint64(d.Get("notification_interval").(int)),
 		Scopes:               expandStringListFromSet(d.Get("connectivity.0.scopes").(*schema.Set)),
 		ExcludeScopes:        expandStringListFromSet(d.Get("connectivity.0.exclude_scopes").(*schema.Set)),
+		AlertStatusOnGone:    d.Get("connectivity.0.alert_status_on_gone").(string),
 	}
 	return monitor
 }
