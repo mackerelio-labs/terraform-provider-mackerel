@@ -102,7 +102,7 @@ func retrieveClient(_ context.Context, providerData any) (client *mackerel.Clien
 	if !ok {
 		diags.AddError(
 
-			"Unconfigured Mackerel Client",
+			"No Mackerel Client is configured.",
 			fmt.Sprintf("Expected configured Mackerel client, but got: %T. Please report this issue.", providerData),
 		)
 		return

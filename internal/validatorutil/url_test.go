@@ -82,7 +82,7 @@ func assertDiagMatchPathExpr(t testing.TB, d diag.Diagnostic, pathExpr path.Expr
 	}
 
 	if !pathExpr.Matches(dp.Path()) {
-		t.Errorf("expteted to have a path that matches to %s, but got: %+v", pathExpr.String(), dp.Path())
+		t.Errorf("expected to have a path that matches to %s, but got: %+v", pathExpr.String(), dp.Path())
 		return true
 	}
 

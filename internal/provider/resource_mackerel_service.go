@@ -115,7 +115,7 @@ func (r *mackerelServiceResource) Read(ctx context.Context, req resource.ReadReq
 func (r *mackerelServiceResource) Update(_ context.Context, _ resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddError(
 		"Unable to update Service",
-		"Mackerel services are cannot be updated in-place. Please report this issue.",
+		"Mackerel services cannot be updated in-place. Please report this issue.",
 	)
 }
 
