@@ -12,10 +12,12 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
+var serviceNameRegex = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-_]+$`)
+
 func ServiceNameValidator() validator.String {
 	return stringvalidator.All(
 		stringvalidator.LengthBetween(2, 63),
-		stringvalidator.RegexMatches(regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-_]+$`),
+		stringvalidator.RegexMatches(serviceNameRegex,
 			"Must include only alphabets, numbers, hyphen and underscore, and it can not begin a hyphen or underscore"),
 	)
 }
