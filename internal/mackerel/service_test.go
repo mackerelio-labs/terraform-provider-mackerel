@@ -37,7 +37,6 @@ func Test_ServiceNameValidator(t *testing.T) {
 
 	ctx := context.Background()
 	for name, tt := range cases {
-		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			req := validator.StringRequest{
@@ -113,7 +112,6 @@ func Test_ReadService(t *testing.T) {
 
 	ctx := context.Background()
 	for name, tt := range cases {
-		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 

@@ -44,7 +44,6 @@ func Test_Validator_URL(t *testing.T) {
 
 	ctx := context.Background()
 	for name, tt := range cases {
-		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
