@@ -49,7 +49,8 @@ func TestAccDataSourceMackerelServiceNotMatchAnyService(t *testing.T) {
 		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      fmt.Sprintf(`data "mackerel_service" "foo" { name = "%s" }`, name),
+				Config: fmt.Sprintf(`data "mackerel_service" "foo" { name = "%s" }`, name),
+				// FIXME: error message should not be tested
 				ExpectError: regexp.MustCompile(fmt.Sprintf(`the name '%s' does not match any service in mackerel\.io`, name)),
 			},
 		},
