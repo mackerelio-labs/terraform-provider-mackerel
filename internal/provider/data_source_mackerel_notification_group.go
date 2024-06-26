@@ -28,21 +28,33 @@ func (d *mackerelNotificationGroupDataSource) Metadata(_ context.Context, req da
 
 func (d *mackerelNotificationGroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "This data source allows access to details of a specific notitication group setting.",
+
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
+				Description: "The ID of the notitication group",
+
 				Required: true,
 			},
 			"name": schema.StringAttribute{
+				Description: "The name of the notification group",
+
 				Computed: true,
 			},
 			"notification_level": schema.StringAttribute{
+				MarkdownDescription: "The level of notitication (`all` or `critical`)",
+
 				Computed: true,
 			},
 			"child_notification_group_ids": schema.SetAttribute{
+				Description: "A set of notification group IDs",
+
 				ElementType: types.StringType,
 				Computed:    true,
 			},
 			"child_channel_ids": schema.SetAttribute{
+				Description: "A set of notification channel IDs",
+
 				ElementType: types.StringType,
 				Computed:    true,
 			},
@@ -50,21 +62,31 @@ func (d *mackerelNotificationGroupDataSource) Schema(_ context.Context, _ dataso
 		// TODO: migrate to nested attributes (terraform plugin protocol v6 is required)
 		Blocks: map[string]schema.Block{
 			"monitor": schema.SetNestedBlock{
+				Description: "A set of notification target monitor rules",
+
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
+							Description: "The monitor rule ID",
+
 							Computed: true,
 						},
 						"skip_default": schema.BoolAttribute{
+							Description: "If true, send notifications to this notification group only",
+
 							Computed: true,
 						},
 					},
 				},
 			},
 			"service": schema.SetNestedBlock{
+				Description: "A set of notification target services",
+
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
+							Description: "the name of the service",
+
 							Computed: true,
 						},
 					},

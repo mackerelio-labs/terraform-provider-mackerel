@@ -35,32 +35,26 @@ func NotificationLevelValidator() validator.String {
 	)
 }
 
-// Reads a notification group by `id` or `name`, and returns merged state.
-func ReadNotificationGroup(_ context.Context, client *Client, data NotificationGroupModel) (NotificationGroupModel, error) {
+// Reads a notification group by `id`
+func ReadNotificationGroup(ctx context.Context, client *Client, id string) (NotificationGroupModel, error) {
+	return readNotificationGroupInner(ctx, client, id)
+}
+
+type notificationGroupFinder interface {
+	FindNotificationGroups() ([]*mackerel.NotificationGroup, error)
+}
+
+func readNotificationGroupInner(_ context.Context, client notificationGroupFinder, id string) (NotificationGroupModel, error) {
 	ngs, err := client.FindNotificationGroups()
 	if err != nil {
 		return NotificationGroupModel{}, err
 	}
 
-	var ngIdx int
-	if !data.ID.IsNull() && !data.ID.IsUnknown() {
-		id := data.ID.ValueString()
-		ngIdx = slices.IndexFunc(ngs, func(ng *mackerel.NotificationGroup) bool {
-			return ng.ID == id
-		})
-		if ngIdx < 0 {
-			return NotificationGroupModel{}, fmt.Errorf("the ID '%s' does not match any notification group in mackerel.io", id)
-		}
-	} else if !data.Name.IsNull() && !data.Name.IsUnknown() {
-		name := data.Name.ValueString()
-		ngIdx = slices.IndexFunc(ngs, func(ng *mackerel.NotificationGroup) bool {
-			return ng.Name == name
-		})
-		if ngIdx < 0 {
-			return NotificationGroupModel{}, fmt.Errorf("the name '%s' does not match any notification group in mackerel.io", name)
-		}
-	} else {
-		return NotificationGroupModel{}, fmt.Errorf("missing name or ID")
+	ngIdx := slices.IndexFunc(ngs, func(ng *mackerel.NotificationGroup) bool {
+		return ng.ID == id
+	})
+	if ngIdx < 0 {
+		return NotificationGroupModel{}, fmt.Errorf("the ID '%s' does not match any notification group in mackerel.io", id)
 	}
 
 	return newNotificationGroupModel(*ngs[ngIdx]), nil
