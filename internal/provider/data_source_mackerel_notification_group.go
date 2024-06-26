@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -47,20 +46,27 @@ func (d *mackerelNotificationGroupDataSource) Schema(_ context.Context, _ dataso
 				ElementType: types.StringType,
 				Computed:    true,
 			},
-			"monitor": schema.SetAttribute{
-				Computed: true,
-				ElementType: types.ObjectType{
-					AttrTypes: map[string]attr.Type{
-						"id":           types.StringType,
-						"skip_default": types.BoolType,
+		},
+		// TODO: migrate to nested attributes (terraform plugin protocol v6 is required)
+		Blocks: map[string]schema.Block{
+			"monitor": schema.SetNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							Computed: true,
+						},
+						"skip_default": schema.BoolAttribute{
+							Computed: true,
+						},
 					},
 				},
 			},
-			"service": schema.SetAttribute{
-				Computed: true,
-				ElementType: types.ObjectType{
-					AttrTypes: map[string]attr.Type{
-						"name": types.StringType,
+			"service": schema.SetNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							Computed: true,
+						},
 					},
 				},
 			},
