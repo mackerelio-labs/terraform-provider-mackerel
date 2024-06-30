@@ -87,6 +87,7 @@ func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
 
 		// Data Sources
 		delete(provider.DataSourcesMap, "mackerel_service")
+		delete(provider.DataSourcesMap, "mackerel_service_metric_names")
 		delete(provider.DataSourcesMap, "mackerel_service_metadata")
 
 		mux, err := tf5muxserver.NewMuxServer(
