@@ -84,6 +84,7 @@ func (m *mackerelProvider) Configure(ctx context.Context, req provider.Configure
 func (m *mackerelProvider) Resources(context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewMackerelServiceResource,
+		NewMackerelServiceMetadataResource,
 	}
 }
 
@@ -91,6 +92,7 @@ func (m *mackerelProvider) DataSources(context.Context) []func() datasource.Data
 	return []func() datasource.DataSource{
 		NewMackerelServiceDataSource,
 		NewMackerelServiceMetricNamesDataSource,
+		NewMackerelServiceMetadataDataSource,
 	}
 }
 
