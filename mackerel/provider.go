@@ -82,14 +82,15 @@ func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
 		log.Printf("[INFO] mackerel: use terraform-plugin-framework based implementation")
 
 		// Resources
+		delete(provider.ResourcesMap, "mackerel_notification_group")
 		delete(provider.ResourcesMap, "mackerel_service")
 		delete(provider.ResourcesMap, "mackerel_service_metadata")
 
 		// Data Sources
 		delete(provider.DataSourcesMap, "mackerel_notification_group")
 		delete(provider.DataSourcesMap, "mackerel_service")
-		delete(provider.DataSourcesMap, "mackerel_service_metric_names")
 		delete(provider.DataSourcesMap, "mackerel_service_metadata")
+		delete(provider.DataSourcesMap, "mackerel_service_metric_names")
 
 		mux, err := tf5muxserver.NewMuxServer(
 			context.Background(),
