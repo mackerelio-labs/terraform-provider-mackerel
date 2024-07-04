@@ -14,7 +14,7 @@ test:
 
 .PHONY: testacc
 testacc:
-	TF_ACC=1 go test -v ./mackerel/... -run $(TESTS) -timeout 120m
+	TF_ACC=1 go test -v ./mackerel/... ./internal/provider/... -run $(TESTS) -timeout 120m
 
 .PHONY: local-build
 local-build:
