@@ -126,23 +126,6 @@ func Test_RoleModel_Read(t *testing.T) {
 				Memo:        types.StringValue("memo"),
 			},
 		},
-		// TODO: smart handling for preserving null
-		/* "preserve null memo": {
-			in: RoleModel{
-				ID:          types.StringValue("service0:role1"),
-				ServiceName: types.StringValue("service0"),
-				RoleName:    types.StringValue("role1"),
-				Memo:        types.StringNull(),
-			},
-			inClient: defaultClient,
-
-			wants: RoleModel{
-				ID:          types.StringValue("service0:role1"),
-				ServiceName: types.StringValue("service0"),
-				RoleName:    types.StringValue("role1"),
-				Memo:        types.StringNull(), // not types.StringValue("")
-			},
-		}, */
 	}
 
 	ctx := context.Background()

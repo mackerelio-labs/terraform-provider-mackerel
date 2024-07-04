@@ -113,11 +113,7 @@ func (m *RoleModel) readInner(ctx context.Context, client roleFinder) error {
 	m.ID = r.ID                   // computed
 	m.ServiceName = r.ServiceName // required
 	m.RoleName = r.RoleName       // required
-
-	// optional
-	if /* preserve null */ !m.Memo.IsNull() || r.Memo.ValueString() != "" {
-		m.Memo = r.Memo
-	}
+	m.Memo = r.Memo               // has default
 
 	return nil
 }
