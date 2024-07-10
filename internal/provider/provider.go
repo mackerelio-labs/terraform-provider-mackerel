@@ -94,6 +94,7 @@ func (m *mackerelProvider) DataSources(context.Context) []func() datasource.Data
 	return []func() datasource.DataSource{
 		NewMackerelNotificationGroupDataSource,
 		NewMackerelRoleDataSource,
+		NewMackerelRoleMetadataDataSource,
 		NewMackerelServiceDataSource,
 		NewMackerelServiceMetadataDataSource,
 		NewMackerelServiceMetricNamesDataSource,
