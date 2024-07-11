@@ -85,6 +85,7 @@ func (m *mackerelProvider) Resources(context.Context) []func() resource.Resource
 	return []func() resource.Resource{
 		NewMackerelNotificationGroupResource,
 		NewMackerelRoleResource,
+		NewMackerelRoleMetadataResource,
 		NewMackerelServiceResource,
 		NewMackerelServiceMetadataResource,
 	}
