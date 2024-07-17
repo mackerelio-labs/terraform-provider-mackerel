@@ -13,86 +13,101 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-func TestAccMackerelService_withMemo(t *testing.T) {
+func TestAccMackerelService(t *testing.T) {
+	t.Parallel()
 	resourceName := "mackerel_service.foo"
-	rand := acctest.RandString(5)
-	name := fmt.Sprintf("tf-%s", rand)
-	nameUpdated := fmt.Sprintf("tf-updated-%s", rand)
-	memo := fmt.Sprintf("%s is managed by Terraform.", name)
-	memoUpdated := fmt.Sprintf("%s is managed by Terraform.", nameUpdated)
-
-	resource.ParallelTest(t, resource.TestCase{
-		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
-		PreCheck:                 func() { testAccPreCheck(t) },
-		CheckDestroy:             testAccCheckMackerelServiceDestroy,
-		Steps: []resource.TestStep{
-			// Test: Create
-			{
-				Config: testAccMackerelServiceConfig(name, memo),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMackerelServiceExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "memo", memo),
-				),
-			},
-			// Test: Update
-			{
-				Config: testAccMackerelServiceConfig(nameUpdated, memoUpdated),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMackerelServiceExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
-					resource.TestCheckResourceAttr(resourceName, "memo", memoUpdated),
-				),
-			},
-			// Test: Import
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccMackerelService_noMemo(t *testing.T) {
-	resourceName := "mackerel_service.foo"
-	rand := acctest.RandString(5)
-	name := "tf-" + rand
-	nameUpdated := "tf-updated-" + rand
-
-	resource.ParallelTest(t, resource.TestCase{
-		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
-		PreCheck:                 func() { testAccPreCheck(t) },
-		CheckDestroy:             testAccCheckMackerelServiceDestroy,
-		Steps: []resource.TestStep{
-			// Test: Create
-			{
-				Config: testAccMackerelServiceConfig_noMemo(name),
-				Check:  testAccCheckMackerelServiceExists(resourceName),
-				ConfigStateChecks: []statecheck.StateCheck{
-					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("id"), knownvalue.StringExact(name)),
-					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("name"), knownvalue.StringExact(name)),
-					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("memo"), knownvalue.StringExact("")),
+	cases := map[string]func() []resource.TestStep{
+		"with memo": func() []resource.TestStep {
+			config := func(name, memo string) string {
+				return `
+resource "mackerel_service" "foo" {
+  name = "` + name + `"
+  memo = "` + memo + `"
+}`
+			}
+			rand := acctest.RandString(5)
+			name := fmt.Sprintf("tf-%s", rand)
+			nameUpdated := fmt.Sprintf("tf-updated-%s", rand)
+			memo := fmt.Sprintf("%s is managed by Terraform.", name)
+			memoUpdated := fmt.Sprintf("%s is managed by Terraform.", nameUpdated)
+			return []resource.TestStep{
+				// Test: Create
+				{
+					Config: config(name, memo),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMackerelServiceExists(resourceName),
+						resource.TestCheckResourceAttr(resourceName, "name", name),
+						resource.TestCheckResourceAttr(resourceName, "memo", memo),
+					),
 				},
-			},
-			// Test: Update
-			{
-				Config: testAccMackerelServiceConfig_noMemo(nameUpdated),
-				Check:  testAccCheckMackerelServiceExists(resourceName),
-				ConfigStateChecks: []statecheck.StateCheck{
-					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("id"), knownvalue.StringExact(nameUpdated)),
-					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("name"), knownvalue.StringExact(nameUpdated)),
-					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("memo"), knownvalue.StringExact("")),
+				// Test: Update
+				{
+					Config: config(nameUpdated, memoUpdated),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMackerelServiceExists(resourceName),
+						resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+						resource.TestCheckResourceAttr(resourceName, "memo", memoUpdated),
+					),
 				},
-			},
-			// Test: Import
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
+				// Test: Import
+				{
+					ResourceName:      resourceName,
+					ImportState:       true,
+					ImportStateVerify: true,
+				},
+			}
 		},
-	})
+		"no memo": func() []resource.TestStep {
+			config := func(name string) string {
+				return `
+resource "mackerel_service" "foo" {
+  name = "` + name + `"
+}`
+			}
+			rand := acctest.RandString(5)
+			name := "tf-" + rand
+			nameUpdated := "tf-updated-" + rand
+			return []resource.TestStep{
+				// Test: Create
+				{
+					Config: config(name),
+					Check:  testAccCheckMackerelServiceExists(resourceName),
+					ConfigStateChecks: []statecheck.StateCheck{
+						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("id"), knownvalue.StringExact(name)),
+						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("name"), knownvalue.StringExact(name)),
+						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("memo"), knownvalue.StringExact("")),
+					},
+				},
+				// Test: Update
+				{
+					Config: config(nameUpdated),
+					Check:  testAccCheckMackerelServiceExists(resourceName),
+					ConfigStateChecks: []statecheck.StateCheck{
+						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("id"), knownvalue.StringExact(nameUpdated)),
+						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("name"), knownvalue.StringExact(nameUpdated)),
+						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("memo"), knownvalue.StringExact("")),
+					},
+				},
+				// Test: Import
+				{
+					ResourceName:      resourceName,
+					ImportState:       true,
+					ImportStateVerify: true,
+				},
+			}
+		},
+	}
+
+	for name, f := range cases {
+		t.Run(name, func(t *testing.T) {
+			resource.ParallelTest(t, resource.TestCase{
+				PreCheck:                 func() { testAccPreCheck(t) },
+				ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+				CheckDestroy:             testAccCheckMackerelServiceDestroy,
+				Steps:                    f(),
+			})
+		})
+	}
 }
 
 func testAccCheckMackerelServiceDestroy(s *terraform.State) error {
@@ -140,20 +155,4 @@ func testAccCheckMackerelServiceExists(n string) resource.TestCheckFunc {
 
 		return fmt.Errorf("service not found from mackerel: %s", rs.Primary.ID)
 	}
-}
-
-func testAccMackerelServiceConfig(name, memo string) string {
-	return fmt.Sprintf(`
-resource "mackerel_service" "foo" {
-  name = "%s"
-  memo = "%s"
-}
-`, name, memo)
-}
-
-func testAccMackerelServiceConfig_noMemo(name string) string {
-	return `
-resource "mackerel_service" "foo" {
-  name = "` + name + `"
-}`
 }
