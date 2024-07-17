@@ -2,13 +2,11 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
@@ -54,10 +52,12 @@ func (r *mackerelServiceResource) Schema(_ context.Context, _ resource.SchemaReq
 			},
 			"memo": schema.StringAttribute{
 				Optional:    true,
+				Computed:    true,
 				Description: "Notes related to this service.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Default: stringdefault.StaticString(""),
 			},
 		},
 	}
@@ -87,13 +87,6 @@ func (r *mackerelServiceResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	data.ID = data.Name
-
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -104,8 +97,11 @@ func (r *mackerelServiceResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
+	if err := data.Read(ctx, r.Client); err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to read Service",
+			err.Error(),
+		)
 		return
 	}
 
@@ -128,7 +124,7 @@ func (r *mackerelServiceResource) Delete(ctx context.Context, req resource.Delet
 
 	if err := data.Delete(ctx, r.Client); err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Unable to delete Service: %s", data.ID.ValueString()),
+			"Unable to delete Service",
 			err.Error(),
 		)
 		return
@@ -136,20 +132,14 @@ func (r *mackerelServiceResource) Delete(ctx context.Context, req resource.Delet
 }
 
 func (r *mackerelServiceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-}
-
-func (r *mackerelServiceResource) read(ctx context.Context, data *mackerel.ServiceModel) (diags diag.Diagnostics) {
-
-	id := data.ID.ValueString()
-	newData, err := mackerel.ReadService(ctx, r.Client, id)
+	data, err := mackerel.ImportService(ctx, req.ID)
 	if err != nil {
-		diags.AddError(
-			fmt.Sprintf("Unable to read Service: %s", id),
+		resp.Diagnostics.AddError(
+			"Unable to import Service",
 			err.Error(),
 		)
+		return
 	}
 
-	data.Set(*newData)
-	return
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
