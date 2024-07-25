@@ -90,6 +90,7 @@ func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
 		delete(provider.ResourcesMap, "mackerel_service_metadata")
 
 		// Data Sources
+		delete(provider.DataSourcesMap, "mackerel_monitor")
 		delete(provider.DataSourcesMap, "mackerel_notification_group")
 		delete(provider.DataSourcesMap, "mackerel_role")
 		delete(provider.DataSourcesMap, "mackerel_role_metadata")
