@@ -45,7 +45,7 @@ type serviceFinder interface {
 	FindServices() ([]*mackerel.Service, error)
 }
 
-func readServiceInner(_ context.Context, client serviceFinder, name string) (ServiceModel, error) {
+func readServiceInner(client serviceFinder, name string) (ServiceModel, error) {
 	services, err := client.FindServices()
 	if err != nil {
 		return ServiceModel{}, err
@@ -88,7 +88,7 @@ func (m *ServiceModel) Read(ctx context.Context, client *Client) error {
 	} else {
 		name = m.Name
 	}
-	remoteData, err := readServiceInner(ctx, client, name)
+	remoteData, err := readServiceInner(client, name)
 	if err != nil {
 		return err
 	}

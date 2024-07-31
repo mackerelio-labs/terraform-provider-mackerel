@@ -110,12 +110,11 @@ func Test_ReadService(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s, err := readServiceInner(ctx, tt.inClient, tt.inName)
+			s, err := readServiceInner(tt.inClient, tt.inName)
 			if err != nil {
 				if !tt.wantFail {
 					t.Errorf("unexpected error: %+v", err)
