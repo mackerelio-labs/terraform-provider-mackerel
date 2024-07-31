@@ -6,7 +6,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -279,6 +281,9 @@ func TestAccMackerelMonitor_External(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "query.#", "0"),
 				),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectSensitiveValue(resourceName, tfjsonpath.New("external").AtSliceIndex(0).AtMapKey("headers")),
+				},
 			},
 			// Test: Update
 			{
@@ -314,6 +319,9 @@ func TestAccMackerelMonitor_External(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "query.#", "0"),
 				),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectSensitiveValue(resourceName, tfjsonpath.New("external").AtSliceIndex(0).AtMapKey("headers")),
+				},
 			},
 			// Test: Import
 			{
