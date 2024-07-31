@@ -37,8 +37,10 @@ func ImportService(_ context.Context, id string) (ServiceModel, error) {
 	}, nil
 }
 
-func ReadService(ctx context.Context, client *Client, name string) (ServiceModel, error) {
-	return readServiceInner(ctx, client, name)
+// Reads a service by the name.
+// Currently, this function is NOT cancelable.
+func ReadService(_ context.Context, client *Client, name string) (ServiceModel, error) {
+	return readServiceInner(client, name)
 }
 
 type serviceFinder interface {
@@ -66,6 +68,8 @@ func readServiceInner(client serviceFinder, name string) (ServiceModel, error) {
 	}, nil
 }
 
+// Creates a service.
+// This functions is NOT cancelable.
 func (m *ServiceModel) Create(_ context.Context, client *Client) error {
 	param := mackerel.CreateServiceParam{
 		Name: m.Name,
@@ -81,7 +85,9 @@ func (m *ServiceModel) Create(_ context.Context, client *Client) error {
 	return nil
 }
 
-func (m *ServiceModel) Read(ctx context.Context, client *Client) error {
+// Reads a service and updates state.
+// This function is NOT cancelable.
+func (m *ServiceModel) Read(_ context.Context, client *Client) error {
 	var name string
 	if !m.ID.IsUnknown() {
 		name = m.ID.ValueString()
@@ -96,6 +102,8 @@ func (m *ServiceModel) Read(ctx context.Context, client *Client) error {
 	return nil
 }
 
+// Deletes a service.
+// This function is NOT cancelable.
 func (m ServiceModel) Delete(_ context.Context, client *Client) error {
 	if _, err := client.DeleteService(m.ID.ValueString()); err != nil {
 		return err
