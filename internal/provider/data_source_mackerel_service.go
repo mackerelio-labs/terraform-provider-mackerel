@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -57,22 +56,20 @@ func (d *mackerelServiceDataSource) Configure(ctx context.Context, req datasourc
 }
 
 func (d *mackerelServiceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data mackerel.ServiceModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	var config mackerel.ServiceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	name := data.Name.ValueString()
-	newData, err := mackerel.ReadService(ctx, d.Client, name)
+	data, err := mackerel.ReadService(ctx, d.Client, config.Name)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Unable to read Service: %s", name),
+			"Unable to read Service",
 			err.Error(),
 		)
 		return
 	}
 
-	data.Set(*newData)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

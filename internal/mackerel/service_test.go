@@ -71,7 +71,7 @@ func Test_ReadService(t *testing.T) {
 	cases := map[string]struct {
 		inClient serviceFinderFunc
 		inName   string
-		want     *ServiceModel
+		want     ServiceModelV0
 		wantFail bool
 	}{
 		"success": {
@@ -87,9 +87,9 @@ func Test_ReadService(t *testing.T) {
 				}, nil
 			},
 			inName: "service1",
-			want: &ServiceModel{
+			want: ServiceModelV0{
 				ID:   types.StringValue("service1"),
-				Name: types.StringValue("service1"),
+				Name: "service1",
 				Memo: types.StringValue("memo"),
 			},
 		},
@@ -110,12 +110,11 @@ func Test_ReadService(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s, err := readServiceInner(ctx, tt.inClient, tt.inName)
+			s, err := readServiceInner(tt.inClient, tt.inName)
 			if err != nil {
 				if !tt.wantFail {
 					t.Errorf("unexpected error: %+v", err)
