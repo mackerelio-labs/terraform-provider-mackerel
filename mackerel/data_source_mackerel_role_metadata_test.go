@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestDataSourceMackerelRoleMetadata(t *testing.T) {
+func TestAccDataSourceMackerelRoleMetadata(t *testing.T) {
 	dsName := "data.mackerel_role_metadata.foo"
 	rand := acctest.RandString(5)
 	service := fmt.Sprintf("tf-service-%s", rand)
