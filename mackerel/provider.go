@@ -82,6 +82,7 @@ func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
 		log.Printf("[INFO] mackerel: use terraform-plugin-framework based implementation")
 
 		// Resources
+		delete(provider.ResourcesMap, "mackerel_channel")
 		delete(provider.ResourcesMap, "mackerel_monitor")
 		delete(provider.ResourcesMap, "mackerel_notification_group")
 		delete(provider.ResourcesMap, "mackerel_role")
