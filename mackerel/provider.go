@@ -21,7 +21,7 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"api_key": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"MACKEREL_APIKEY",
 					"MACKEREL_API_KEY",
