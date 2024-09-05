@@ -84,6 +84,7 @@ func (m *mackerelProvider) Configure(ctx context.Context, req provider.Configure
 func (m *mackerelProvider) Resources(context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewMackerelChannelResource,
+		NewMackerelDashboardResource,
 		NewMackerelMonitorResource,
 		NewMackerelNotificationGroupResource,
 		NewMackerelRoleResource,
