@@ -71,27 +71,35 @@ func schemaDashboardDataSource() schema.Schema {
 		},
 	}
 	return schema.Schema{
+		Description: "This data source allows access to details of a specific dashboard.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Required: true,
+				Description: schemaDashboardIDDesc,
+				Required:    true,
 			},
 			"title": schema.StringAttribute{
-				Computed: true,
+				Description: schemaDashboardTitleDesc,
+				Computed:    true,
 			},
 			"memo": schema.StringAttribute{
-				Computed: true,
+				Description: schemaDashboardMemoDesc,
+				Computed:    true,
 			},
 			"url_path": schema.StringAttribute{
-				Computed: true,
+				Description: schemaDashboardURLPathDesc,
+				Computed:    true,
 			},
 			"created_at": schema.Int64Attribute{
-				Computed: true,
+				Description: schemaDashboardCreatedAtDesc,
+				Computed:    true,
 			},
 			"updated_at": schema.Int64Attribute{
-				Computed: true,
+				Description: schemaDashboardUpdatedAtDesc,
+				Computed:    true,
 			},
 			"graph": schema.ListAttribute{
-				Computed: true,
+				Description: schemaDashboardGraphDesc,
+				Computed:    true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
 						"title":  types.StringType,
@@ -163,7 +171,8 @@ func schemaDashboardDataSource() schema.Schema {
 				},
 			},
 			"value": schema.ListAttribute{
-				Computed: true,
+				Description: schemaDashboardValueDesc,
+				Computed:    true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
 						"title":         types.StringType,
@@ -211,7 +220,8 @@ func schemaDashboardDataSource() schema.Schema {
 				},
 			},
 			"markdown": schema.ListAttribute{
-				Computed: true,
+				Description: schemaDashboardMarkdownDesc,
+				Computed:    true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
 						"title":    types.StringType,
@@ -221,7 +231,8 @@ func schemaDashboardDataSource() schema.Schema {
 				},
 			},
 			"alert_status": schema.ListAttribute{
-				Computed: true,
+				Description: schemaDashboardAlertStatusDesc,
+				Computed:    true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
 						"title":         types.StringType,
