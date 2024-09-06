@@ -17,13 +17,19 @@ func Test_AlertGroupSetting_conv(t *testing.T) {
 	}{
 		"basic": {
 			api: mackerel.AlertGroupSetting{
-				ID:   "5fCTLAQFbhy",
-				Name: "tf-alert-group-basic",
+				ID:            "5fCTLAQFbhy",
+				Name:          "tf-alert-group-basic",
+				ServiceScopes: []string{},
+				RoleScopes:    []string{},
+				MonitorScopes: []string{},
 			},
 			model: AlertGroupSettingModel{
 				ID:                   types.StringValue("5fCTLAQFbhy"),
 				Name:                 types.StringValue("tf-alert-group-basic"),
 				Memo:                 types.StringValue(""),
+				ServiceScopes:        []string{},
+				RoleScopes:           []string{},
+				MonitorScopes:        []string{},
 				NotificationInterval: types.Int64Value(0),
 			},
 		},
