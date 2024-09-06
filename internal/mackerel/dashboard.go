@@ -29,13 +29,13 @@ type (
 		Width  types.Int64 `tfsdk:"width"`
 		Height types.Int64 `tfsdk:"height"`
 	}
-	dashboardWidget struct {
+	DashboardWidget struct {
 		Title  types.String      `tfsdk:"title"`
 		Layout []DashboardLayout `tfsdk:"layout"`
 	}
 
 	DashboardWidgetGraph struct {
-		dashboardWidget
+		DashboardWidget
 		Range []DashboardRange `tfsdk:"range"`
 
 		Host       []DashboardGraphHost       `tfsdk:"host"`
@@ -78,7 +78,7 @@ type (
 	}
 
 	DashboardWidgetValue struct {
-		dashboardWidget
+		DashboardWidget
 		Metric       []DashboardMetric `tfsdk:"metric"`
 		FractionSize types.Int64       `tfsdk:"fraction_size"`
 		Suffix       types.String      `tfsdk:"suffix"`
@@ -106,12 +106,12 @@ type (
 	}
 
 	DashboardWidgetMarkdown struct {
-		dashboardWidget
+		DashboardWidget
 		Markdown types.String `tfsdk:"markdown"`
 	}
 
 	DashboardWidgetAlertStatus struct {
-		dashboardWidget
+		DashboardWidget
 		RoleFullname types.String `tfsdk:"role_fullname"`
 	}
 )
@@ -257,8 +257,8 @@ func (d DashboardModel) mackerelDashboard() mackerel.Dashboard {
 	return md
 }
 
-func newDashboardWidget(w mackerel.Widget) dashboardWidget {
-	return dashboardWidget{
+func newDashboardWidget(w mackerel.Widget) DashboardWidget {
+	return DashboardWidget{
 		Title: types.StringValue(w.Title),
 		Layout: []DashboardLayout{{
 			X:      types.Int64Value(w.Layout.X),
@@ -269,7 +269,7 @@ func newDashboardWidget(w mackerel.Widget) dashboardWidget {
 	}
 }
 
-func (w dashboardWidget) mackerelWidget() mackerel.Widget {
+func (w DashboardWidget) mackerelWidget() mackerel.Widget {
 	return mackerel.Widget{
 		Title: w.Title.ValueString(),
 		Layout: mackerel.Layout{
@@ -287,7 +287,7 @@ func newDashboardWidgetGraph(w mackerel.Widget) (DashboardWidgetGraph, error) {
 	}
 
 	g := DashboardWidgetGraph{
-		dashboardWidget: newDashboardWidget(w),
+		DashboardWidget: newDashboardWidget(w),
 	}
 
 	switch w.Range.Type {
@@ -343,7 +343,7 @@ func newDashboardWidgetGraph(w mackerel.Widget) (DashboardWidgetGraph, error) {
 }
 
 func (g DashboardWidgetGraph) mackerelWidget() mackerel.Widget {
-	w := g.dashboardWidget.mackerelWidget()
+	w := g.DashboardWidget.mackerelWidget()
 	w.Type = dashboardWidgetTypeGraph
 
 	if len(g.Range) != 1 {
@@ -408,7 +408,7 @@ func newDashboardWidgetValue(w mackerel.Widget) (DashboardWidgetValue, error) {
 		return DashboardWidgetValue{}, fmt.Errorf("expect value widget, but got: %s", w.Type)
 	}
 	v := DashboardWidgetValue{
-		dashboardWidget: newDashboardWidget(w),
+		DashboardWidget: newDashboardWidget(w),
 		Metric:          []DashboardMetric{{}},
 		FractionSize:    types.Int64PointerValue(w.FractionSize),
 		Suffix:          types.StringValue(w.Suffix),
@@ -440,7 +440,7 @@ func newDashboardWidgetValue(w mackerel.Widget) (DashboardWidgetValue, error) {
 }
 
 func (v DashboardWidgetValue) mackerelWidget() mackerel.Widget {
-	w := v.dashboardWidget.mackerelWidget()
+	w := v.DashboardWidget.mackerelWidget()
 	w.Type = dashboardWidgetTypeValue
 	w.FractionSize = v.FractionSize.ValueInt64Pointer()
 	w.Suffix = v.Suffix.ValueString()
@@ -484,13 +484,13 @@ func newDashboardWidgetMarkdown(w mackerel.Widget) (DashboardWidgetMarkdown, err
 		return DashboardWidgetMarkdown{}, fmt.Errorf("expect markdown widget, but got: %s", w.Type)
 	}
 	return DashboardWidgetMarkdown{
-		dashboardWidget: newDashboardWidget(w),
+		DashboardWidget: newDashboardWidget(w),
 		Markdown:        types.StringValue(w.Markdown),
 	}, nil
 }
 
 func (m DashboardWidgetMarkdown) mackerelWidget() mackerel.Widget {
-	w := m.dashboardWidget.mackerelWidget()
+	w := m.DashboardWidget.mackerelWidget()
 	w.Type = dashboardWidgetTypeMarkdown
 	w.Markdown = m.Markdown.ValueString()
 	return w
@@ -501,13 +501,13 @@ func newDashboardWidgetAlertStatus(w mackerel.Widget) (DashboardWidgetAlertStatu
 		return DashboardWidgetAlertStatus{}, fmt.Errorf("expect alet status widget, but got: %s", w.Type)
 	}
 	return DashboardWidgetAlertStatus{
-		dashboardWidget: newDashboardWidget(w),
+		DashboardWidget: newDashboardWidget(w),
 		RoleFullname:    types.StringValue(w.RoleFullName),
 	}, nil
 }
 
 func (a DashboardWidgetAlertStatus) mackerelWidget() mackerel.Widget {
-	w := a.dashboardWidget.mackerelWidget()
+	w := a.DashboardWidget.mackerelWidget()
 	w.Type = dashboardWidgetTypeAlertStatus
 	w.RoleFullName = a.RoleFullname.ValueString()
 	return w
