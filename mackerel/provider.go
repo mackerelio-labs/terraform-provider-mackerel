@@ -82,6 +82,7 @@ func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
 		log.Printf("[INFO] mackerel: use terraform-plugin-framework based implementation")
 
 		// Resources
+		delete(provider.ResourcesMap, "mackerel_alert_group_setting")
 		delete(provider.ResourcesMap, "mackerel_channel")
 		delete(provider.ResourcesMap, "mackerel_monitor")
 		delete(provider.ResourcesMap, "mackerel_notification_group")
@@ -91,6 +92,7 @@ func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
 		delete(provider.ResourcesMap, "mackerel_service_metadata")
 
 		// Data Sources
+		delete(provider.DataSourcesMap, "mackerel_alert_group_setting")
 		delete(provider.DataSourcesMap, "mackerel_channel")
 		delete(provider.DataSourcesMap, "mackerel_monitor")
 		delete(provider.DataSourcesMap, "mackerel_notification_group")
