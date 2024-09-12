@@ -199,6 +199,13 @@ func newDashboard(d mackerel.Dashboard) (DashboardModel, error) {
 	}
 
 	for _, w := range d.Widgets {
+		// unsupported features
+		if len(w.ReferenceLines) != 0 {
+			return m, fmt.Errorf("referenceLines is unsupported.")
+		}
+		if len(w.FormatRules) != 0 {
+			return m, fmt.Errorf("formatFules is unsupported.")
+		}
 		switch w.Type {
 		case dashboardWidgetTypeGraph:
 			wg, err := newDashboardWidgetGraph(w)
