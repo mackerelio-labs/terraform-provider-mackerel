@@ -312,7 +312,6 @@ var schemaDashboardResource_graph = schema.ListNestedBlock{
 						path.MatchRelative(),
 						path.MatchRelative().AtParent().AtName("role"),
 						path.MatchRelative().AtParent().AtName("service"),
-						path.MatchRelative().AtParent().AtName("service"),
 						path.MatchRelative().AtParent().AtName("expression"),
 						path.MatchRelative().AtParent().AtName("query"),
 					),
