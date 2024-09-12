@@ -180,8 +180,12 @@ func schemaDashboardResource() schema.Schema {
 }
 
 const (
-	schemaDashboardWidget_titleDesc  = "The title of the widget."
-	schemaDashboardWidget_layoutDesc = "The layout of the widget."
+	schemaDashboardWidget_titleDesc        = "The title of the widget."
+	schemaDashboardWidget_layoutDesc       = "The coordinates are specified with the upper left corner of the widget display area as the origin (x = 0, y = 0), with the x axis in the right direction and the y axis in the down direction as the positive direction."
+	schemaDashboardWidget_layoutXDesc      = "The x coordinate of the widget."
+	schemaDashboardWidget_layoutYDesc      = "The y coordinate of the widget."
+	schemaDashboardWidget_layoutWidthDesc  = "The width of the widget."
+	schemaDashboardWidget_layoutHeightDesc = "The height of the widget."
 )
 
 var schemaDashboardResource_widgetTitle = schema.StringAttribute{
@@ -196,16 +200,20 @@ var schemaDashboardResource_widgetLayout = schema.ListNestedBlock{
 	NestedObject: schema.NestedBlockObject{
 		Attributes: map[string]schema.Attribute{
 			"x": schema.Int64Attribute{
-				Required: true,
+				Description: schemaDashboardWidget_layoutXDesc,
+				Required:    true,
 			},
 			"y": schema.Int64Attribute{
-				Required: true,
+				Description: schemaDashboardWidget_layoutYDesc,
+				Required:    true,
 			},
 			"width": schema.Int64Attribute{
-				Required: true,
+				Description: schemaDashboardWidget_layoutWidthDesc,
+				Required:    true,
 			},
 			"height": schema.Int64Attribute{
-				Required: true,
+				Description: schemaDashboardWidget_layoutHeightDesc,
+				Required:    true,
 			},
 		},
 	},
