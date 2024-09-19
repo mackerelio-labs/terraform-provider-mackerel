@@ -129,7 +129,7 @@ const (
 	schemaDowntimeMemoDesc            = "The notes for the downtime."
 	schemaDowntimeStartDesc           = "The starting time (in epoch seconds) of the downtime."
 	schemaDowntimeDurationDesc        = "The duration (in minutes) of the downtime."
-	schemaDowntimeRecurrenceDesc      = "The configuration for repeating occurences."
+	schemaDowntimeRecurrenceDesc      = "The configuration for repeating occurrences."
 	schemaDowntimeRecurrence_typeDesc = "The recurrence options." +
 		"Valid options are `hourly`, `daily`, `weekly`, `monthly` or `yearly`."
 	schemaDowntimeRecurrence_intervalDesc = "The recurrence interval."
