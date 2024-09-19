@@ -61,24 +61,31 @@ func (d *mackerelDowntimeDataSource) Read(ctx context.Context, req datasource.Re
 
 func schemaDowntimeDataSource() schema.Schema {
 	s := schema.Schema{
+		Description: "This data source allows access to details of a specific downtime setting.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Required: true,
+				Description: schemaDowntimeIDDesc,
+				Required:    true,
 			},
 			"name": schema.StringAttribute{
-				Computed: true,
+				Description: schemaDowntimeNameDesc,
+				Computed:    true,
 			},
 			"memo": schema.StringAttribute{
-				Computed: true,
+				Description: schemaDowntimeMemoDesc,
+				Computed:    true,
 			},
 			"start": schema.Int64Attribute{
-				Computed: true,
+				Description: schemaDowntimeStartDesc,
+				Computed:    true,
 			},
 			"duration": schema.Int64Attribute{
-				Computed: true,
+				Description: schemaDowntimeDurationDesc,
+				Computed:    true,
 			},
 			"recurrence": schema.ListAttribute{
-				Computed: true,
+				Description: schemaDowntimeRecurrenceDesc,
+				Computed:    true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
 						"type":     types.StringType,
@@ -91,26 +98,32 @@ func schemaDowntimeDataSource() schema.Schema {
 				},
 			},
 			"service_scopes": schema.SetAttribute{
+				Description: schemaDowntimeServiceScopesDesc,
 				ElementType: types.StringType,
 				Computed:    true,
 			},
 			"service_exclude_scopes": schema.SetAttribute{
+				Description: schemaDowntimeServiceExcludeScopesDesc,
 				ElementType: types.StringType,
 				Computed:    true,
 			},
 			"role_scopes": schema.SetAttribute{
+				Description: schemaDowntimeRoleScopesDesc,
 				ElementType: types.StringType,
 				Computed:    true,
 			},
 			"role_exclude_scopes": schema.SetAttribute{
+				Description: schemaDowntimeRoleExcludeScopesDesc,
 				ElementType: types.StringType,
 				Computed:    true,
 			},
 			"monitor_scopes": schema.SetAttribute{
+				Description: schemaDowntimeMonitorScopesDesc,
 				ElementType: types.StringType,
 				Computed:    true,
 			},
 			"monitor_exclude_scopes": schema.SetAttribute{
+				Description: schemaDowntimeMonitorExcludeScopesDesc,
 				ElementType: types.StringType,
 				Computed:    true,
 			},
