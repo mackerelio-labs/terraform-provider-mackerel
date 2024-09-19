@@ -18,7 +18,7 @@ type DowntimeModel struct {
 	Duration             types.Int64          `tfsdk:"duration"`
 	Recurrence           []DowntimeRecurrence `tfsdk:"recurrence"` // length <= 1
 	ServiceScopes        []string             `tfsdk:"service_scopes"`
-	SerciceExcludeScopes []string             `tfsdk:"service_exclude_scopes"`
+	ServiceExcludeScopes []string             `tfsdk:"service_exclude_scopes"`
 	RoleScopes           []string             `tfsdk:"role_scopes"`
 	RoleExcludeScopes    []string             `tfsdk:"role_exclude_scopes"`
 	MonitorScopes        []string             `tfsdk:"monitor_scopes"`
@@ -96,7 +96,7 @@ func newDowntime(d mackerel.Downtime) *DowntimeModel {
 		Start:                types.Int64Value(d.Start),
 		Duration:             types.Int64Value(d.Duration),
 		ServiceScopes:        d.ServiceScopes,
-		SerciceExcludeScopes: d.ServiceExcludeScopes,
+		ServiceExcludeScopes: d.ServiceExcludeScopes,
 		RoleScopes:           d.RoleScopes,
 		RoleExcludeScopes:    d.RoleExcludeScopes,
 		MonitorScopes:        d.MonitorScopes,
@@ -143,7 +143,7 @@ func (d *DowntimeModel) mackerelDowntime() *mackerel.Downtime {
 		Start:                d.Start.ValueInt64(),
 		Duration:             d.Duration.ValueInt64(),
 		ServiceScopes:        d.ServiceScopes,
-		ServiceExcludeScopes: d.SerciceExcludeScopes,
+		ServiceExcludeScopes: d.ServiceExcludeScopes,
 		RoleScopes:           d.RoleScopes,
 		RoleExcludeScopes:    d.RoleExcludeScopes,
 		MonitorScopes:        d.MonitorScopes,
@@ -179,11 +179,16 @@ func (d *DowntimeModel) mackerelDowntime() *mackerel.Downtime {
 }
 
 func (d *DowntimeModel) merge(newModel DowntimeModel) {
+	// preserve nil
+	if len(d.Recurrence) == 1 && len(d.Recurrence[0].Weekdays) == 0 &&
+		len(newModel.Recurrence) == 1 && len(newModel.Recurrence[0].Weekdays) == 0 {
+		newModel.Recurrence[0].Weekdays = d.Recurrence[0].Weekdays
+	}
 	if len(d.ServiceScopes) == 0 && len(newModel.ServiceScopes) == 0 {
 		newModel.ServiceScopes = d.ServiceScopes
 	}
-	if len(d.SerciceExcludeScopes) == 0 && len(newModel.SerciceExcludeScopes) == 0 {
-		newModel.SerciceExcludeScopes = d.SerciceExcludeScopes
+	if len(d.ServiceExcludeScopes) == 0 && len(newModel.ServiceExcludeScopes) == 0 {
+		newModel.ServiceExcludeScopes = d.ServiceExcludeScopes
 	}
 	if len(d.RoleScopes) == 0 && len(newModel.RoleScopes) == 0 {
 		newModel.RoleScopes = d.RoleScopes
