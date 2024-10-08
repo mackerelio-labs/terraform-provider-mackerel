@@ -303,7 +303,6 @@ resource "mackerel_aws_integration" "foo" {
 
   ec2 {
     enable               = true
-    role                 = ""
     excluded_metrics     = []
     retire_automatically = true
   }
@@ -357,7 +356,6 @@ resource "mackerel_aws_integration" "foo" {
 
   ec2 {
     enable               = true
-    role                 = ""
     excluded_metrics     = []
     retire_automatically = true
   }
