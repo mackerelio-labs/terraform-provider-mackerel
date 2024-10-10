@@ -83,6 +83,7 @@ func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
 
 		// Resources
 		delete(provider.ResourcesMap, "mackerel_alert_group_setting")
+		delete(provider.ResourcesMap, "mackerel_aws_integration")
 		delete(provider.ResourcesMap, "mackerel_channel")
 		delete(provider.ResourcesMap, "mackerel_dashboard")
 		delete(provider.ResourcesMap, "mackerel_downtime")
