@@ -55,6 +55,7 @@ type AWSIntegrationService struct {
 	Enable              types.Bool   `tfsdk:"enable"`
 	Role                types.String `tfsdk:"role"`
 	ExcludedMetrics     []string     `tfsdk:"excluded_metrics"`
+	IncludedMetrics     []string     `tfsdk:"included_metrics"`
 	RetireAutomatically types.Bool   `tfsdk:"-"`
 }
 
@@ -64,6 +65,7 @@ type AWSIntegrationServiceWithRetireAutomatically struct {
 	Enable              types.Bool   `tfsdk:"enable"`
 	Role                types.String `tfsdk:"role"`
 	ExcludedMetrics     []string     `tfsdk:"excluded_metrics"`
+	IncludedMetrics     []string     `tfsdk:"included_metrics"`
 	RetireAutomatically types.Bool   `tfsdk:"retire_automatically"`
 }
 
@@ -129,18 +131,20 @@ func newAWSIntegrationModel(aws mackerel.AWSIntegration) (*AWSIntegrationModel, 
 		if /* nil */ !awsService.Enable &&
 			awsService.Role == nil &&
 			len(awsService.ExcludedMetrics) == 0 &&
-			len(awsService.IncludedMetrics) == 0 &&
+			awsService.IncludedMetrics == nil &&
 			!awsService.RetireAutomatically {
 			continue
 		}
-		if len(awsService.IncludedMetrics) != 0 {
-			return nil, fmt.Errorf("%s: IncludedMetrics is not supported.", name)
+		if len(awsService.ExcludedMetrics) != 0 && len(awsService.IncludedMetrics) != 0 {
+			return nil,
+				fmt.Errorf("%s: `excluded_metrics` and `included_metrics` cannot be specified at same time. This may be an API problem.", name)
 		}
 
 		svcs[name] = AWSIntegrationService{
 			Enable:              types.BoolValue(awsService.Enable),
 			Role:                types.StringPointerValue(awsService.Role),
 			ExcludedMetrics:     awsService.ExcludedMetrics,
+			IncludedMetrics:     awsService.IncludedMetrics,
 			RetireAutomatically: types.BoolValue(awsService.RetireAutomatically),
 		}
 	}
@@ -183,6 +187,8 @@ func (m *AWSIntegrationModel) createParam() *mackerel.CreateAWSIntegrationParam 
 			}
 			if service.ExcludedMetrics != nil {
 				mackerelService.ExcludedMetrics = service.ExcludedMetrics
+			} else if service.IncludedMetrics != nil {
+				mackerelService.IncludedMetrics = service.IncludedMetrics
 			} else {
 				mackerelService.ExcludedMetrics = []string{}
 			}
@@ -237,6 +243,7 @@ func (m *AWSIntegrationModel) merge(newModel AWSIntegrationModel) {
 		if service == nil {
 			if !oldService.Enable.ValueBool() &&
 				len(oldService.ExcludedMetrics) == 0 &&
+				len(oldService.IncludedMetrics) == 0 &&
 				oldService.Role.IsNull() &&
 				!oldService.RetireAutomatically.ValueBool() {
 				return &oldService
@@ -250,6 +257,9 @@ func (m *AWSIntegrationModel) merge(newModel AWSIntegrationModel) {
 		}
 		if len(service.ExcludedMetrics) == 0 && len(oldService.ExcludedMetrics) == 0 {
 			service.ExcludedMetrics = oldService.ExcludedMetrics
+		}
+		if len(service.IncludedMetrics) == 0 && len(oldService.IncludedMetrics) == 0 {
+			service.IncludedMetrics = oldService.IncludedMetrics
 		}
 		return service
 	})

@@ -47,7 +47,7 @@ func Test_AWSIntegration_fromAPI(t *testing.T) {
 					"RDS": {
 						Enable:              true,
 						Role:                ptr("service: role"),
-						ExcludedMetrics:     []string{"rds.cpu.used"},
+						IncludedMetrics:     []string{"rds.cpu.used"},
 						RetireAutomatically: false,
 					},
 					"Redshift": {
@@ -74,7 +74,7 @@ func Test_AWSIntegration_fromAPI(t *testing.T) {
 					"NLB": {
 						Enable:          true,
 						Role:            nil,
-						ExcludedMetrics: []string{},
+						IncludedMetrics: []string{},
 					},
 					"DynamoDB": {
 						Enable:          false,
@@ -207,13 +207,13 @@ func Test_AWSIntegration_fromAPI(t *testing.T) {
 				NLB: []AWSIntegrationService{{
 					Enable:              types.BoolValue(true),
 					Role:                types.StringNull(),
-					ExcludedMetrics:     []string{},
+					IncludedMetrics:     []string{},
 					RetireAutomatically: types.BoolValue(false),
 				}},
 				RDS: []AWSIntegrationServiceWithRetireAutomatically{{
 					Enable:              types.BoolValue(true),
 					Role:                types.StringValue("service: role"),
-					ExcludedMetrics:     []string{"rds.cpu.used"},
+					IncludedMetrics:     []string{"rds.cpu.used"},
 					RetireAutomatically: types.BoolValue(false),
 				}},
 				Redshift:    []AWSIntegrationService{},
@@ -300,13 +300,13 @@ func Test_AWSIntegration_toAPI(t *testing.T) {
 				NLB: []AWSIntegrationService{{
 					Enable:              types.BoolValue(true),
 					Role:                types.StringNull(),
-					ExcludedMetrics:     []string{},
+					IncludedMetrics:     []string{},
 					RetireAutomatically: types.BoolValue(false),
 				}},
 				RDS: []AWSIntegrationServiceWithRetireAutomatically{{
 					Enable:              types.BoolValue(true),
 					Role:                types.StringValue("service: role"),
-					ExcludedMetrics:     []string{"rds.cpu.used"},
+					IncludedMetrics:     []string{"rds.cpu.used"},
 					RetireAutomatically: types.BoolValue(false),
 				}},
 				Redshift:    []AWSIntegrationService{},
@@ -361,12 +361,12 @@ func Test_AWSIntegration_toAPI(t *testing.T) {
 					},
 					"NLB": {
 						Enable:          true,
-						ExcludedMetrics: []string{},
+						IncludedMetrics: []string{},
 					},
 					"RDS": {
 						Enable:          true,
 						Role:            ptr("service: role"),
-						ExcludedMetrics: []string{"rds.cpu.used"},
+						IncludedMetrics: []string{"rds.cpu.used"},
 					},
 					"Redshift":    {ExcludedMetrics: []string{}},
 					"ElastiCache": {ExcludedMetrics: []string{}},
