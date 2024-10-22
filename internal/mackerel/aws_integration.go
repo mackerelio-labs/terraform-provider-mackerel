@@ -22,6 +22,10 @@ type AWSIntegrationModel struct {
 	IncludedTags types.String `tfsdk:"included_tags"`
 	ExcludedTags types.String `tfsdk:"excluded_tags"`
 
+	AWSIntegrationSerfvices
+}
+
+type AWSIntegrationSerfvices struct {
 	EC2         AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"ec2"`
 	ELB         AWSIntegrationServiceOpt                        `tfsdk:"elb"`
 	ALB         AWSIntegrationServiceOpt                        `tfsdk:"alb"`
@@ -259,7 +263,7 @@ func (m *AWSIntegrationModel) merge(newModel AWSIntegrationModel) {
 type awsServiceEachFunc func(name string, service *AWSIntegrationService) *AWSIntegrationService
 
 // Iterates and updates over services by name
-func (m *AWSIntegrationModel) each(fn awsServiceEachFunc) {
+func (m *AWSIntegrationSerfvices) each(fn awsServiceEachFunc) {
 	m.EC2.each("EC2", fn)
 	m.ELB.each("ELB", fn)
 	m.ALB.each("ALB", fn)
