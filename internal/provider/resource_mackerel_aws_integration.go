@@ -122,22 +122,45 @@ func (_ *mackerelAWSIntegrationResource) ImportState(ctx context.Context, req re
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
+const (
+	schemaAWSIntegrationIDDesc           = "The ID of the AWS integration."
+	schemaAWSIntegrationNameDesc         = "The name of the AWS integration."
+	schemaAWSIntegrationMemoDesc         = "The notes related to the AWS integration."
+	schemaAWSIntegrationKeyDesc          = "The AWS access key ID for the integration."
+	schemaAWSIntegrationSecretKeyDesc    = "The AWS secret access key for the integration."
+	schemaAWSIntegrationRoleARNDesc      = "The AWS IAM role resource name (ARN) for the integration."
+	schemaAWSIntegrationExternalIDDesc   = "The AWS IAM role external ID used during integration."
+	schemaAWSIntegrationRegionDesc       = "The AWS region in which the integration will be enabled."
+	schemaAWSIntegrationIncludedTagsDesc = "The comma separated list of tags to be included in the integration."
+	schemaAWSIntegrationExcludedTagsDesc = "The comma separated list of tags to be excluded in the integration."
+
+	schemaAWSIntegrationServiceDesc                    = "The settings of each AWS service."
+	schemaAWSIntegrationServiceEnableDesc              = "Whether integration settings are enabled. Default is `true`."
+	schemaAWSIntegrationServiceRoleDesc                = "The ID of the role to be assigned to the service."
+	schemaAWSIntegrationServiceExcludedMetricsDesc     = "The list of the metrics to be excluded."
+	schemaAWSIntegrationServiceRetireAutomaticallyDesc = "Whether automatic retirement is enabled."
+)
+
 func schemaAWSIntegrationResource() schema.Schema {
 	serviceSchema := schema.SetNestedBlock{
+		Description: schemaAWSIntegrationServiceDesc,
 		Validators: []validator.Set{
 			setvalidator.SizeAtMost(1),
 		},
 		NestedObject: schema.NestedBlockObject{
 			Attributes: map[string]schema.Attribute{
 				"enable": schema.BoolAttribute{
-					Optional: true,
-					Computed: true,
-					Default:  booldefault.StaticBool(true),
+					Description: schemaAWSIntegrationServiceEnableDesc,
+					Optional:    true,
+					Computed:    true,
+					Default:     booldefault.StaticBool(true),
 				},
 				"role": schema.StringAttribute{
-					Optional: true,
+					Description: schemaAWSIntegrationServiceRoleDesc,
+					Optional:    true,
 				},
 				"excluded_metrics": schema.ListAttribute{
+					Description: schemaAWSIntegrationServiceExcludedMetricsDesc,
 					ElementType: types.StringType,
 					Optional:    true,
 				},
@@ -145,27 +168,32 @@ func schemaAWSIntegrationResource() schema.Schema {
 		},
 	}
 	serviceSchemaWithRetireAutomatically := schema.SetNestedBlock{
+		Description: schemaAWSIntegrationServiceDesc,
 		Validators: []validator.Set{
 			setvalidator.SizeAtMost(1),
 		},
 		NestedObject: schema.NestedBlockObject{
 			Attributes: map[string]schema.Attribute{
 				"enable": schema.BoolAttribute{
-					Optional: true,
-					Computed: true,
-					Default:  booldefault.StaticBool(true),
+					Description: schemaAWSIntegrationServiceEnableDesc,
+					Optional:    true,
+					Computed:    true,
+					Default:     booldefault.StaticBool(true),
 				},
 				"role": schema.StringAttribute{
-					Optional: true,
+					Description: schemaAWSIntegrationServiceRoleDesc,
+					Optional:    true,
 				},
 				"excluded_metrics": schema.ListAttribute{
+					Description: schemaAWSIntegrationServiceExcludedMetricsDesc,
 					ElementType: types.StringType,
 					Optional:    true,
 				},
 				"retire_automatically": schema.BoolAttribute{
-					Optional: true,
-					Computed: true,
-					Default:  booldefault.StaticBool(false),
+					Description: schemaAWSIntegrationServiceRetireAutomaticallyDesc,
+					Optional:    true,
+					Computed:    true,
+					Default:     booldefault.StaticBool(false),
 				},
 			},
 		},
@@ -202,69 +230,80 @@ func schemaAWSIntegrationResource() schema.Schema {
 	}
 
 	schema := schema.Schema{
+		Description: "This resource allows creating and management of the AWS integration.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description: schemaAWSIntegrationIDDesc,
+				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(), // immutable
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Description: schemaAWSIntegrationNameDesc,
+				Required:    true,
 			},
 			"memo": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  stringdefault.StaticString(""),
+				Description: schemaAWSIntegrationMemoDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 			},
 			"key": schema.StringAttribute{
-				Optional:  true,
-				Sensitive: true,
-				Computed:  true,
-				Default:   stringdefault.StaticString(""),
+				Description: schemaAWSIntegrationKeyDesc,
+				Optional:    true,
+				Sensitive:   true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 				Validators: []validator.String{
 					// With Access Key, secret access key is need too.
 					stringvalidator.AlsoRequires(path.MatchRoot("secret_key")),
 				},
 			},
 			"secret_key": schema.StringAttribute{
-				Optional:  true,
-				Sensitive: true,
-				Computed:  true,
-				Default:   stringdefault.StaticString(""),
+				Description: schemaAWSIntegrationSecretKeyDesc,
+				Optional:    true,
+				Sensitive:   true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 				Validators: []validator.String{
 					// Secret access key cannot be set alone
 					stringvalidator.AlsoRequires(path.MatchRoot("key")),
 				},
 			},
 			"role_arn": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  stringdefault.StaticString(""),
+				Description: schemaAWSIntegrationRoleARNDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 			},
 			"external_id": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  stringdefault.StaticString(""),
+				Description: schemaAWSIntegrationExternalIDDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 				Validators: []validator.String{
 					// External ID cannot be set alone
 					stringvalidator.AlsoRequires(path.MatchRoot("role_arn")),
 				},
 			},
 			"region": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  stringdefault.StaticString(""),
+				Description: schemaAWSIntegrationRegionDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 			},
 			"included_tags": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  stringdefault.StaticString(""),
+				Description: schemaAWSIntegrationIncludedTagsDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 			},
 			"excluded_tags": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  stringdefault.StaticString(""),
+				Description: schemaAWSIntegrationExcludedTagsDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
 			},
 		},
 		Blocks: services,
