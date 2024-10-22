@@ -88,6 +88,10 @@ type AWSIntegrationServiceWithRetireAutomatically struct {
 
 type AWSIntegrationServiceWithRetireAutomaticallyOpt []AWSIntegrationServiceWithRetireAutomatically // length <= 1
 
+func ReadAWSIntegration(_ context.Context, client *Client, id string) (*AWSIntegrationModel, error) {
+	return readAWSIntegration(client, id)
+}
+
 func readAWSIntegration(client *Client, id string) (*AWSIntegrationModel, error) {
 	mackerelAWSIntegration, err := client.FindAWSIntegration(id)
 	if err != nil {
