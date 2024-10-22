@@ -141,6 +141,38 @@ const (
 	schemaAWSIntegrationServiceRetireAutomaticallyDesc = "Whether automatic retirement is enabled."
 )
 
+var awsIntegrationServices = map[string]struct {
+	supportsAutoRetire bool
+}{
+	"ec2":         {supportsAutoRetire: true},
+	"elb":         {},
+	"alb":         {},
+	"nlb":         {},
+	"rds":         {supportsAutoRetire: true},
+	"redshift":    {},
+	"elasticache": {supportsAutoRetire: true},
+	"sqs":         {},
+	"lambda":      {},
+	"dynamodb":    {},
+	"cloudfront":  {},
+	"api_gateway": {},
+	"kinesis":     {},
+	"s3":          {},
+	"es":          {},
+	"ecs_cluster": {},
+	"ses":         {},
+	"states":      {},
+	"efs":         {},
+	"firehose":    {},
+	"batch":       {},
+	"waf":         {},
+	"billing":     {},
+	"route53":     {},
+	"connect":     {},
+	"docdb":       {},
+	"codebuild":   {},
+}
+
 func schemaAWSIntegrationResource() schema.Schema {
 	serviceSchema := schema.SetNestedBlock{
 		Description: schemaAWSIntegrationServiceDesc,
@@ -199,34 +231,15 @@ func schemaAWSIntegrationResource() schema.Schema {
 		},
 	}
 
-	services := map[string]schema.Block{
-		"ec2":         serviceSchemaWithRetireAutomatically,
-		"elb":         serviceSchema,
-		"alb":         serviceSchema,
-		"nlb":         serviceSchema,
-		"rds":         serviceSchemaWithRetireAutomatically,
-		"redshift":    serviceSchema,
-		"elasticache": serviceSchemaWithRetireAutomatically,
-		"sqs":         serviceSchema,
-		"lambda":      serviceSchema,
-		"dynamodb":    serviceSchema,
-		"cloudfront":  serviceSchema,
-		"api_gateway": serviceSchema,
-		"kinesis":     serviceSchema,
-		"s3":          serviceSchema,
-		"es":          serviceSchema,
-		"ecs_cluster": serviceSchema,
-		"ses":         serviceSchema,
-		"states":      serviceSchema,
-		"efs":         serviceSchema,
-		"firehose":    serviceSchema,
-		"batch":       serviceSchema,
-		"waf":         serviceSchema,
-		"billing":     serviceSchema,
-		"route53":     serviceSchema,
-		"connect":     serviceSchema,
-		"docdb":       serviceSchema,
-		"codebuild":   serviceSchema,
+	services := make(map[string]schema.Block, len(awsIntegrationServices))
+	for name, spec := range awsIntegrationServices {
+		var block schema.Block
+		if spec.supportsAutoRetire {
+			block = serviceSchemaWithRetireAutomatically
+		} else {
+			block = serviceSchema
+		}
+		services[name] = block
 	}
 
 	schema := schema.Schema{
