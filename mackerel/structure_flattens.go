@@ -351,6 +351,7 @@ func flattenAWSIntegration(awsIntegration *mackerel.AWSIntegration, d *schema.Re
 			"enable":           service.Enable,
 			"role":             toString(service.Role),
 			"excluded_metrics": toSliceInterface(service.ExcludedMetrics),
+			"included_metrics": toSliceInterface(service.IncludedMetrics),
 		}
 		if supportedRetireAutomatically[key] {
 			s["retire_automatically"] = service.RetireAutomatically

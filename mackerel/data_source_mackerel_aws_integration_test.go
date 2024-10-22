@@ -144,13 +144,13 @@ resource "mackerel_aws_integration" "foo" {
   alb {
     enable           = true
     role             = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
-    excluded_metrics = ["alb.request.count", "alb.bytes.processed"]
+    included_metrics = ["alb.request.count", "alb.bytes.processed"]
   }
 
   rds {
     enable               = true
     role                 = "${mackerel_service.include.name}: ${mackerel_role.include.name}"
-    excluded_metrics     = ["rds.cpu.used"]
+    included_metrics     = ["rds.cpu.used"]
     retire_automatically = true
   }
 

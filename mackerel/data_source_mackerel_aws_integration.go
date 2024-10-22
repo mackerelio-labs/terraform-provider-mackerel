@@ -25,6 +25,13 @@ var awsIntegrationServiceDataResourceWithRetireAutomatically = &schema.Resource{
 				Type: schema.TypeString,
 			},
 		},
+		"included_metrics": {
+			Type:     schema.TypeList,
+			Computed: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
 		"retire_automatically": {
 			Type:     schema.TypeBool,
 			Computed: true,
@@ -49,6 +56,13 @@ var awsIntegrationServiceDataResource = &schema.Resource{
 			Computed: true,
 		},
 		"excluded_metrics": {
+			Type:     schema.TypeList,
+			Computed: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+		"included_metrics": {
 			Type:     schema.TypeList,
 			Computed: true,
 			Elem: &schema.Schema{

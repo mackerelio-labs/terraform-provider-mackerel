@@ -26,6 +26,13 @@ var awsIntegrationServiceResourceWithRetireAutomatically = &schema.Resource{
 				Type: schema.TypeString,
 			},
 		},
+		"included_metrics": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
 		"retire_automatically": {
 			Type:     schema.TypeBool,
 			Optional: true,
@@ -52,6 +59,13 @@ var awsIntegrationServiceResource = &schema.Resource{
 			Optional: true,
 		},
 		"excluded_metrics": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+		"included_metrics": {
 			Type:     schema.TypeList,
 			Optional: true,
 			Elem: &schema.Schema{
@@ -241,6 +255,7 @@ func expandAWSIntegrationServicesSet(d *schema.ResourceData) map[string]*mackere
 				Enable:          service["enable"].(bool),
 				Role:            toPointer(service["role"].(string)),
 				ExcludedMetrics: toSliceString(service["excluded_metrics"].([]interface{})),
+				IncludedMetrics: toSliceString(service["included_metrics"].([]interface{})),
 			}
 			if supportedRetireAutomatically[schemaKey] {
 				services[mapKey].RetireAutomatically = service["retire_automatically"].(bool)
