@@ -102,7 +102,7 @@ func schemaAWSIntegrationDataSource() schema.Schema {
 
 	for name, spec := range awsIntegrationServices {
 		if spec.supportsAutoRetire {
-			attrs[name] = schema.ListAttribute{
+			attrs[name] = schema.SetAttribute{
 				Computed: true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
@@ -116,7 +116,7 @@ func schemaAWSIntegrationDataSource() schema.Schema {
 				},
 			}
 		} else {
-			attrs[name] = schema.ListAttribute{
+			attrs[name] = schema.SetAttribute{
 				Computed: true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
