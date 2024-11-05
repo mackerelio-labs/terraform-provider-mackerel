@@ -84,6 +84,7 @@ func schemaAWSIntegrationDataSource() schema.Schema {
 		},
 		"external_id": schema.StringAttribute{
 			Description: schemaAWSIntegrationExternalIDDesc,
+			Sensitive:   true,
 			Computed:    true,
 		},
 		"region": schema.StringAttribute{
