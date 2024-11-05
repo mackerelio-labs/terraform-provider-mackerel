@@ -22,6 +22,25 @@ type AWSIntegrationModel struct {
 	IncludedTags types.String `tfsdk:"included_tags"`
 	ExcludedTags types.String `tfsdk:"excluded_tags"`
 
+	AWSIntegrationSerfvices
+}
+
+type AWSIntegrationDataSourceModel struct {
+	ID           types.String `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
+	Memo         types.String `tfsdk:"memo"`
+	Key          types.String `tfsdk:"key"`
+	SecretKey    types.String `tfsdk:"-"`
+	RoleARN      types.String `tfsdk:"role_arn"`
+	ExternalID   types.String `tfsdk:"external_id"`
+	Region       types.String `tfsdk:"region"`
+	IncludedTags types.String `tfsdk:"included_tags"`
+	ExcludedTags types.String `tfsdk:"excluded_tags"`
+
+	AWSIntegrationSerfvices
+}
+
+type AWSIntegrationSerfvices struct {
 	EC2         AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"ec2"`
 	ELB         AWSIntegrationServiceOpt                        `tfsdk:"elb"`
 	ALB         AWSIntegrationServiceOpt                        `tfsdk:"alb"`
@@ -68,6 +87,10 @@ type AWSIntegrationServiceWithRetireAutomatically struct {
 }
 
 type AWSIntegrationServiceWithRetireAutomaticallyOpt []AWSIntegrationServiceWithRetireAutomatically // length <= 1
+
+func ReadAWSIntegration(_ context.Context, client *Client, id string) (*AWSIntegrationModel, error) {
+	return readAWSIntegration(client, id)
+}
 
 func readAWSIntegration(client *Client, id string) (*AWSIntegrationModel, error) {
 	mackerelAWSIntegration, err := client.FindAWSIntegration(id)
@@ -259,7 +282,7 @@ func (m *AWSIntegrationModel) merge(newModel AWSIntegrationModel) {
 type awsServiceEachFunc func(name string, service *AWSIntegrationService) *AWSIntegrationService
 
 // Iterates and updates over services by name
-func (m *AWSIntegrationModel) each(fn awsServiceEachFunc) {
+func (m *AWSIntegrationSerfvices) each(fn awsServiceEachFunc) {
 	m.EC2.each("EC2", fn)
 	m.ELB.each("ELB", fn)
 	m.ALB.each("ALB", fn)
