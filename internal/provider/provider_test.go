@@ -5,8 +5,26 @@ import (
 	"testing"
 
 	fwprovider "github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
+	sdkmackerel "github.com/mackerelio-labs/terraform-provider-mackerel/mackerel"
 )
+
+var (
+	protoV5FrameworkProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
+		"mackerel": providerserver.NewProtocol5WithError(provider.New()),
+	}
+	protoV5SDKProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
+		"mackerel": func() (tfprotov5.ProviderServer, error) {
+			return sdkmackerel.Provider().GRPCProvider(), nil
+		},
+	}
+)
+
+func preCheck(t *testing.T) {
+	t.Helper()
+}
 
 func TestMackerelProvider_schema(t *testing.T) {
 	t.Parallel()
