@@ -7,6 +7,8 @@ import (
 	fwprovider "github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 	sdkmackerel "github.com/mackerelio-labs/terraform-provider-mackerel/mackerel"
 )
@@ -24,6 +26,18 @@ var (
 
 func preCheck(t *testing.T) {
 	t.Helper()
+}
+
+func stepNoPlanInFramework(config string) resource.TestStep {
+	return resource.TestStep{
+		Config:                   config,
+		ProtoV5ProviderFactories: protoV5FrameworkProviderFactories,
+		ConfigPlanChecks: resource.ConfigPlanChecks{
+			PreApply: []plancheck.PlanCheck{
+				plancheck.ExpectEmptyPlan(),
+			},
+		},
+	}
 }
 
 func TestMackerelProvider_schema(t *testing.T) {

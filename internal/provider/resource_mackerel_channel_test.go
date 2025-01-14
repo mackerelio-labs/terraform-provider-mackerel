@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
-	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
@@ -29,6 +28,56 @@ func Test_MackerelChannelResource_schema(t *testing.T) {
 	if diags := resp.Schema.ValidateImplementation(ctx); diags.HasError() {
 		t.Fatalf("schema validation diagnostics: %+v", diags)
 	}
+}
+
+func TestAccCompat_MackerelChannelResource_Email(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "mackerel_channel.email"
+	name := acctest.RandomWithPrefix("tf-channel-email-compat")
+	config := `
+resource "mackerel_channel" "email" {
+  name = "` + name + `"
+  email {}
+}`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() { preCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config:                   config,
+				ProtoV5ProviderFactories: protoV5SDKProviderFactories,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(resourceName,
+						tfjsonpath.New("email").AtSliceIndex(0).AtMapKey("events"),
+						knownvalue.Null()),
+					statecheck.ExpectKnownValue(resourceName,
+						tfjsonpath.New("email").AtSliceIndex(0).AtMapKey("emails"),
+						knownvalue.Null()),
+					statecheck.ExpectKnownValue(resourceName,
+						tfjsonpath.New("email").AtSliceIndex(0).AtMapKey("user_ids"),
+						knownvalue.Null()),
+				},
+			},
+			stepNoPlanInFramework(config),
+			{
+				Config:                   config,
+				ProtoV5ProviderFactories: protoV5SDKProviderFactories,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(resourceName,
+						tfjsonpath.New("email").AtSliceIndex(0).AtMapKey("events"),
+						knownvalue.ListSizeExact(0)),
+					statecheck.ExpectKnownValue(resourceName,
+						tfjsonpath.New("email").AtSliceIndex(0).AtMapKey("emails"),
+						knownvalue.ListSizeExact(0)),
+					statecheck.ExpectKnownValue(resourceName,
+						tfjsonpath.New("email").AtSliceIndex(0).AtMapKey("user_ids"),
+						knownvalue.ListSizeExact(0)),
+				},
+			},
+			stepNoPlanInFramework(config),
+		},
+	})
 }
 
 func TestAccCompat_MackerelChannelResource_Slack(t *testing.T) {
@@ -61,16 +110,7 @@ resource "mackerel_channel" "slack" {
 						knownvalue.Null()),
 				},
 			},
-			// Test: Framework
-			{
-				Config:                   config,
-				ProtoV5ProviderFactories: protoV5FrameworkProviderFactories,
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectEmptyPlan(),
-					},
-				},
-			},
+			stepNoPlanInFramework(config),
 			// Test: SDK
 			// Apply config twice to normalize the state.
 			{
@@ -86,16 +126,48 @@ resource "mackerel_channel" "slack" {
 						knownvalue.MapSizeExact(0)),
 				},
 			},
-			// Test: Framework
+			stepNoPlanInFramework(config),
+		},
+	})
+}
+
+func TestAccCompat_MackerelChannelResource_Webhook(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "mackerel_channel.webhook"
+	name := acctest.RandomWithPrefix("tf-channel-webhook-compat")
+
+	config := `
+resource "mackerel_channel" "webhook" {
+  name = "` + name + `"
+  webhook {
+    url = "https://example.test"
+  }
+}`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() { preCheck(t) },
+		Steps: []resource.TestStep{
 			{
 				Config:                   config,
-				ProtoV5ProviderFactories: protoV5FrameworkProviderFactories,
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectEmptyPlan(),
-					},
+				ProtoV5ProviderFactories: protoV5SDKProviderFactories,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(resourceName,
+						tfjsonpath.New("webhook").AtSliceIndex(0).AtMapKey("events"),
+						knownvalue.Null()),
 				},
 			},
+			stepNoPlanInFramework(config),
+			{
+				Config:                   config,
+				ProtoV5ProviderFactories: protoV5SDKProviderFactories,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(resourceName,
+						tfjsonpath.New("webhook").AtSliceIndex(0).AtMapKey("events"),
+						knownvalue.ListSizeExact(0)),
+				},
+			},
+			stepNoPlanInFramework(config),
 		},
 	})
 }
