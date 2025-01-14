@@ -28,7 +28,7 @@ func TestAccMackerelDowntime(t *testing.T) {
 					testAccCheckMackerelDowntimeExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "memo", ""),
-					resource.TestCheckResourceAttr(resourceName, "start", "1735707600"),
+					resource.TestCheckResourceAttr(resourceName, "start", "2051254800"),
 					resource.TestCheckResourceAttr(resourceName, "duration", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "recurrence.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "service_scopes.#", "0"),
@@ -46,13 +46,13 @@ func TestAccMackerelDowntime(t *testing.T) {
 					testAccCheckMackerelDowntimeExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
 					resource.TestCheckResourceAttr(resourceName, "memo", "This downtime is managed by Terraform."),
-					resource.TestCheckResourceAttr(resourceName, "start", "1735707600"),
+					resource.TestCheckResourceAttr(resourceName, "start", "2051254800"),
 					resource.TestCheckResourceAttr(resourceName, "duration", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "recurrence.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "recurrence.0.type", "weekly"),
 					resource.TestCheckResourceAttr(resourceName, "recurrence.0.interval", "2"),
 					resource.TestCheckResourceAttr(resourceName, "recurrence.0.weekdays.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "recurrence.0.until", "1767193199"),
+					resource.TestCheckResourceAttr(resourceName, "recurrence.0.until", "2082725999"),
 					resource.TestCheckResourceAttr(resourceName, "service_scopes.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "service_exclude_scopes.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "role_scopes.#", "1"),
@@ -120,7 +120,7 @@ func testAccMackerelDowntimeConfig(name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_downtime" "foo" {
   name = "%s"
-  start = 1735707600
+  start = 2051254800
   duration = 3600
 }
 `, name)
@@ -149,7 +149,7 @@ resource "mackerel_role" "include" {
 resource "mackerel_downtime" "foo" {
   name = "%s"
   memo = "This downtime is managed by Terraform."
-  start = 1735707600
+  start = 2051254800
   duration = 3600
 
   recurrence {
@@ -161,7 +161,7 @@ resource "mackerel_downtime" "foo" {
       "Wednesday",
       "Thursday",
       "Friday"]
-    until = 1767193199
+    until = 2082725999
   }
 
   service_scopes = [
