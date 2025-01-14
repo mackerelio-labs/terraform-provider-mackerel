@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/planmodifierutil"
 )
 
 var (
@@ -66,12 +67,20 @@ func (r *mackerelNotificationGroupResource) Schema(_ context.Context, _ resource
 
 				ElementType: types.StringType,
 				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					planmodifierutil.NilRelaxedSet(),
+				},
 			},
 			"child_channel_ids": schema.SetAttribute{
 				Description: "A set of notification channel IDs",
 
 				ElementType: types.StringType,
 				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					planmodifierutil.NilRelaxedSet(),
+				},
 			},
 		},
 		// TODO: migrate to nested attributes
