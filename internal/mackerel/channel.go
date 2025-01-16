@@ -78,7 +78,7 @@ func (m *ChannelModel) Read(ctx context.Context, client *Client) error {
 		return err
 	}
 
-	m.merge(newModel)
+	*m = newModel
 	return nil
 }
 
@@ -185,49 +185,4 @@ func (m ChannelModel) mackerelChannel() mackerel.Channel {
 		}
 	}
 	return channel
-}
-
-func (m *ChannelModel) merge(newModel ChannelModel) {
-	if len(m.Email) > 0 && len(newModel.Email) > 0 {
-		oldEmail := m.Email[0]
-		newEmail := &newModel.Email[0]
-
-		// Distinct between null and [] in email.emails
-		// If both side of emails are empty, preserve old one.
-		if len(oldEmail.Emails) == 0 && len(newEmail.Emails) == 0 {
-			newEmail.Emails = oldEmail.Emails
-		}
-
-		// Distinct between null and [] in email.user_ids
-		if len(oldEmail.UserIDs) == 0 && len(newEmail.UserIDs) == 0 {
-			newEmail.UserIDs = oldEmail.UserIDs
-		}
-
-		// Distinct between null and [] in email.events
-		if len(oldEmail.Events) == 0 && len(newEmail.Events) == 0 {
-			newEmail.Events = oldEmail.Events
-		}
-	}
-	if len(m.Slack) > 0 && len(newModel.Slack) > 0 {
-		oldSlack := m.Slack[0]
-		newSlack := &newModel.Slack[0]
-
-		// Distinct between null and {} in slack.mentions
-		if len(oldSlack.Mentions) == 0 && len(newSlack.Mentions) == 0 {
-			newSlack.Mentions = oldSlack.Mentions
-		}
-
-		// Distinct between null and [] in slack.events
-		if len(oldSlack.Events) == 0 && len(newSlack.Events) == 0 {
-			newSlack.Events = oldSlack.Events
-		}
-	}
-	if len(m.Webhook) > 0 && len(newModel.Webhook) > 0 {
-		// Distinct between null and [] in webhook.events
-		if len(m.Webhook[0].Events) == 0 && len(newModel.Webhook[0].Events) == 0 {
-			newModel.Webhook[0].Events = m.Webhook[0].Events
-		}
-	}
-
-	*m = newModel
 }
