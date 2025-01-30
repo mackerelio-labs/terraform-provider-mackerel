@@ -249,10 +249,11 @@ func resourceMackerelDashboard() *schema.Resource {
 							},
 						},
 						"range": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem:     dashboardRangeResource,
+							Type:         schema.TypeList,
+							Optional:     true,
+							MaxItems:     1,
+							ExactlyOneOf: []string{"relative", "absolute"},
+							Elem:         dashboardRangeResource,
 						},
 						"layout": {
 							Type:     schema.TypeList,
