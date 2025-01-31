@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 func NilRelaxedMap() planmodifier.Map {
@@ -28,18 +29,16 @@ func (_ nilRelaxedModifier) MarkdownDescription(context.Context) string {
 
 func (_ nilRelaxedModifier) PlanModifyMap(ctx context.Context, req planmodifier.MapRequest, resp *planmodifier.MapResponse) {
 	if req.PlanValue.IsUnknown() {
-		return
-	}
-	if len(req.PlanValue.Elements()) == 0 && len(req.StateValue.Elements()) == 0 {
+		resp.PlanValue = types.MapNull(req.PlanValue.ElementType(ctx))
+	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {
 		resp.PlanValue = req.StateValue
 	}
 }
 
-func (_ nilRelaxedModifier) PlanModifySet(_ context.Context, req planmodifier.SetRequest, resp *planmodifier.SetResponse) {
+func (_ nilRelaxedModifier) PlanModifySet(ctx context.Context, req planmodifier.SetRequest, resp *planmodifier.SetResponse) {
 	if req.PlanValue.IsUnknown() {
-		return
-	}
-	if len(req.PlanValue.Elements()) == 0 && len(req.StateValue.Elements()) == 0 {
+		resp.PlanValue = types.SetNull(req.PlanValue.ElementType(ctx))
+	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {
 		resp.PlanValue = req.StateValue
 	}
 }
