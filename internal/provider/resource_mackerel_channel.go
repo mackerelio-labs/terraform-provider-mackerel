@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/planmodifierutil"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/validatorutil"
 )
 
@@ -146,6 +147,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 		Description: schemaChannelEventsDesc,
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.Set{setvalidator.ValueStringsAre(
 			stringvalidator.OneOf(
 				"alert",
@@ -157,6 +159,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 			),
 		)},
 		PlanModifiers: []planmodifier.Set{
+			planmodifierutil.NilRelaxedSet(),
 			setplanmodifier.RequiresReplace(),
 		},
 	}
@@ -193,7 +196,9 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							ElementType: types.StringType,
 							Description: schemaChannelEmail_EmailsDesc,
 							Optional:    true,
+							Computed:    true,
 							PlanModifiers: []planmodifier.Set{
+								planmodifierutil.NilRelaxedSet(),
 								setplanmodifier.RequiresReplace(),
 							},
 						},
@@ -201,7 +206,9 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							ElementType: types.StringType,
 							Description: schemaChannelEmail_UserIDsDesc,
 							Optional:    true,
+							Computed:    true,
 							PlanModifiers: []planmodifier.Set{
+								planmodifierutil.NilRelaxedSet(),
 								setplanmodifier.RequiresReplace(),
 							},
 						},
@@ -234,11 +241,13 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							ElementType: types.StringType,
 							Description: schemaChannelSlack_MentionsDesc,
 							Optional:    true,
+							Computed:    true,
 							Validators: []validator.Map{
 								mapvalidator.KeysAre(stringvalidator.OneOf("ok", "warning", "critical")),
 								mapvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 							},
 							PlanModifiers: []planmodifier.Map{
+								planmodifierutil.NilRelaxedMap(),
 								mapplanmodifier.RequiresReplace(),
 							},
 						},
