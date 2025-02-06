@@ -30,9 +30,7 @@ func (_ nilRelaxedModifier) MarkdownDescription(context.Context) string {
 func (_ nilRelaxedModifier) PlanModifyMap(ctx context.Context, req planmodifier.MapRequest, resp *planmodifier.MapResponse) {
 	if req.PlanValue.IsUnknown() {
 		resp.PlanValue = types.MapNull(req.PlanValue.ElementType(ctx))
-		return
-	}
-	if len(req.PlanValue.Elements()) == 0 && len(req.StateValue.Elements()) == 0 {
+	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {
 		resp.PlanValue = req.StateValue
 	}
 }
@@ -40,9 +38,7 @@ func (_ nilRelaxedModifier) PlanModifyMap(ctx context.Context, req planmodifier.
 func (_ nilRelaxedModifier) PlanModifySet(ctx context.Context, req planmodifier.SetRequest, resp *planmodifier.SetResponse) {
 	if req.PlanValue.IsUnknown() {
 		resp.PlanValue = types.SetNull(req.PlanValue.ElementType(ctx))
-		return
-	}
-	if len(req.PlanValue.Elements()) == 0 && len(req.StateValue.Elements()) == 0 {
+	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {
 		resp.PlanValue = req.StateValue
 	}
 }

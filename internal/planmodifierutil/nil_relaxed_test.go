@@ -18,52 +18,29 @@ func TestNilRelaxedMap(t *testing.T) {
 		request  planmodifier.MapRequest
 		expected *planmodifier.MapResponse
 	}{
-		"non-empty": {
+		"unknown to null": {
 			request: planmodifier.MapRequest{
-				StateValue: types.MapValueMust(types.StringType, map[string]attr.Value{
-					"a": types.StringValue("b"),
-				}),
-				PlanValue: types.MapValueMust(types.StringType, map[string]attr.Value{
-					"a": types.StringValue("c"),
-				}),
-				ConfigValue: types.MapValueMust(types.StringType, map[string]attr.Value{
-					"a": types.StringValue("c"),
-				}),
-			},
-			expected: &planmodifier.MapResponse{
-				PlanValue: types.MapValueMust(types.StringType, map[string]attr.Value{
-					"a": types.StringValue("c"),
-				}),
-			},
-		},
-		"empty-null": {
-			request: planmodifier.MapRequest{
-				StateValue:  types.MapValueMust(types.StringType, map[string]attr.Value{}),
-				PlanValue:   types.MapNull(types.StringType),
-				ConfigValue: types.MapNull(types.StringType),
-			},
-			expected: &planmodifier.MapResponse{
-				PlanValue: types.MapValueMust(types.StringType, map[string]attr.Value{}),
-			},
-		},
-		"null-empty": {
-			request: planmodifier.MapRequest{
-				StateValue:  types.MapNull(types.StringType),
-				PlanValue:   types.MapValueMust(types.StringType, map[string]attr.Value{}),
-				ConfigValue: types.MapValueMust(types.StringType, map[string]attr.Value{}),
+				PlanValue: types.MapUnknown(types.StringType),
 			},
 			expected: &planmodifier.MapResponse{
 				PlanValue: types.MapNull(types.StringType),
 			},
 		},
-		"unknown": {
+		"no updates when plan is null and state is empty": {
 			request: planmodifier.MapRequest{
-				StateValue:  types.MapNull(types.StringType),
-				PlanValue:   types.MapUnknown(types.StringType),
-				ConfigValue: types.MapUnknown(types.StringType),
+				PlanValue:  types.MapNull(types.StringType),
+				StateValue: types.MapValueMust(types.StringType, map[string]attr.Value{}),
 			},
 			expected: &planmodifier.MapResponse{
-				PlanValue: types.MapUnknown(types.StringType),
+				PlanValue: types.MapValueMust(types.StringType, map[string]attr.Value{}),
+			},
+		},
+		"passthrough otherwise": {
+			request: planmodifier.MapRequest{
+				PlanValue: types.MapValueMust(types.StringType, map[string]attr.Value{"a": types.StringValue("a")}),
+			},
+			expected: &planmodifier.MapResponse{
+				PlanValue: types.MapValueMust(types.StringType, map[string]attr.Value{"a": types.StringValue("a")}),
 			},
 		},
 	}
@@ -92,34 +69,29 @@ func TestNilRelaxedSet(t *testing.T) {
 		request  planmodifier.SetRequest
 		expected *planmodifier.SetResponse
 	}{
-		"empty-null": {
+		"unknown to null": {
 			request: planmodifier.SetRequest{
-				StateValue:  types.SetValueMust(types.StringType, []attr.Value{}),
-				PlanValue:   types.SetNull(types.StringType),
-				ConfigValue: types.SetNull(types.StringType),
-			},
-			expected: &planmodifier.SetResponse{
-				PlanValue: types.SetValueMust(types.StringType, []attr.Value{}),
-			},
-		},
-		"null-empty": {
-			request: planmodifier.SetRequest{
-				StateValue:  types.SetNull(types.StringType),
-				PlanValue:   types.SetValueMust(types.StringType, []attr.Value{}),
-				ConfigValue: types.SetValueMust(types.StringType, []attr.Value{}),
+				PlanValue: types.SetUnknown(types.StringType),
 			},
 			expected: &planmodifier.SetResponse{
 				PlanValue: types.SetNull(types.StringType),
 			},
 		},
-		"unknown": {
+		"no updates when plan is null and state is empty": {
 			request: planmodifier.SetRequest{
-				StateValue:  types.SetNull(types.StringType),
-				PlanValue:   types.SetUnknown(types.StringType),
-				ConfigValue: types.SetUnknown(types.StringType),
+				PlanValue:  types.SetNull(types.StringType),
+				StateValue: types.SetValueMust(types.StringType, []attr.Value{}),
 			},
 			expected: &planmodifier.SetResponse{
-				PlanValue: types.SetUnknown(types.StringType),
+				PlanValue: types.SetValueMust(types.StringType, []attr.Value{}),
+			},
+		},
+		"passthrough otherwise": {
+			request: planmodifier.SetRequest{
+				PlanValue: types.SetValueMust(types.StringType, []attr.Value{types.StringValue("a")}),
+			},
+			expected: &planmodifier.SetResponse{
+				PlanValue: types.SetValueMust(types.StringType, []attr.Value{types.StringValue("a")}),
 			},
 		},
 	}
