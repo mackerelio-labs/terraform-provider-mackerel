@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	protoV5FrameworkProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
+	protoV5ProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
 		"mackerel": providerserver.NewProtocol5WithError(provider.New()),
 	}
 	protoV5SDKProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
@@ -31,7 +31,7 @@ func preCheck(t *testing.T) {
 func stepNoPlanInFramework(config string) resource.TestStep {
 	return resource.TestStep{
 		Config:                   config,
-		ProtoV5ProviderFactories: protoV5FrameworkProviderFactories,
+		ProtoV5ProviderFactories: protoV5ProviderFactories,
 		ConfigPlanChecks: resource.ConfigPlanChecks{
 			PreApply: []plancheck.PlanCheck{
 				plancheck.ExpectEmptyPlan(),

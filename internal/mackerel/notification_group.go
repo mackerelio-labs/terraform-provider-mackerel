@@ -91,20 +91,7 @@ func (m *NotificationGroupModel) Read(ctx context.Context, client *Client) error
 	if m.ID.ValueString() != data.ID.ValueString() {
 		return fmt.Errorf("ID cannot be updated")
 	}
-
-	m.Name = data.Name                           // required
-	m.NotificationLevel = data.NotificationLevel // has default
-
-	// optional attrs needs to preserve null on zero values
-	if m.ChildNotificationGroupIDs != nil || len(data.ChildNotificationGroupIDs) > 0 {
-		m.ChildNotificationGroupIDs = data.ChildNotificationGroupIDs
-	}
-	if m.ChildChannelIDs != nil || len(data.ChildChannelIDs) > 0 {
-		m.ChildChannelIDs = data.ChildChannelIDs
-	}
-
-	m.Monitors = data.Monitors
-	m.Services = data.Services
+	*m = data
 
 	return nil
 }
