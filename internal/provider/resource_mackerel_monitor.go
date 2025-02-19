@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/planmodifierutil"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/typeutil"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/validatorutil"
 )
@@ -275,17 +276,21 @@ func schemaMonitorMaxCheckAttemptsAttr(defaultAttempts uint) schema.Int64Attribu
 
 func schemaMonitorResourceScopesAttr() schema.SetAttribute {
 	return schema.SetAttribute{
-		ElementType: types.StringType,
-		Description: schemaMonitorScopesDesc,
-		Optional:    true,
+		ElementType:   types.StringType,
+		Description:   schemaMonitorScopesDesc,
+		Optional:      true,
+		Computed:      true,
+		PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 	}
 }
 
 func schemaMonitorResourceExcludeScopesAttr() schema.SetAttribute {
 	return schema.SetAttribute{
-		ElementType: types.StringType,
-		Description: schemaMonitorExcludeScopesDesc,
-		Optional:    true,
+		ElementType:   types.StringType,
+		Description:   schemaMonitorExcludeScopesDesc,
+		Optional:      true,
+		Computed:      true,
+		PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 	}
 }
 
@@ -519,10 +524,12 @@ func schemaMonitorResourceExternalBlock() schema.Block {
 					Default:     stringdefault.StaticString(""),
 				},
 				"headers": schema.MapAttribute{
-					ElementType: types.StringType,
-					Description: schemaMonitorExternal_HeadersDesc,
-					Sensitive:   true,
-					Optional:    true,
+					ElementType:   types.StringType,
+					Description:   schemaMonitorExternal_HeadersDesc,
+					Sensitive:     true,
+					Optional:      true,
+					Computed:      true,
+					PlanModifiers: []planmodifier.Map{planmodifierutil.NilRelaxedMap()},
 				},
 
 				"service": schema.StringAttribute{
