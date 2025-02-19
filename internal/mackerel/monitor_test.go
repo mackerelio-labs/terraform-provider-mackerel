@@ -43,6 +43,8 @@ func Test_Monitor_toModel(t *testing.T) {
 					Critical:         typeutil.NewFloatStringValue(""),
 					Duration:         types.Int64Value(1),
 					MaxCheckAttempts: types.Int64Value(1),
+					Scopes:           []string{},
+					ExcludeScopes:    []string{},
 				}},
 			},
 		},
@@ -280,6 +282,8 @@ func Test_Monitor_toModel(t *testing.T) {
 
 				ConnectivityMonitor: []MonitorConnectivity{{
 					AlertStatusOnGone: types.StringValue("CRITICAL"),
+					Scopes:            []string{},
+					ExcludeScopes:     []string{},
 				}},
 			},
 		},
