@@ -637,7 +637,11 @@ func schemaMonitorResourceAnomalyDetectionBlock() schema.Block {
 					Computed:    true,
 					Default:     int64default.StaticInt64(0),
 				},
-				"scopes": schemaMonitorResourceScopesAttr(),
+				"scopes": schema.SetAttribute{
+					ElementType: types.StringType,
+					Description: schemaMonitorScopesDesc,
+					Required:    true,
+				},
 			},
 			Validators: []validator.Object{
 				objectvalidator.AtLeastOneOf(path.MatchRoot("warning_sensitivity"), path.MatchRoot("critical_sensitivity")),
