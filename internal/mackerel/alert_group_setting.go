@@ -42,7 +42,7 @@ func (ag *AlertGroupSettingModel) Read(ctx context.Context, client *Client) erro
 		return err
 	}
 
-	ag.merge(newAg)
+	*ag = newAg
 	return nil
 }
 
@@ -66,9 +66,9 @@ func newAlertGroupSetting(ag mackerel.AlertGroupSetting) AlertGroupSettingModel 
 		ID:                   types.StringValue(ag.ID),
 		Name:                 types.StringValue(ag.Name),
 		Memo:                 types.StringValue(ag.Memo),
-		ServiceScopes:        ag.ServiceScopes,
+		ServiceScopes:        nilAsEmptySlice(ag.ServiceScopes),
 		RoleScopes:           normalizeScopes(ag.RoleScopes),
-		MonitorScopes:        ag.MonitorScopes,
+		MonitorScopes:        nilAsEmptySlice(ag.MonitorScopes),
 		NotificationInterval: types.Int64Value(int64(ag.NotificationInterval)),
 	}
 }
@@ -83,18 +83,4 @@ func (ag AlertGroupSettingModel) mackerelAlertGroupSetting() mackerel.AlertGroup
 		MonitorScopes:        ag.MonitorScopes,
 		NotificationInterval: uint64(ag.NotificationInterval.ValueInt64()),
 	}
-}
-
-func (ag *AlertGroupSettingModel) merge(newAg AlertGroupSettingModel) {
-	// Distinct null and [] by preserving old state
-	if len(ag.ServiceScopes) == 0 && len(newAg.ServiceScopes) == 0 {
-		newAg.ServiceScopes = ag.ServiceScopes
-	}
-	if len(ag.RoleScopes) == 0 && len(newAg.RoleScopes) == 0 {
-		newAg.RoleScopes = ag.RoleScopes
-	}
-	if len(ag.MonitorScopes) == 0 && len(newAg.MonitorScopes) == 0 {
-		newAg.MonitorScopes = ag.MonitorScopes
-	}
-	*ag = newAg
 }
