@@ -123,16 +123,6 @@ func (m *MonitorModel) Read(ctx context.Context, client *Client) error {
 		return err
 	}
 
-	if len(m.ExternalMonitor) > 0 && len(remote.ExternalMonitor) > 0 {
-		em := m.ExternalMonitor[0]
-		rem := &remote.ExternalMonitor[0]
-
-		// preserve null
-		if em.Headers == nil && len(rem.Headers) == 0 {
-			rem.Headers = nil
-		}
-	}
-
 	*m = remote
 
 	return nil
@@ -171,12 +161,8 @@ func newMonitor(mackerelMonitor mackerel.Monitor) (MonitorModel, error) {
 			Duration:         types.Int64Value(int64(m.Duration)),
 			MaxCheckAttempts: types.Int64Value(int64(m.MaxCheckAttempts)),
 		}
-		if len(m.Scopes) > 0 {
-			hm.Scopes = normalizeScopes(m.Scopes)
-		}
-		if len(m.ExcludeScopes) > 0 {
-			hm.ExcludeScopes = normalizeScopes(m.ExcludeScopes)
-		}
+		hm.Scopes = normalizeScopes(m.Scopes)
+		hm.ExcludeScopes = normalizeScopes(m.ExcludeScopes)
 
 		model.HostMetricMonitor = []MonitorHostMetric{hm}
 	case *mackerel.MonitorServiceMetric:
@@ -231,12 +217,8 @@ func newMonitor(mackerelMonitor mackerel.Monitor) (MonitorModel, error) {
 		cm := MonitorConnectivity{
 			AlertStatusOnGone: types.StringValue(m.AlertStatusOnGone),
 		}
-		if len(m.Scopes) > 0 {
-			cm.Scopes = normalizeScopes(m.Scopes)
-		}
-		if len(m.ExcludeScopes) > 0 {
-			cm.ExcludeScopes = normalizeScopes(m.ExcludeScopes)
-		}
+		cm.Scopes = normalizeScopes(m.Scopes)
+		cm.ExcludeScopes = normalizeScopes(m.ExcludeScopes)
 		model.ConnectivityMonitor = []MonitorConnectivity{cm}
 	case *mackerel.MonitorExternalHTTP:
 		model.Memo = types.StringValue(m.Memo)
