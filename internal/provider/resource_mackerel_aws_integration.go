@@ -195,6 +195,10 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceExcludedMetricsDesc,
 					ElementType: types.StringType,
 					Optional:    true,
+					Computed:    true,
+					PlanModifiers: []planmodifier.List{
+						planmodifierutil.NilRelaxedList(),
+					},
 				},
 			},
 		},
@@ -220,6 +224,10 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceExcludedMetricsDesc,
 					ElementType: types.StringType,
 					Optional:    true,
+					Computed:    true,
+					PlanModifiers: []planmodifier.List{
+						planmodifierutil.NilRelaxedList(),
+					},
 				},
 				"retire_automatically": schema.BoolAttribute{
 					Description: schemaAWSIntegrationServiceRetireAutomaticallyDesc,
