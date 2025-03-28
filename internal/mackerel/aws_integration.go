@@ -116,7 +116,7 @@ func (m *AWSIntegrationModel) Read(_ context.Context, client *Client) error {
 		return err
 	}
 
-	m.merge(*integration)
+	*m = *integration
 	return nil
 }
 
@@ -270,9 +270,6 @@ func (m *AWSIntegrationModel) merge(newModel AWSIntegrationModel) {
 
 		if service.Role.ValueString() == "" && oldService.Role.ValueString() == "" {
 			service.Role = oldService.Role
-		}
-		if len(service.ExcludedMetrics) == 0 && len(oldService.ExcludedMetrics) == 0 {
-			service.ExcludedMetrics = oldService.ExcludedMetrics
 		}
 		return service
 	})
