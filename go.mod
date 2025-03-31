@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/terraform-plugin-mux v0.16.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.34.0
 	github.com/hashicorp/terraform-plugin-testing v1.9.0
-	github.com/mackerelio/mackerel-client-go v0.33.0
+	github.com/mackerelio/mackerel-client-go v0.36.0
 )
 
 require (

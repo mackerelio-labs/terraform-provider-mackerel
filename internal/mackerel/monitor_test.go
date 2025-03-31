@@ -346,6 +346,7 @@ func Test_Monitor_toModel(t *testing.T) {
 					SkipCertificateVerification:     types.BoolValue(false),
 					Headers:                         nil,
 					FollowRedirect:                  types.BoolValue(false),
+					ExpectedStatusCode:              types.Int64Value(200),
 				}},
 			},
 		},

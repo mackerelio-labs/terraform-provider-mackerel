@@ -88,6 +88,7 @@ type MonitorExternal struct {
 	SkipCertificateVerification     types.Bool        `tfsdk:"skip_certificate_verification"`
 	Headers                         map[string]string `tfsdk:"headers"`
 	FollowRedirect                  types.Bool        `tfsdk:"follow_redirect"`
+	ExpectedStatusCode              types.Int64       `tfsdk:"expected_status_code"`
 }
 
 type MonitorAnomalyDetection struct {
@@ -417,6 +418,10 @@ func (m MonitorModel) mackerelMonitor() mackerel.Monitor {
 		if certExpWarn := ehm.CertificationExpirationWarning.ValueInt64(); certExpWarn > 0 {
 			certExpWarnU64 := uint64(certExpWarn)
 			mon.CertificationExpirationWarning = &certExpWarnU64
+		}
+		if expectedStatusCode := ehm.ExpectedStatusCode.ValueInt64(); expectedStatusCode > 0 {
+			expectedStatusCode := int(expectedStatusCode)
+			mon.ExpectedStatusCode = &expectedStatusCode
 		}
 
 		// Headers
