@@ -314,6 +314,7 @@ func TestAccMackerelMonitor_External(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceName, "external.0.headers.%", "1"),
 						resource.TestCheckResourceAttr(resourceName, "external.0.headers.Cache-Control", "no-cache"),
 						resource.TestCheckResourceAttr(resourceName, "external.0.follow_redirect", "true"),
+						resource.TestCheckResourceAttr(resourceName, "external.0.expected_status_code", "200"),
 					),
 					resource.TestCheckResourceAttr(resourceName, "expression.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
@@ -766,6 +767,7 @@ resource "mackerel_monitor" "foo" {
       Cache-Control = "no-cache"
     }
     follow_redirect = true
+		expected_status_code = 200
   }
 }
 `, serviceName, name)

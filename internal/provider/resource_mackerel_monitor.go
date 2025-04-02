@@ -494,6 +494,7 @@ const (
 	schemaMonitorExternal_SkipCertificateVerificationDesc     = "Whether or not to skip the verification of certificate."
 	schemaMonitorExternal_CertificationExpirationCriticalDesc = "The threshold (in days) of the certification expiration date for critical alerts."
 	schemaMonitorExternal_CertificationExpirationWarningDesc  = "The threshold (in days) of the certification expiration date for warning alerts."
+	schemaMonitorExternal_ExpectedStatusCodeDesc              = "Specify the status code that is judged as OK. If not specified, 2xx or 3xx will be judged as OK."
 )
 
 func schemaMonitorResourceExternalBlock() schema.Block {
@@ -599,6 +600,10 @@ func schemaMonitorResourceExternalBlock() schema.Block {
 					Optional:    true,
 					Computed:    true,
 					Default:     int64default.StaticInt64(0),
+				},
+				"expected_status_code": schema.Int64Attribute{
+					Description: schemaMonitorExternal_ExpectedStatusCodeDesc,
+					Optional:    true,
 				},
 			},
 		},
