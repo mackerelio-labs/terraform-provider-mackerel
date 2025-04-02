@@ -166,6 +166,7 @@ func flattenMonitorExternalHTTP(monitor *mackerel.MonitorExternalHTTP, d *schema
 		"skip_certificate_verification":     monitor.SkipCertificateVerification,
 		"headers":                           headers,
 		"follow_redirect":                   monitor.FollowRedirect,
+		"expected_status_code":              monitor.ExpectedStatusCode,
 	}
 	d.Set("external", []map[string]interface{}{external})
 	return diags

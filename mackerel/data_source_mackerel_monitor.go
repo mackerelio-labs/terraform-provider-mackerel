@@ -205,6 +205,10 @@ func dataSourceMackerelMonitor() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"expected_status_code": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 					},
 				},
 			},

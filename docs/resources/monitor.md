@@ -179,6 +179,7 @@ The following arguments are required:
 * `headers` - The values configured as the HTTP request header.
 * `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`. Valid values are numbers `1` through `10` inclusive.
 * `follow_redirect` - Evaluates the response of the redirector as a result. Valid values are `true` and `false`. Default is `false`.
+* `expected_status_code` - Expected http status code of the response.
 
 ### expression
 

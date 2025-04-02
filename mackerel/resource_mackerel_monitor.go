@@ -266,6 +266,10 @@ func resourceMackerelMonitor() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
+						"expected_status_code": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -545,6 +549,7 @@ func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternal
 		SkipCertificateVerification:     d.Get("external.0.skip_certificate_verification").(bool),
 		Headers:                         []mackerel.HeaderField{},
 		FollowRedirect:                  d.Get("external.0.follow_redirect").(bool),
+		ExpectedStatusCode:              nil,
 	}
 
 	if responseTimeCritical, ok := d.GetOkExists("external.0.response_time_critical"); ok {
@@ -566,6 +571,12 @@ func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternal
 	if certificationExpirationWarning, ok := d.GetOkExists("external.0.certification_expiration_warning"); ok {
 		certificationExpirationWarning := uint64(certificationExpirationWarning.(int))
 		monitor.CertificationExpirationWarning = &certificationExpirationWarning
+	}
+	if expectedStatusCode, ok := d.GetOkExists("external.0.expected_status_code"); ok {
+		expectedStatusCode := expectedStatusCode.(int)
+		if expectedStatusCode > 0 {
+			monitor.ExpectedStatusCode = &expectedStatusCode
+		}
 	}
 	if headers, ok := d.GetOk("external.0.headers"); ok {
 		for name, value := range headers.(map[string]interface{}) {
