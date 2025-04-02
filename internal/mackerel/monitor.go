@@ -261,6 +261,9 @@ func newMonitor(mackerelMonitor mackerel.Monitor) (MonitorModel, error) {
 		} else /* default */ {
 			ehm.CertificationExpirationWarning = types.Int64Value(0)
 		}
+		if m.ExpectedStatusCode != nil {
+			ehm.ExpectedStatusCode = types.Int64Value(int64(*m.ExpectedStatusCode))
+		}
 
 		if m.Headers != nil {
 			headers := make(map[string]string, len(m.Headers))

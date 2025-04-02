@@ -346,7 +346,6 @@ func Test_Monitor_toModel(t *testing.T) {
 					SkipCertificateVerification:     types.BoolValue(false),
 					Headers:                         nil,
 					FollowRedirect:                  types.BoolValue(false),
-					ExpectedStatusCode:              types.Int64Value(200),
 				}},
 			},
 		},
@@ -375,6 +374,7 @@ func Test_Monitor_toModel(t *testing.T) {
 				Headers: []mackerel.HeaderField{
 					{Name: "Cache-Control", Value: "no-cache"},
 				},
+				ExpectedStatusCode: toPtr(200),
 			},
 			wants: MonitorModel{
 				ID:                   types.StringValue("5dQKsiUxvf9"),
@@ -399,7 +399,8 @@ func Test_Monitor_toModel(t *testing.T) {
 					Headers: map[string]string{
 						"Cache-Control": "no-cache",
 					},
-					FollowRedirect: types.BoolValue(true),
+					FollowRedirect:     types.BoolValue(true),
+					ExpectedStatusCode: types.Int64Value(200),
 				}},
 			},
 		},
@@ -941,4 +942,8 @@ func float64Pointer(f float64) *float64 {
 
 func uint64Pointer(u64 uint64) *uint64 {
 	return &u64
+}
+
+func toPtr[T any](x T) *T {
+	return &x
 }
