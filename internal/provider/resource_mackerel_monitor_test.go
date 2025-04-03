@@ -122,7 +122,7 @@ resource "mackerel_monitor" "service_metric" {
   name = "` + name + `"
   service_metric {
     service = mackerel_service.svc.name
-    duration = 1	
+    duration = 1
     metric = "custom.access.2xx_ratio"
     operator = ">"
     warning = "99.9"
