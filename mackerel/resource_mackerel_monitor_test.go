@@ -767,7 +767,7 @@ resource "mackerel_monitor" "foo" {
       Cache-Control = "no-cache"
     }
     follow_redirect = true
-		expected_status_code = 200
+    expected_status_code = 200
   }
 }
 `, serviceName, name)
