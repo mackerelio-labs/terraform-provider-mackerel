@@ -145,8 +145,9 @@ func (d *mackerelMonitorDataSource) Schema(_ context.Context, _ datasource.Schem
 						"response_time_warning":  types.Float64Type,
 						"response_time_duration": types.Int64Type,
 
-						"contains_string": types.StringType,
-						"follow_redirect": types.BoolType,
+						"contains_string":      types.StringType,
+						"follow_redirect":      types.BoolType,
+						"expected_status_code": types.Int64Type,
 
 						"skip_certificate_verification":     types.BoolType,
 						"certification_expiration_critical": types.Int64Type,
