@@ -400,7 +400,7 @@ func expandDashboardWidgets(d *schema.ResourceData) []mackerel.Widget {
 		for _, graph := range graphs {
 			g := graph.(map[string]interface{})
 			var r mackerel.Range
-			if v, ok := g["range"].([]interface{}); ok && len(v) > 0 {
+			if v, ok := g["range"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
 				r = expandDashboardRange(v)
 			}
 			title := g["title"].(string)
