@@ -2,8 +2,10 @@ package mackerel
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mackerelio/mackerel-client-go"
 )
@@ -140,6 +142,32 @@ func resourceMackerelDashboard() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		CustomizeDiff: customdiff.All(
+			customdiff.ValidateValue("graph", func(ctx context.Context, value, meta interface{}) error {
+				graphs := value.([]interface{})
+				for i, g := range graphs {
+					graph := g.(map[string]interface{})
+					if ranges, ok := graph["range"].([]interface{}); ok && len(ranges) > 0 {
+						if ranges[0] == nil {
+							return fmt.Errorf("graph[%d].range: exactly one of 'relative' or 'absolute' must be specified", 0)
+						}
+
+						r := ranges[0].(map[string]interface{})
+						relativeExists := len(r["relative"].([]interface{})) > 0
+						absoluteExists := len(r["absolute"].([]interface{})) > 0
+
+						if !relativeExists && !absoluteExists {
+							return fmt.Errorf("graph[%d].range: exactly one of 'relative' or 'absolute' must be specified", i)
+						}
+
+						if relativeExists && absoluteExists {
+							return fmt.Errorf("graph[%d].range: cannot specify both 'relative' and 'absolute'", i)
+						}
+					}
+				}
+				return nil
+			}),
+		),
 		Schema: map[string]*schema.Schema{
 			"title": {
 				Type:     schema.TypeString,
@@ -204,7 +232,6 @@ func resourceMackerelDashboard() *schema.Resource {
 						"service": {
 							Type:     schema.TypeList,
 							Optional: true,
-							MinItems: 1,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -252,7 +279,6 @@ func resourceMackerelDashboard() *schema.Resource {
 						"range": {
 							Type:     schema.TypeList,
 							Optional: true,
-							MinItems: 1,
 							MaxItems: 1,
 							Elem:     dashboardRangeResource,
 						},
