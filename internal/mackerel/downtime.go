@@ -70,7 +70,7 @@ func (d *DowntimeModel) Read(_ context.Context, client *Client) error {
 	if err != nil {
 		return err
 	}
-	d.merge(*newModel)
+	*d = *newModel
 	return nil
 }
 
@@ -95,12 +95,12 @@ func newDowntime(d mackerel.Downtime) *DowntimeModel {
 		Memo:                 types.StringValue(d.Memo),
 		Start:                types.Int64Value(d.Start),
 		Duration:             types.Int64Value(d.Duration),
-		ServiceScopes:        d.ServiceScopes,
-		ServiceExcludeScopes: d.ServiceExcludeScopes,
-		RoleScopes:           d.RoleScopes,
-		RoleExcludeScopes:    d.RoleExcludeScopes,
-		MonitorScopes:        d.MonitorScopes,
-		MonitorExcludeScopes: d.MonitorExcludeScopes,
+		ServiceScopes:        nilAsEmptySlice(d.ServiceScopes),
+		ServiceExcludeScopes: nilAsEmptySlice(d.ServiceExcludeScopes),
+		RoleScopes:           nilAsEmptySlice(d.RoleScopes),
+		RoleExcludeScopes:    nilAsEmptySlice(d.RoleExcludeScopes),
+		MonitorScopes:        nilAsEmptySlice(d.MonitorScopes),
+		MonitorExcludeScopes: nilAsEmptySlice(d.MonitorExcludeScopes),
 	}
 	if d.Recurrence != nil {
 		recurrence := DowntimeRecurrence{
@@ -178,29 +178,9 @@ func (d *DowntimeModel) mackerelDowntime() *mackerel.Downtime {
 	return mackerelDowntime
 }
 
-func (d *DowntimeModel) merge(newModel DowntimeModel) {
-	// preserve nil
-	if len(d.Recurrence) == 1 && len(d.Recurrence[0].Weekdays) == 0 &&
-		len(newModel.Recurrence) == 1 && len(newModel.Recurrence[0].Weekdays) == 0 {
-		newModel.Recurrence[0].Weekdays = d.Recurrence[0].Weekdays
+func nilAsEmptySlice[V any](slice []V) []V {
+	if slice == nil {
+		return []V{}
 	}
-	if len(d.ServiceScopes) == 0 && len(newModel.ServiceScopes) == 0 {
-		newModel.ServiceScopes = d.ServiceScopes
-	}
-	if len(d.ServiceExcludeScopes) == 0 && len(newModel.ServiceExcludeScopes) == 0 {
-		newModel.ServiceExcludeScopes = d.ServiceExcludeScopes
-	}
-	if len(d.RoleScopes) == 0 && len(newModel.RoleScopes) == 0 {
-		newModel.RoleScopes = d.RoleScopes
-	}
-	if len(d.RoleExcludeScopes) == 0 && len(newModel.RoleExcludeScopes) == 0 {
-		newModel.RoleExcludeScopes = d.RoleExcludeScopes
-	}
-	if len(d.MonitorScopes) == 0 && len(newModel.MonitorScopes) == 0 {
-		newModel.MonitorScopes = d.MonitorScopes
-	}
-	if len(d.MonitorExcludeScopes) == 0 && len(newModel.MonitorExcludeScopes) == 0 {
-		newModel.MonitorExcludeScopes = d.MonitorExcludeScopes
-	}
-	*d = newModel
+	return slice
 }

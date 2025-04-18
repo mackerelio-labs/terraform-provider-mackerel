@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/planmodifierutil"
 )
 
 var (
@@ -195,6 +196,10 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceExcludedMetricsDesc,
 					ElementType: types.StringType,
 					Optional:    true,
+					Computed:    true,
+					PlanModifiers: []planmodifier.List{
+						planmodifierutil.NilRelaxedList(),
+					},
 				},
 			},
 		},
@@ -220,6 +225,10 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceExcludedMetricsDesc,
 					ElementType: types.StringType,
 					Optional:    true,
+					Computed:    true,
+					PlanModifiers: []planmodifier.List{
+						planmodifierutil.NilRelaxedList(),
+					},
 				},
 				"retire_automatically": schema.BoolAttribute{
 					Description: schemaAWSIntegrationServiceRetireAutomaticallyDesc,
@@ -277,8 +286,6 @@ func schemaAWSIntegrationResource() schema.Schema {
 				Description: schemaAWSIntegrationSecretKeyDesc,
 				Optional:    true,
 				Sensitive:   true,
-				Computed:    true,
-				Default:     stringdefault.StaticString(""),
 				Validators: []validator.String{
 					// Secret access key cannot be set alone
 					stringvalidator.AlsoRequires(path.MatchRoot("key")),
@@ -293,6 +300,7 @@ func schemaAWSIntegrationResource() schema.Schema {
 			"external_id": schema.StringAttribute{
 				Description: schemaAWSIntegrationExternalIDDesc,
 				Optional:    true,
+				Sensitive:   true,
 				Computed:    true,
 				Default:     stringdefault.StaticString(""),
 				Validators: []validator.String{

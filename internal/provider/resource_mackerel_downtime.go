@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/planmodifierutil"
 )
 
 var (
@@ -178,37 +179,49 @@ func schemaDowntimeResource() schema.Schema {
 				Description: schemaDowntimeServiceScopesDesc,
 				ElementType: types.StringType,
 				Optional:    true,
+				Computed:    true,
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(mackerel.ServiceNameValidator()),
 				},
+				PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 			},
 			"service_exclude_scopes": schema.SetAttribute{
 				Description: schemaDowntimeServiceExcludeScopesDesc,
 				ElementType: types.StringType,
 				Optional:    true,
+				Computed:    true,
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(mackerel.ServiceNameValidator()),
 				},
+				PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 			},
 			"role_scopes": schema.SetAttribute{
-				Description: schemaDowntimeRoleScopesDesc,
-				ElementType: types.StringType,
-				Optional:    true,
+				Description:   schemaDowntimeRoleScopesDesc,
+				ElementType:   types.StringType,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 			},
 			"role_exclude_scopes": schema.SetAttribute{
-				Description: schemaDowntimeRoleExcludeScopesDesc,
-				ElementType: types.StringType,
-				Optional:    true,
+				Description:   schemaDowntimeRoleExcludeScopesDesc,
+				ElementType:   types.StringType,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 			},
 			"monitor_scopes": schema.SetAttribute{
-				Description: schemaDowntimeMonitorScopesDesc,
-				ElementType: types.StringType,
-				Optional:    true,
+				Description:   schemaDowntimeMonitorScopesDesc,
+				ElementType:   types.StringType,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 			},
 			"monitor_exclude_scopes": schema.SetAttribute{
-				Description: schemaDowntimeMonitorExcludeScopesDesc,
-				ElementType: types.StringType,
-				Optional:    true,
+				Description:   schemaDowntimeMonitorExcludeScopesDesc,
+				ElementType:   types.StringType,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 			},
 		},
 		Blocks: map[string]schema.Block{
@@ -235,6 +248,7 @@ func schemaDowntimeResource() schema.Schema {
 							MarkdownDescription: schemaDowntimeRecurrence_weekdaysDesc,
 							ElementType:         types.StringType,
 							Optional:            true,
+							Computed:            true,
 							Validators: []validator.Set{
 								setvalidator.ValueStringsAre(
 									stringvalidator.OneOf(
@@ -243,6 +257,7 @@ func schemaDowntimeResource() schema.Schema {
 									),
 								),
 							},
+							PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 						},
 						"until": schema.Int64Attribute{
 							Description: schemaDowntimeRecurrence_untilDesc,
