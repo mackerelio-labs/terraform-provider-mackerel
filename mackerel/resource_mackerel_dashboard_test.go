@@ -276,10 +276,8 @@ func TestAccMackerelDashboardAlertStatus(t *testing.T) {
 }
 
 func TestAccMackerelDashboardEmptyInvalidRange(t *testing.T) {
-	//resourceName := "mackerel_dashboard.graph"
 	rand := acctest.RandString(5)
 	title := fmt.Sprintf("tf-dashboard graph %s", rand)
-	//titleUpdated := fmt.Sprintf("tf-dashboard graph %s updated", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
