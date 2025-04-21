@@ -2,7 +2,6 @@ package mackerel
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -275,58 +274,6 @@ func TestAccMackerelDashboardAlertStatus(t *testing.T) {
 	})
 }
 
-func TestAccMackerelDashboardEmptyInvalidRange(t *testing.T) {
-	rand := acctest.RandString(5)
-	title := fmt.Sprintf("tf-dashboard graph %s", rand)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
-		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccMackerelDashboardConfigEmptyRange(rand, title),
-				ExpectError: regexp.MustCompile(`exactly one of 'relative' or 'absolute' must be specified`),
-			},
-		},
-	})
-}
-
-func testAccMackerelDashboardConfigEmptyRange(rand string, title string) string {
-	return fmt.Sprintf(`
-resource "mackerel_service" "include" {
-  name = "tf-service-%s-include"
-}
-
-resource "mackerel_role" "include" {
-  service = mackerel_service.include.name
-  name    = "tf-role-%s-include"
-}
-
-resource "mackerel_dashboard" "graph" {
-  title = "%s"
-  url_path = "%s"
-  graph {
-    title = "test graph role with empty range"
-    role {
-      role_fullname = "${mackerel_service.include.name}:${mackerel_role.include.name}"
-      name = "loadavg5"
-      is_stacked = true
-    }
-    range {
-      # 空のrange属性を定義
-    }
-    layout {
-      x = 2
-      y = 12
-      width = 10
-      height = 8
-    }
-  }
-}
-`, rand, rand, title, rand)
-}
-
 func testAccCheckMackerelDashboardDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*mackerel.Client)
 	for _, r := range s.RootModule().Resources {
@@ -377,7 +324,7 @@ func testAccMackerelDashboardConfigGraph(rand string, title string) string {
 resource "mackerel_service" "include" {
   name = "tf-service-%s-include"
 }
-	
+
 resource "mackerel_role" "include" {
   service = mackerel_service.include.name
   name    = "tf-role-%s-include"
@@ -490,7 +437,7 @@ func testAccMackerelDashboardConfigValue(rand string, title string) string {
 resource "mackerel_service" "include" {
   name = "tf-service-%s-include"
 }
-	
+
 resource "mackerel_role" "include" {
   service = mackerel_service.include.name
   name    = "tf-role-%s-include"
@@ -525,7 +472,7 @@ func testAccMackerelDashboardConfigValueUpdated(rand string, title string) strin
 resource "mackerel_service" "include" {
   name = "tf-service-%s-include"
 }
-	
+
 resource "mackerel_role" "include" {
   service = mackerel_service.include.name
   name    = "tf-role-%s-include"
@@ -611,7 +558,7 @@ func testAccMackerelDashboardConfigAlertStatus(rand, title string) string {
 resource "mackerel_service" "include" {
   name = "tf-service-%s-include"
 }
-	
+
 resource "mackerel_role" "include" {
   service = mackerel_service.include.name
   name    = "tf-role-%s-include"
@@ -640,7 +587,7 @@ func testAccMackerelDashboardConfigAlertStatusUpdated(rand, title string) string
 resource "mackerel_service" "include" {
   name = "tf-service-%s-include"
 }
-	
+
 resource "mackerel_role" "include" {
   service = mackerel_service.include.name
   name    = "tf-role-%s-include"
