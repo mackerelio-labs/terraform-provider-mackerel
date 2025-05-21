@@ -57,17 +57,11 @@ func Test_Downtime_ReadDowntime(t *testing.T) {
 			inID:     "5ghjb6vgDFN",
 
 			wants: DowntimeModel{
-				ID:                   types.StringValue("5ghjb6vgDFN"),
-				Name:                 types.StringValue("basic"),
-				Memo:                 types.StringValue(""),
-				Start:                types.Int64Value(1735707600),
-				Duration:             types.Int64Value(3600),
-				ServiceScopes:        []string{},
-				ServiceExcludeScopes: []string{},
-				RoleScopes:           []string{},
-				RoleExcludeScopes:    []string{},
-				MonitorScopes:        []string{},
-				MonitorExcludeScopes: []string{},
+				ID:       types.StringValue("5ghjb6vgDFN"),
+				Name:     types.StringValue("basic"),
+				Memo:     types.StringValue(""),
+				Start:    types.Int64Value(1735707600),
+				Duration: types.Int64Value(3600),
 			},
 		},
 		"no downtime": {
@@ -112,29 +106,17 @@ func Test_Downtime_conv(t *testing.T) {
 	}{
 		"basic": {
 			api: mackerel.Downtime{
-				ID:                   "5ghjb6vgDFN",
-				Name:                 "basic",
-				Start:                1735707600,
-				Duration:             3600,
-				ServiceScopes:        []string{},
-				ServiceExcludeScopes: []string{},
-				RoleScopes:           []string{},
-				RoleExcludeScopes:    []string{},
-				MonitorScopes:        []string{},
-				MonitorExcludeScopes: []string{},
+				ID:       "5ghjb6vgDFN",
+				Name:     "basic",
+				Start:    1735707600,
+				Duration: 3600,
 			},
 			model: DowntimeModel{
-				ID:                   types.StringValue("5ghjb6vgDFN"),
-				Name:                 types.StringValue("basic"),
-				Memo:                 types.StringValue(""),
-				Start:                types.Int64Value(1735707600),
-				Duration:             types.Int64Value(3600),
-				ServiceScopes:        []string{},
-				ServiceExcludeScopes: []string{},
-				RoleScopes:           []string{},
-				RoleExcludeScopes:    []string{},
-				MonitorScopes:        []string{},
-				MonitorExcludeScopes: []string{},
+				ID:       types.StringValue("5ghjb6vgDFN"),
+				Name:     types.StringValue("basic"),
+				Memo:     types.StringValue(""),
+				Start:    types.Int64Value(1735707600),
+				Duration: types.Int64Value(3600),
 			},
 		},
 		"full": {
@@ -196,6 +178,88 @@ func Test_Downtime_conv(t *testing.T) {
 
 			api := tt.model.mackerelDowntime()
 			if diff := cmp.Diff(*api, tt.api); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
+func Test_Downtime_merge(t *testing.T) {
+	t.Parallel()
+
+	// in <- inNew == wants
+	cases := map[string]struct {
+		in    DowntimeModel
+		inNew DowntimeModel
+		wants DowntimeModel
+	}{
+		"basic": {
+			in: DowntimeModel{
+				ID:       types.StringValue("5ghjb6vgDFN"),
+				Name:     types.StringValue("basic"),
+				Memo:     types.StringValue(""),
+				Start:    types.Int64Value(1735707600),
+				Duration: types.Int64Value(3600),
+				Recurrence: []DowntimeRecurrence{{
+					Type:     types.StringValue("weekly"),
+					Interval: types.Int64Value(2),
+					Weekdays: nil,
+					Until:    types.Int64Value(1767193199),
+				}},
+				ServiceScopes:        nil,
+				ServiceExcludeScopes: nil,
+				RoleScopes:           nil,
+				RoleExcludeScopes:    nil,
+				MonitorScopes:        nil,
+				MonitorExcludeScopes: []string{},
+			},
+			inNew: DowntimeModel{
+				ID:       types.StringValue("5ghjb6vgDFN"),
+				Name:     types.StringValue("basic"),
+				Memo:     types.StringValue("memo"), // changed
+				Start:    types.Int64Value(1735707600),
+				Duration: types.Int64Value(3600),
+				Recurrence: []DowntimeRecurrence{{
+					Type:     types.StringValue("weekly"),
+					Interval: types.Int64Value(2),
+					Weekdays: []string{},
+					Until:    types.Int64Value(1767193199),
+				}},
+				ServiceScopes:        []string{},
+				ServiceExcludeScopes: []string{},
+				RoleScopes:           []string{},
+				RoleExcludeScopes:    []string{},
+				MonitorScopes:        []string{},
+				MonitorExcludeScopes: nil,
+			},
+			wants: DowntimeModel{
+				ID:       types.StringValue("5ghjb6vgDFN"),
+				Name:     types.StringValue("basic"),
+				Memo:     types.StringValue("memo"), // changed
+				Start:    types.Int64Value(1735707600),
+				Duration: types.Int64Value(3600),
+				Recurrence: []DowntimeRecurrence{{
+					Type:     types.StringValue("weekly"),
+					Interval: types.Int64Value(2),
+					Weekdays: nil,
+					Until:    types.Int64Value(1767193199),
+				}},
+				ServiceScopes:        nil,
+				ServiceExcludeScopes: nil,
+				RoleScopes:           nil,
+				RoleExcludeScopes:    nil,
+				MonitorScopes:        nil,
+				MonitorExcludeScopes: []string{},
+			},
+		},
+	}
+
+	for name, tt := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			tt.in.merge(tt.inNew)
+			if diff := cmp.Diff(tt.in, tt.wants); diff != "" {
 				t.Error(diff)
 			}
 		})

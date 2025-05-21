@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
-	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/planmodifierutil"
 )
 
 var (
@@ -157,25 +156,19 @@ var schemaAlertGroupSettingResource = schema.Schema{
 			Description: schemaAlertGroupSettingServiceScopesDesc,
 			ElementType: types.StringType,
 			Optional:    true,
-			Computed:    true,
 			Validators: []validator.Set{
 				setvalidator.ValueStringsAre(mackerel.ServiceNameValidator()),
 			},
-			PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
 		},
 		"role_scopes": schema.SetAttribute{
-			Description:   schemaAlertGroupSettingRoleScopesDesc,
-			ElementType:   types.StringType,
-			Optional:      true,
-			Computed:      true,
-			PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
+			Description: schemaAlertGroupSettingRoleScopesDesc,
+			ElementType: types.StringType,
+			Optional:    true,
 		},
 		"monitor_scopes": schema.SetAttribute{
-			Description:   schemaAlertGroupSettingMonitorScopesDesc,
-			ElementType:   types.StringType,
-			Optional:      true,
-			Computed:      true,
-			PlanModifiers: []planmodifier.Set{planmodifierutil.NilRelaxedSet()},
+			Description: schemaAlertGroupSettingMonitorScopesDesc,
+			ElementType: types.StringType,
+			Optional:    true,
 		},
 		"notification_interval": schema.Int64Attribute{
 			Description: schemaAlertGroupSettingNotificationIntervalDesc,
