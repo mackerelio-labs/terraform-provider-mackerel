@@ -15,10 +15,6 @@ func NilRelaxedSet() planmodifier.Set {
 	return nilRelaxedModifier{}
 }
 
-func NilRelaxedList() planmodifier.List {
-	return nilRelaxedModifier{}
-}
-
 type nilRelaxedModifier struct{}
 
 const desctiprion = "For compatibility with the states created by SDK provider, Terraform consider nil and zero values to be same."
@@ -42,14 +38,6 @@ func (_ nilRelaxedModifier) PlanModifyMap(ctx context.Context, req planmodifier.
 func (_ nilRelaxedModifier) PlanModifySet(ctx context.Context, req planmodifier.SetRequest, resp *planmodifier.SetResponse) {
 	if req.PlanValue.IsUnknown() {
 		resp.PlanValue = types.SetNull(req.PlanValue.ElementType(ctx))
-	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {
-		resp.PlanValue = req.StateValue
-	}
-}
-
-func (_ nilRelaxedModifier) PlanModifyList(ctx context.Context, req planmodifier.ListRequest, resp *planmodifier.ListResponse) {
-	if req.PlanValue.IsUnknown() {
-		resp.PlanValue = types.ListNull(req.PlanValue.ElementType(ctx))
 	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {
 		resp.PlanValue = req.StateValue
 	}

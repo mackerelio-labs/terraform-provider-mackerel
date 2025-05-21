@@ -116,7 +116,7 @@ func (m *AWSIntegrationModel) Read(_ context.Context, client *Client) error {
 		return err
 	}
 
-	*m = *integration
+	m.merge(*integration)
 	return nil
 }
 
@@ -157,7 +157,7 @@ func newAWSIntegrationModel(aws mackerel.AWSIntegration) (*AWSIntegrationModel, 
 			continue
 		}
 		if len(awsService.IncludedMetrics) != 0 {
-			return nil, fmt.Errorf("%s: IncludedMetrics is not supported", name)
+			return nil, fmt.Errorf("%s: IncludedMetrics is not supported.", name)
 		}
 
 		svcs[name] = AWSIntegrationService{
@@ -238,6 +238,45 @@ func (m *AWSIntegrationModel) createParam() *mackerel.CreateAWSIntegrationParam 
 
 func (m *AWSIntegrationModel) updateParam() *mackerel.UpdateAWSIntegrationParam {
 	return (*mackerel.UpdateAWSIntegrationParam)(m.createParam())
+}
+
+func (m *AWSIntegrationModel) merge(newModel AWSIntegrationModel) {
+	oldServices := make(map[string]AWSIntegrationService)
+	m.each(func(name string, service *AWSIntegrationService) *AWSIntegrationService {
+		if service != nil {
+			oldServices[name] = *service
+		}
+		return service
+	})
+
+	newModel.SecretKey = m.SecretKey
+	newModel.each(func(name string, service *AWSIntegrationService) *AWSIntegrationService {
+		oldService, ok := oldServices[name]
+		if !ok {
+			return service
+		}
+
+		// If new == nil && old == zero, use old one.
+		if service == nil {
+			if !oldService.Enable.ValueBool() &&
+				len(oldService.ExcludedMetrics) == 0 &&
+				oldService.Role.IsNull() &&
+				!oldService.RetireAutomatically.ValueBool() {
+				return &oldService
+			} else {
+				return nil
+			}
+		}
+
+		if service.Role.ValueString() == "" && oldService.Role.ValueString() == "" {
+			service.Role = oldService.Role
+		}
+		if len(service.ExcludedMetrics) == 0 && len(oldService.ExcludedMetrics) == 0 {
+			service.ExcludedMetrics = oldService.ExcludedMetrics
+		}
+		return service
+	})
+	*m = newModel
 }
 
 type awsServiceEachFunc func(name string, service *AWSIntegrationService) *AWSIntegrationService
