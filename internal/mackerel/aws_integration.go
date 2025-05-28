@@ -77,6 +77,13 @@ type AWSIntegrationService struct {
 	RetireAutomatically types.Bool   `tfsdk:"-"`
 }
 
+func (s *AWSIntegrationService) isEmpty() bool {
+	return !s.Enable.ValueBool() &&
+		s.Role.IsNull() &&
+		len(s.ExcludedMetrics) == 0 &&
+		!s.RetireAutomatically.ValueBool()
+}
+
 type AWSIntegrationServiceOpt []AWSIntegrationService // length <= 1
 
 type AWSIntegrationServiceWithRetireAutomatically struct {
@@ -115,6 +122,26 @@ func (m *AWSIntegrationModel) Read(_ context.Context, client *Client) error {
 	if err != nil {
 		return err
 	}
+
+	// Inherit secret key from the existing integration
+	integration.SecretKey = m.SecretKey
+
+	// Copy existing services if they are empty
+	oldSvcs := map[string]*AWSIntegrationService{}
+	m.each(func(name string, service *AWSIntegrationService) *AWSIntegrationService {
+		if service != nil {
+			oldSvcs[name] = service
+		}
+		return service
+	})
+	integration.each(func(name string, service *AWSIntegrationService) *AWSIntegrationService {
+		if service == nil {
+			if oldSvc, ok := oldSvcs[name]; ok && oldSvc.isEmpty() {
+				return oldSvc
+			}
+		}
+		return service
+	})
 
 	*m = *integration
 	return nil
