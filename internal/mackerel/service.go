@@ -25,9 +25,10 @@ func ServiceNameValidator() validator.String {
 type ServiceModel = ServiceModelV0
 
 type ServiceModelV0 struct {
-	ID   types.String `tfsdk:"id"`
-	Name string       `tfsdk:"name"`
-	Memo types.String `tfsdk:"memo"`
+	ID    types.String   `tfsdk:"id"`
+	Name  string         `tfsdk:"name"`
+	Memo  types.String   `tfsdk:"memo"`
+	Roles []types.String `tfsdk:"roles"`
 }
 
 func ImportService(_ context.Context, id string) (ServiceModel, error) {
@@ -61,10 +62,15 @@ func readServiceInner(client serviceFinder, name string) (ServiceModel, error) {
 	}
 
 	service := services[serviceIdx]
+	roles := make([]types.String, len(service.Roles))
+	for i, role := range service.Roles {
+		roles[i] = types.StringValue(role)
+	}
 	return ServiceModelV0{
-		ID:   types.StringValue(service.Name),
-		Name: service.Name,
-		Memo: types.StringValue(service.Memo),
+		ID:    types.StringValue(service.Name),
+		Name:  service.Name,
+		Memo:  types.StringValue(service.Memo),
+		Roles: roles,
 	}, nil
 }
 
