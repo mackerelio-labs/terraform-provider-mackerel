@@ -78,30 +78,35 @@ func Test_ReadService(t *testing.T) {
 			inClient: func() ([]*mackerel.Service, error) {
 				return []*mackerel.Service{
 					{
-						Name: "service0",
+						Name:  "service0",
+						Roles: []string{},
 					},
 					{
-						Name: "service1",
-						Memo: "memo",
+						Name:  "service1",
+						Memo:  "memo",
+						Roles: []string{},
 					},
 				}, nil
 			},
 			inName: "service1",
 			want: ServiceModelV0{
-				ID:   types.StringValue("service1"),
-				Name: "service1",
-				Memo: types.StringValue("memo"),
+				ID:    types.StringValue("service1"),
+				Name:  "service1",
+				Memo:  types.StringValue("memo"),
+				Roles: []types.String{},
 			},
 		},
 		"no service": {
 			inClient: func() ([]*mackerel.Service, error) {
 				return []*mackerel.Service{
 					{
-						Name: "service0",
+						Name:  "service0",
+						Roles: []string{},
 					},
 					{
-						Name: "service1",
-						Memo: "memo",
+						Name:  "service1",
+						Memo:  "memo",
+						Roles: []string{},
 					},
 				}, nil
 			},

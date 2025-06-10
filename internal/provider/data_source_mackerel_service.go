@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
 )
 
@@ -41,6 +42,11 @@ func (d *mackerelServiceDataSource) Schema(_ context.Context, _ datasource.Schem
 			"memo": schema.StringAttribute{
 				Computed:    true,
 				Description: "Notes related to this service.",
+			},
+			"roles": schema.ListAttribute{
+				Computed:    true,
+				ElementType: types.StringType,
+				Description: "List of roles in the service.",
 			},
 		},
 	}

@@ -12,6 +12,7 @@ import (
 func flattenService(service *mackerel.Service, d *schema.ResourceData) (diags diag.Diagnostics) {
 	d.Set("name", service.Name)
 	d.Set("memo", service.Memo)
+	d.Set("roles", flattenStringList(service.Roles))
 	return diags
 }
 
