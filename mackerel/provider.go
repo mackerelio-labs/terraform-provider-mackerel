@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
@@ -77,10 +78,17 @@ func ProtoV5ProviderServer() tfprotov5.ProviderServer {
 }
 
 func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
-	fwFlag := os.Getenv("MACKEREL_EXPERIMENTAL_TFFRAMEWORK")
-	if fwFlag == "1" || fwFlag == "true" {
-		log.Printf("[INFO] mackerel: use terraform-plugin-framework based implementation")
-
+	fwEnabled := true
+	if sdkFlag := os.Getenv("MACKEREL_LEGACY_SDK"); sdkFlag == "" {
+		useSDK, err := strconv.ParseBool(sdkFlag)
+		if err != nil {
+			log.Printf("[WARN] MACKEREL_LEGACY_SDK is not a valid boolean: %s", sdkFlag)
+		} else if useSDK {
+			log.Printf("[INFO] mackerel: use terraform-plugin-sdk based implementation")
+			fwEnabled = !useSDK
+		}
+	}
+	if fwEnabled {
 		// Resources
 		delete(provider.ResourcesMap, "mackerel_alert_group_setting")
 		delete(provider.ResourcesMap, "mackerel_aws_integration")
