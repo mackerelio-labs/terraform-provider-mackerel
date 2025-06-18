@@ -79,7 +79,7 @@ func ProtoV5ProviderServer() tfprotov5.ProviderServer {
 
 func protoV5ProviderServer(provider *schema.Provider) tfprotov5.ProviderServer {
 	fwEnabled := true
-	if sdkFlag := os.Getenv("MACKEREL_LEGACY_SDK"); sdkFlag == "" {
+	if sdkFlag := os.Getenv("MACKEREL_LEGACY_SDK"); sdkFlag != "" {
 		useSDK, err := strconv.ParseBool(sdkFlag)
 		if err != nil {
 			log.Printf("[WARN] MACKEREL_LEGACY_SDK is not a valid boolean: %s", sdkFlag)
