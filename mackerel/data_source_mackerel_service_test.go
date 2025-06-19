@@ -32,6 +32,7 @@ data "mackerel_service" "foo" {
 					resource.TestCheckResourceAttr(resourceName, "id", name),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "memo", "This service is managed by Terraform."),
+					resource.TestCheckResourceAttr(resourceName, "roles.#", "0"),
 				),
 			}}
 		},
@@ -50,6 +51,7 @@ data "mackerel_service" "foo" {
 					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("id"), knownvalue.StringExact(name)),
 					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("name"), knownvalue.StringExact(name)),
 					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("memo"), knownvalue.StringExact("")),
+					statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("roles"), knownvalue.ListExact([]knownvalue.Check{})),
 				},
 			}}
 		},
