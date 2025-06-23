@@ -120,7 +120,7 @@ resource "mackerel_monitor" "anomaly_detection" {
   anomaly_detection {
     scopes              = ["myService: myRole"]
     warning_sensitivity = "insensitive"
-    maxCheckAttempts    = 3
+    max_check_attempts  = 3
   }
 }
 ```
