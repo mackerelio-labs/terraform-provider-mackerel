@@ -34,8 +34,10 @@ type ServiceModelV0 struct {
 
 func ImportService(_ context.Context, id string) (ServiceModel, error) {
 	return ServiceModelV0{
-		ID:   types.StringValue(id),
-		Name: id,
+		ID:    types.StringValue(id),
+		Name:  id,
+		Memo:  types.StringValue(""),
+		Roles: types.SetValueMust(types.StringType, []attr.Value{}),
 	}, nil
 }
 
