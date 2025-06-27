@@ -43,10 +43,10 @@ func (d *mackerelServiceDataSource) Schema(_ context.Context, _ datasource.Schem
 				Computed:    true,
 				Description: "Notes related to this service.",
 			},
-			"roles": schema.ListAttribute{
+			"roles": schema.SetAttribute{
 				Computed:    true,
 				ElementType: types.StringType,
-				Description: "List of roles in the service.",
+				Description: "Set of roles in the service.",
 			},
 		},
 	}

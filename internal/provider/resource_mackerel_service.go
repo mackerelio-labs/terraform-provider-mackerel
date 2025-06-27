@@ -60,10 +60,10 @@ func (r *mackerelServiceResource) Schema(_ context.Context, _ resource.SchemaReq
 				},
 				Default: stringdefault.StaticString(""),
 			},
-			"roles": schema.ListAttribute{
+			"roles": schema.SetAttribute{
 				Computed:    true,
 				ElementType: types.StringType,
-				Description: "List of roles in the service. This is a computed field and will be populated after the service is created.",
+				Description: "Set of roles in the service. This is a computed field and will be populated after the service is created.",
 			},
 		},
 	}

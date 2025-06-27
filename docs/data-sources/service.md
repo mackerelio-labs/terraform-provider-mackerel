@@ -25,4 +25,4 @@ data "mackerel_service" "foo" {
 In addition to all arguments above, the following attributes are exported:
 
 * `memo` - Notes related to this service.
-* `roles` - List of roles in the service.
+* `roles` - Set of roles in the service.

@@ -25,7 +25,7 @@ resource "mackerel_service" "foo" {
 
 In addition to all arguments above, the following attributes are exported:
 
-* `roles` - List of roles in the service. This is a computed field and will be populated after the service is created.
+* `roles` - Set of roles in the service. This is a computed field and will be populated after the service is created.
 
 ## Import
 

@@ -78,7 +78,7 @@ resource "mackerel_service" "foo" {
 						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("id"), knownvalue.StringExact(name)),
 						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("name"), knownvalue.StringExact(name)),
 						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("memo"), knownvalue.StringExact("")),
-						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("roles"), knownvalue.ListExact([]knownvalue.Check{})),
+						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("roles"), knownvalue.SetExact(nil)),
 					},
 				},
 				// Test: Update
@@ -89,7 +89,7 @@ resource "mackerel_service" "foo" {
 						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("id"), knownvalue.StringExact(nameUpdated)),
 						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("name"), knownvalue.StringExact(nameUpdated)),
 						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("memo"), knownvalue.StringExact("")),
-						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("roles"), knownvalue.ListExact([]knownvalue.Check{})),
+						statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("roles"), knownvalue.SetExact(nil)),
 					},
 				},
 				// Test: Import
