@@ -49,7 +49,7 @@ type AWSIntegrationSerfvices struct {
 	Redshift    AWSIntegrationServiceOpt                        `tfsdk:"redshift"`
 	ElastiCache AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"elasticache"`
 	SQS         AWSIntegrationServiceOpt                        `tfsdk:"sqs"`
-	Lambda      AWSIntegrationServiceOpt                        `tfsdk:"lambda"`
+	Lambda      AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"lambda"`
 	DynamoDB    AWSIntegrationServiceOpt                        `tfsdk:"dynamodb"`
 	CloudFront  AWSIntegrationServiceOpt                        `tfsdk:"cloudfront"`
 	APIGateway  AWSIntegrationServiceOpt                        `tfsdk:"api_gateway"`
