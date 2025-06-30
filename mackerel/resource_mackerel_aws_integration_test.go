@@ -309,6 +309,7 @@ resource "mackerel_aws_integration" "foo" {
 
   lambda {
     enable = true
+    retire_automatically = false
   }
 }
 `, rand, rand, name, roleArn, externalID)
@@ -362,6 +363,7 @@ resource "mackerel_aws_integration" "foo" {
 
   lambda {
     enable = true
+    retire_automatically = false
   }
 }
 `, rand, rand, name, awsAccessKeyID, awsSecretAccessKey)

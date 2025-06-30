@@ -153,7 +153,7 @@ var awsIntegrationServices = map[string]struct {
 	"redshift":    {},
 	"elasticache": {supportsAutoRetire: true},
 	"sqs":         {},
-	"lambda":      {},
+	"lambda":      {supportsAutoRetire: true},
 	"dynamodb":    {},
 	"cloudfront":  {},
 	"api_gateway": {},

@@ -220,7 +220,7 @@ func Test_AWSIntegration_fromAPI(t *testing.T) {
 					Redshift:    []AWSIntegrationService{},
 					ElastiCache: []AWSIntegrationServiceWithRetireAutomatically{},
 					SQS:         []AWSIntegrationService{},
-					Lambda: []AWSIntegrationService{{
+					Lambda: []AWSIntegrationServiceWithRetireAutomatically{{
 						Enable:              types.BoolValue(true),
 						Role:                types.StringNull(),
 						ExcludedMetrics:     []string{},
@@ -315,7 +315,7 @@ func Test_AWSIntegration_toAPI(t *testing.T) {
 					Redshift:    []AWSIntegrationService{},
 					ElastiCache: []AWSIntegrationServiceWithRetireAutomatically{},
 					SQS:         []AWSIntegrationService{},
-					Lambda: []AWSIntegrationService{{
+					Lambda: []AWSIntegrationServiceWithRetireAutomatically{{
 						Enable:              types.BoolValue(true),
 						Role:                types.StringNull(),
 						ExcludedMetrics:     []string{},

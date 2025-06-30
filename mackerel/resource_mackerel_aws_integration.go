@@ -149,7 +149,7 @@ func resourceMackerelAWSIntegration() *schema.Resource {
 			},
 		},
 	}
-	var supportedRetireAutomatically = map[string]bool{"ec2": true, "rds": true, "elasticache": true}
+	var supportedRetireAutomatically = map[string]bool{"ec2": true, "rds": true, "elasticache": true, "lambda": true}
 	for schemaKey := range awsIntegrationServicesKey {
 		if supportedRetireAutomatically[schemaKey] {
 			resource.Schema[schemaKey] = awsIntegrationServiceSchemaWithRetireAutomatically
@@ -231,7 +231,7 @@ func expandUpdateAWSIntegrationParam(d *schema.ResourceData) *mackerel.UpdateAWS
 }
 
 func expandAWSIntegrationServicesSet(d *schema.ResourceData) map[string]*mackerel.AWSIntegrationService {
-	var supportedRetireAutomatically = map[string]bool{"ec2": true, "rds": true, "elasticache": true}
+	var supportedRetireAutomatically = map[string]bool{"ec2": true, "rds": true, "elasticache": true, "lambda": true}
 	services := make(map[string]*mackerel.AWSIntegrationService)
 	for schemaKey, mapKey := range awsIntegrationServicesKey {
 		if _, ok := d.GetOk(schemaKey); ok {
