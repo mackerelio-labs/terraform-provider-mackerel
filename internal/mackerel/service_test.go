@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -78,11 +79,13 @@ func Test_ReadService(t *testing.T) {
 			inClient: func() ([]*mackerel.Service, error) {
 				return []*mackerel.Service{
 					{
-						Name: "service0",
+						Name:  "service0",
+						Roles: []string{"foo", "bar"},
 					},
 					{
-						Name: "service1",
-						Memo: "memo",
+						Name:  "service1",
+						Memo:  "memo",
+						Roles: []string{"baz"},
 					},
 				}, nil
 			},
@@ -91,17 +94,22 @@ func Test_ReadService(t *testing.T) {
 				ID:   types.StringValue("service1"),
 				Name: "service1",
 				Memo: types.StringValue("memo"),
+				Roles: types.SetValueMust(types.StringType, []attr.Value{
+					types.StringValue("baz"),
+				}),
 			},
 		},
 		"no service": {
 			inClient: func() ([]*mackerel.Service, error) {
 				return []*mackerel.Service{
 					{
-						Name: "service0",
+						Name:  "service0",
+						Roles: []string{},
 					},
 					{
-						Name: "service1",
-						Memo: "memo",
+						Name:  "service1",
+						Memo:  "memo",
+						Roles: []string{},
 					},
 				}, nil
 			},

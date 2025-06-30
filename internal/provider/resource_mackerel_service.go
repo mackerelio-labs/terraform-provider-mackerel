@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
 )
 
@@ -59,6 +60,11 @@ func (r *mackerelServiceResource) Schema(_ context.Context, _ resource.SchemaReq
 				},
 				Default: stringdefault.StaticString(""),
 			},
+			"roles": schema.SetAttribute{
+				Computed:    true,
+				ElementType: types.StringType,
+				Description: "Set of roles in the service. This is a computed field and will be populated after the service is created.",
+			},
 		},
 	}
 }
@@ -82,6 +88,15 @@ func (r *mackerelServiceResource) Create(ctx context.Context, req resource.Creat
 	if err := data.Create(ctx, r.Client); err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to create Service",
+			err.Error(),
+		)
+		return
+	}
+
+	// Read back the full service data to get the roles field
+	if err := data.Read(ctx, r.Client); err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to read Service after creation",
 			err.Error(),
 		)
 		return

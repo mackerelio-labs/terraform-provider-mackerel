@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio/mackerel-client-go"
@@ -25,15 +26,18 @@ func ServiceNameValidator() validator.String {
 type ServiceModel = ServiceModelV0
 
 type ServiceModelV0 struct {
-	ID   types.String `tfsdk:"id"`
-	Name string       `tfsdk:"name"`
-	Memo types.String `tfsdk:"memo"`
+	ID    types.String `tfsdk:"id"`
+	Name  string       `tfsdk:"name"`
+	Memo  types.String `tfsdk:"memo"`
+	Roles types.Set    `tfsdk:"roles"`
 }
 
 func ImportService(_ context.Context, id string) (ServiceModel, error) {
 	return ServiceModelV0{
-		ID:   types.StringValue(id),
-		Name: id,
+		ID:    types.StringValue(id),
+		Name:  id,
+		Memo:  types.StringValue(""),
+		Roles: types.SetValueMust(types.StringType, []attr.Value{}),
 	}, nil
 }
 
@@ -61,10 +65,16 @@ func readServiceInner(client serviceFinder, name string) (ServiceModel, error) {
 	}
 
 	service := services[serviceIdx]
+	elms := make([]attr.Value, len(service.Roles))
+	for i, role := range service.Roles {
+		elms[i] = types.StringValue(role)
+	}
+	roles, _ := types.SetValue(types.StringType, elms)
 	return ServiceModelV0{
-		ID:   types.StringValue(service.Name),
-		Name: service.Name,
-		Memo: types.StringValue(service.Memo),
+		ID:    types.StringValue(service.Name),
+		Name:  service.Name,
+		Memo:  types.StringValue(service.Memo),
+		Roles: roles,
 	}, nil
 }
 

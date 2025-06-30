@@ -34,6 +34,13 @@ func resourceMackerelService() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"roles": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
+				Description: "Set of roles in the service. This is a computed field and will be populated after the service is created.",
+			},
 		},
 	}
 }
