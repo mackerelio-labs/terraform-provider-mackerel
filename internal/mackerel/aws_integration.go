@@ -56,7 +56,7 @@ type AWSIntegrationSerfvices struct {
 	Kinesis     AWSIntegrationServiceOpt                        `tfsdk:"kinesis"`
 	S3          AWSIntegrationServiceOpt                        `tfsdk:"s3"`
 	ES          AWSIntegrationServiceOpt                        `tfsdk:"es"`
-	ECSCluster  AWSIntegrationServiceOpt                        `tfsdk:"ecs_cluster"`
+	ECSCluster  AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"ecs_cluster"`
 	SES         AWSIntegrationServiceOpt                        `tfsdk:"ses"`
 	States      AWSIntegrationServiceOpt                        `tfsdk:"states"`
 	EFS         AWSIntegrationServiceOpt                        `tfsdk:"efs"`
