@@ -160,7 +160,7 @@ var awsIntegrationServices = map[string]struct {
 	"kinesis":     {},
 	"s3":          {},
 	"es":          {},
-	"ecs_cluster": {},
+	"ecs_cluster": {supportsAutoRetire: true},
 	"ses":         {},
 	"states":      {},
 	"efs":         {},

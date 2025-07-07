@@ -39,4 +39,4 @@ data "mackerel_aws_integration" "foo" {
 * `enable` - Whether integration settings are enabled. Default is `true`.
 * `role` - The set of monitoring target’s service name or role name.
 * `excluded_metrics` - 	Metrics to exclude from integration.
-* `retire_automatically` - (EC2, RDS, ElastiCache and Lambda only) Whether automatic retirement is enabled.
+* `retire_automatically` - (Services that support automatic retirement only) Whether automatic retirement is enabled.
