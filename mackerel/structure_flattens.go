@@ -180,10 +180,11 @@ func flattenMonitorExpression(monitor *mackerel.MonitorExpression, d *schema.Res
 	d.Set("notification_interval", monitor.NotificationInterval)
 	d.Set("expression", []map[string]interface{}{
 		{
-			"expression": monitor.Expression,
-			"operator":   monitor.Operator,
-			"warning":    parseFloat64ToString(monitor.Warning),
-			"critical":   parseFloat64ToString(monitor.Critical),
+			"expression":                monitor.Expression,
+			"operator":                  monitor.Operator,
+			"warning":                   parseFloat64ToString(monitor.Warning),
+			"critical":                  parseFloat64ToString(monitor.Critical),
+			"evaluate_backward_minutes": monitor.EvaluateBackwardMinutes,
 		},
 	})
 	return diags
@@ -218,11 +219,12 @@ func flatternMonitorQuery(monitor *mackerel.MonitorQuery, d *schema.ResourceData
 
 	d.Set("query", []map[string]any{
 		{
-			"query":    monitor.Query,
-			"operator": monitor.Operator,
-			"legend":   monitor.Legend,
-			"warning":  parseFloat64ToString(monitor.Warning),
-			"critical": parseFloat64ToString(monitor.Critical),
+			"query":                     monitor.Query,
+			"operator":                  monitor.Operator,
+			"legend":                    monitor.Legend,
+			"warning":                   parseFloat64ToString(monitor.Warning),
+			"critical":                  parseFloat64ToString(monitor.Critical),
+			"evaluate_backward_minutes": monitor.EvaluateBackwardMinutes,
 		},
 	})
 

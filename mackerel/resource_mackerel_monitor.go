@@ -301,6 +301,11 @@ func resourceMackerelMonitor() *schema.Resource {
 							ValidateFunc: ValidateFloatString,
 							AtLeastOneOf: []string{"expression.0.warning", "expression.0.critical"},
 						},
+						"evaluate_backward_minutes": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 10),
+						},
 					},
 				},
 			},
@@ -373,6 +378,11 @@ func resourceMackerelMonitor() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: []string{"query.0.warning", "query.0.critical"},
 							ValidateFunc: ValidateFloatString,
+						},
+						"evaluate_backward_minutes": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 10),
 						},
 					},
 				},
@@ -588,15 +598,16 @@ func expandMonitorExternalHTTP(d *schema.ResourceData) *mackerel.MonitorExternal
 
 func expandMonitorExpression(d *schema.ResourceData) *mackerel.MonitorExpression {
 	monitor := &mackerel.MonitorExpression{
-		Name:                 d.Get("name").(string),
-		Memo:                 d.Get("memo").(string),
-		Type:                 "expression",
-		IsMute:               d.Get("is_mute").(bool),
-		NotificationInterval: uint64(d.Get("notification_interval").(int)),
-		Expression:           d.Get("expression.0.expression").(string),
-		Operator:             d.Get("expression.0.operator").(string),
-		Warning:              nil,
-		Critical:             nil,
+		Name:                    d.Get("name").(string),
+		Memo:                    d.Get("memo").(string),
+		Type:                    "expression",
+		IsMute:                  d.Get("is_mute").(bool),
+		NotificationInterval:    uint64(d.Get("notification_interval").(int)),
+		Expression:              d.Get("expression.0.expression").(string),
+		Operator:                d.Get("expression.0.operator").(string),
+		Warning:                 nil,
+		Critical:                nil,
+		EvaluateBackwardMinutes: nil,
 	}
 	if warning, ok := d.GetOkExists("expression.0.warning"); ok {
 		w, err := strconv.ParseFloat(warning.(string), 64)
@@ -609,6 +620,11 @@ func expandMonitorExpression(d *schema.ResourceData) *mackerel.MonitorExpression
 		if err == nil {
 			monitor.Critical = &c
 		}
+	}
+
+	if evaluateBackwardMinutes, ok := d.GetOk("expression.0.evaluate_backward_minutes"); ok {
+		evaluateBackwardMinutes := uint64(evaluateBackwardMinutes.(int))
+		monitor.EvaluateBackwardMinutes = &evaluateBackwardMinutes
 	}
 	return monitor
 }
@@ -631,16 +647,17 @@ func expandMonitorAnomalyDetection(d *schema.ResourceData) *mackerel.MonitorAnom
 
 func expandMonitorQuery(d *schema.ResourceData) *mackerel.MonitorQuery {
 	monitor := &mackerel.MonitorQuery{
-		Name:                 d.Get("name").(string),
-		Memo:                 d.Get("memo").(string),
-		Type:                 "query",
-		IsMute:               d.Get("is_mute").(bool),
-		NotificationInterval: uint64(d.Get("notification_interval").(int)),
-		Query:                d.Get("query.0.query").(string),
-		Legend:               d.Get("query.0.legend").(string),
-		Operator:             d.Get("query.0.operator").(string),
-		Warning:              nil,
-		Critical:             nil,
+		Name:                    d.Get("name").(string),
+		Memo:                    d.Get("memo").(string),
+		Type:                    "query",
+		IsMute:                  d.Get("is_mute").(bool),
+		NotificationInterval:    uint64(d.Get("notification_interval").(int)),
+		Query:                   d.Get("query.0.query").(string),
+		Legend:                  d.Get("query.0.legend").(string),
+		Operator:                d.Get("query.0.operator").(string),
+		Warning:                 nil,
+		Critical:                nil,
+		EvaluateBackwardMinutes: nil,
 	}
 	if warning, ok := d.GetOkExists("query.0.warning"); ok {
 		if w, err := strconv.ParseFloat(warning.(string), 64); err == nil {
@@ -651,6 +668,11 @@ func expandMonitorQuery(d *schema.ResourceData) *mackerel.MonitorQuery {
 		if c, err := strconv.ParseFloat(critical.(string), 64); err == nil {
 			monitor.Critical = &c
 		}
+	}
+
+	if evaluateBackwardMinutes, ok := d.GetOk("query.0.evaluate_backward_minutes"); ok {
+		evaluateBackwardMinutes := uint64(evaluateBackwardMinutes.(int))
+		monitor.EvaluateBackwardMinutes = &evaluateBackwardMinutes
 	}
 	return monitor
 }
