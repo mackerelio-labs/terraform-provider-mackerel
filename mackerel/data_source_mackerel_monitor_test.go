@@ -201,6 +201,7 @@ func TestAccDataSourceMackerelMonitorExpression(t *testing.T) {
 						resource.TestCheckResourceAttr(dsName, "expression.0.operator", ">"),
 						resource.TestCheckResourceAttr(dsName, "expression.0.warning", "0.7"),
 						resource.TestCheckResourceAttr(dsName, "expression.0.critical", "0.9"),
+						resource.TestCheckResourceAttr(dsName, "expression.0.evaluate_backward_minutes", "3"),
 					),
 					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "query.#", "0"),
@@ -277,6 +278,7 @@ func TestAccDataSourceMackerelMonitorQuery(t *testing.T) {
 						resource.TestCheckResourceAttr(dsName, "query.0.operator", ">"),
 						resource.TestCheckResourceAttr(dsName, "query.0.warning", "70"),
 						resource.TestCheckResourceAttr(dsName, "query.0.critical", "90"),
+						resource.TestCheckResourceAttr(dsName, "query.0.evaluate_backward_minutes", "3"),
 					),
 				),
 			},
@@ -453,6 +455,7 @@ resource "mackerel_monitor" "foo" {
     operator = ">"
     warning = "0.7"
     critical = "0.9"
+    evaluate_backward_minutes = 3
   }
 }
 
@@ -506,6 +509,7 @@ resource "mackerel_monitor" "foo" {
     operator = ">"
     warning = "70"
     critical = "90"
+    evaluate_backward_minutes = 3
   }
 }
 

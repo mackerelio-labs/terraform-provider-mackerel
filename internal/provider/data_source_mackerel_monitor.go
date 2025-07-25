@@ -93,10 +93,11 @@ func (d *mackerelMonitorDataSource) Schema(_ context.Context, _ datasource.Schem
 				Computed:    true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
-						"expression": types.StringType,
-						"operator":   types.StringType,
-						"warning":    typeutil.FloatStringType{},
-						"critical":   typeutil.FloatStringType{},
+						"expression":                types.StringType,
+						"operator":                  types.StringType,
+						"warning":                   typeutil.FloatStringType{},
+						"critical":                  typeutil.FloatStringType{},
+						"evaluate_backward_minutes": types.Int64Type,
 					},
 				},
 			},
@@ -105,11 +106,12 @@ func (d *mackerelMonitorDataSource) Schema(_ context.Context, _ datasource.Schem
 				Computed:    true,
 				ElementType: types.ObjectType{
 					AttrTypes: map[string]attr.Type{
-						"query":    types.StringType,
-						"legend":   types.StringType,
-						"operator": types.StringType,
-						"warning":  typeutil.FloatStringType{},
-						"critical": typeutil.FloatStringType{},
+						"query":                     types.StringType,
+						"legend":                    types.StringType,
+						"operator":                  types.StringType,
+						"warning":                   typeutil.FloatStringType{},
+						"critical":                  typeutil.FloatStringType{},
+						"evaluate_backward_minutes": types.Int64Type,
 					},
 				},
 			},

@@ -233,6 +233,10 @@ func dataSourceMackerelMonitor() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"evaluate_backward_minutes": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -288,6 +292,10 @@ func dataSourceMackerelMonitor() *schema.Resource {
 						},
 						"critical": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"evaluate_backward_minutes": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 					},
