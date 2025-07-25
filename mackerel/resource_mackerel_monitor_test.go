@@ -864,7 +864,7 @@ resource "mackerel_monitor" "foo" {
     legend = "cpu.utilization {{k8s.node.name}}"
     operator = ">"
     warning = "70"
-		evaluate_backward_minutes = 2
+    evaluate_backward_minutes = 2
   }
 }
 `, name)
@@ -883,7 +883,7 @@ resource "mackerel_monitor" "foo" {
     operator = ">"
     warning = "70"
     critical = "90"
-		evaluate_backward_minutes = 2
+    evaluate_backward_minutes = 2
   }
 }
 `, name)

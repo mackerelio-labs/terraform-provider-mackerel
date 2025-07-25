@@ -304,7 +304,7 @@ func resourceMackerelMonitor() *schema.Resource {
 						"evaluate_backward_minutes": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 10),
+							ValidateFunc: validation.IntBetween(2, 10),
 						},
 					},
 				},

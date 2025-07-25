@@ -389,7 +389,7 @@ func schemaMonitorResourceServiceMetricBlock() schema.Block {
 const (
 	schemaMonitorExpressionDesc                         = "The settings for the expression monitoring."
 	schemaMonitorExpression_ExpressionDesc              = "The expression of the monitoring target. Only valid for graph sequences that become one line."
-	schemaMonitorExpression_EvaluateBackwardMinutesDesc = "The delay time until the expression result stabilizes (in minutes). *4 The default is 2; (2-10)."
+	schemaMonitorExpression_EvaluateBackwardMinutesDesc = "The delay time until the expression result stabilizes (in minutes). The default is 2; (2-10)."
 )
 
 func schemaMonitorResourceExpressionBlock() schema.Block {
@@ -426,7 +426,7 @@ const (
 	schemaMonitorQueryDesc                         = "The settings for the query monitoring."
 	schemaMonitorQuery_QueryDesc                   = "The PromQL-style query of the monitoring target(s)."
 	schemaMonitorQuery_LegendDesc                  = "The graph legend for the alerts."
-	schemaMonitorQuery_EvaluateBackwardMinutesDesc = "The delay time until the expression result stabilizes (in minutes). *4 The default is 0; (0-10)."
+	schemaMonitorQuery_EvaluateBackwardMinutesDesc = "The delay time until the expression result stabilizes (in minutes). The default is 0; (0-10)."
 )
 
 func schemaMonitorResourceQueryBlock() schema.Block {
