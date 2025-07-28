@@ -386,7 +386,7 @@ func (m MonitorModel) mackerelMonitor() mackerel.Monitor {
 			Warning:  qm.Warning.ValueFloat64Pointer(),
 			Critical: qm.Critical.ValueFloat64Pointer(),
 		}
-		if resEvalMin := qm.EvaluateBackwardMinutes.ValueInt64(); resEvalMin > 0 {
+		if resEvalMin := qm.EvaluateBackwardMinutes.ValueInt64(); resEvalMin >= 0 {
 			resEvalMinU64 := uint64(resEvalMin)
 			mon.EvaluateBackwardMinutes = &resEvalMinU64
 		}
