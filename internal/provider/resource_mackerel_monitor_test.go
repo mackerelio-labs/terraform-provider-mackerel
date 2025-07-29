@@ -177,6 +177,7 @@ resource "mackerel_monitor" "expression" {
     expression = "max(role(my-service:db, loadavg5))"
     operator = ">"
     warning = "0.7"
+	evaluate_backward_minutes = 2
   }
 }`
 			},
