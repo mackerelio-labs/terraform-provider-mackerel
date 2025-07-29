@@ -2,7 +2,6 @@
 
 [![Lint](https://github.com/mackerelio-labs/terraform-provider-mackerel/actions/workflows/lint.yml/badge.svg)](https://github.com/mackerelio-labs/terraform-provider-mackerel/actions/workflows/lint.yml)
 [![acceptance test](https://github.com/mackerelio-labs/terraform-provider-mackerel/actions/workflows/acceptance-test.yml/badge.svg)](https://github.com/mackerelio-labs/terraform-provider-mackerel/actions/workflows/acceptance-test.yml)
-[![Coverage Status](https://coveralls.io/repos/github/mackerelio-labs/terraform-provider-mackerel/badge.svg)](https://coveralls.io/github/mackerelio-labs/terraform-provider-mackerel)
 
 A [Terraform](https://www.terraform.io/) provider for [mackerel.io](https://mackerel.io/).
 
