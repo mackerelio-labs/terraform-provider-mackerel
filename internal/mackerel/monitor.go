@@ -53,18 +53,20 @@ type MonitorServiceMetric struct {
 }
 
 type MonitorExpression struct {
-	Expression types.String         `tfsdk:"expression"`
-	Operator   types.String         `tfsdk:"operator"`
-	Warning    typeutil.FloatString `tfsdk:"warning"`
-	Critical   typeutil.FloatString `tfsdk:"critical"`
+	Expression              types.String         `tfsdk:"expression"`
+	Operator                types.String         `tfsdk:"operator"`
+	Warning                 typeutil.FloatString `tfsdk:"warning"`
+	Critical                typeutil.FloatString `tfsdk:"critical"`
+	EvaluateBackwardMinutes types.Int64          `tfsdk:"evaluate_backward_minutes"`
 }
 
 type MonitorQuery struct {
-	Query    types.String         `tfsdk:"query"`
-	Legend   types.String         `tfsdk:"legend"`
-	Operator types.String         `tfsdk:"operator"`
-	Warning  typeutil.FloatString `tfsdk:"warning"`
-	Critical typeutil.FloatString `tfsdk:"critical"`
+	Query                   types.String         `tfsdk:"query"`
+	Legend                  types.String         `tfsdk:"legend"`
+	Operator                types.String         `tfsdk:"operator"`
+	Warning                 typeutil.FloatString `tfsdk:"warning"`
+	Critical                typeutil.FloatString `tfsdk:"critical"`
+	EvaluateBackwardMinutes types.Int64          `tfsdk:"evaluate_backward_minutes"`
 }
 
 type MonitorConnectivity struct {
@@ -196,6 +198,11 @@ func newMonitor(mackerelMonitor mackerel.Monitor) (MonitorModel, error) {
 			Warning:    newFloatStringV0FromFloatPointer(m.Warning),
 			Critical:   newFloatStringV0FromFloatPointer(m.Critical),
 		}
+		if m.EvaluateBackwardMinutes != nil {
+			em.EvaluateBackwardMinutes = types.Int64Value(int64(*m.EvaluateBackwardMinutes))
+		} else /* default */ {
+			em.EvaluateBackwardMinutes = types.Int64Value(2)
+		}
 		model.ExpressionMonitor = []MonitorExpression{em}
 	case *mackerel.MonitorQuery:
 		model.Memo = types.StringValue(m.Memo)
@@ -208,6 +215,11 @@ func newMonitor(mackerelMonitor mackerel.Monitor) (MonitorModel, error) {
 			Operator: types.StringValue(m.Operator),
 			Warning:  newFloatStringV0FromFloatPointer(m.Warning),
 			Critical: newFloatStringV0FromFloatPointer(m.Critical),
+		}
+		if m.EvaluateBackwardMinutes != nil {
+			qm.EvaluateBackwardMinutes = types.Int64Value(int64(*m.EvaluateBackwardMinutes))
+		} else /* default */ {
+			qm.EvaluateBackwardMinutes = types.Int64Value(0)
 		}
 		model.QueryMonitor = []MonitorQuery{qm}
 	case *mackerel.MonitorConnectivity:
@@ -338,7 +350,7 @@ func (m MonitorModel) mackerelMonitor() mackerel.Monitor {
 	}
 	if len(m.ExpressionMonitor) > 0 {
 		em := m.ExpressionMonitor[0]
-		return &mackerel.MonitorExpression{
+		mon := mackerel.MonitorExpression{
 			Type:                 "expression",
 			ID:                   m.ID.ValueString(),
 			Name:                 m.Name.ValueString(),
@@ -351,10 +363,16 @@ func (m MonitorModel) mackerelMonitor() mackerel.Monitor {
 			Warning:    em.Warning.ValueFloat64Pointer(),
 			Critical:   em.Critical.ValueFloat64Pointer(),
 		}
+		if resEvalMin := em.EvaluateBackwardMinutes.ValueInt64(); resEvalMin > 0 {
+			resEvalMinU64 := uint64(resEvalMin)
+			mon.EvaluateBackwardMinutes = &resEvalMinU64
+		}
+
+		return &mon
 	}
 	if len(m.QueryMonitor) > 0 {
 		qm := m.QueryMonitor[0]
-		return &mackerel.MonitorQuery{
+		mon := mackerel.MonitorQuery{
 			Type:                 "query",
 			ID:                   m.ID.ValueString(),
 			Name:                 m.Name.ValueString(),
@@ -368,6 +386,12 @@ func (m MonitorModel) mackerelMonitor() mackerel.Monitor {
 			Warning:  qm.Warning.ValueFloat64Pointer(),
 			Critical: qm.Critical.ValueFloat64Pointer(),
 		}
+		if resEvalMin := qm.EvaluateBackwardMinutes.ValueInt64(); resEvalMin >= 0 {
+			resEvalMinU64 := uint64(resEvalMin)
+			mon.EvaluateBackwardMinutes = &resEvalMinU64
+		}
+
+		return &mon
 	}
 	if len(m.ConnectivityMonitor) > 0 {
 		cm := m.ConnectivityMonitor[0]
