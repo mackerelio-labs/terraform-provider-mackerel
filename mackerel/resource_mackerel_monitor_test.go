@@ -363,7 +363,6 @@ func TestAccMackerelMonitor_Expression(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceName, "expression.0.expression", "max(role(my-service:db, loadavg5))"),
 						resource.TestCheckResourceAttr(resourceName, "expression.0.operator", ">"),
 						resource.TestCheckResourceAttr(resourceName, "expression.0.warning", "0.7"),
-						resource.TestCheckResourceAttr(resourceName, "expression.0.evaluate_backward_minutes", "0"),
 					),
 					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "query.#", "0"),
@@ -388,7 +387,7 @@ func TestAccMackerelMonitor_Expression(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceName, "expression.0.operator", ">"),
 						resource.TestCheckResourceAttr(resourceName, "expression.0.warning", "0.7"),
 						resource.TestCheckResourceAttr(resourceName, "expression.0.critical", "0.9"),
-						resource.TestCheckResourceAttr(resourceName, "expression.0.evaluate_backward_minutes", "0"),
+						resource.TestCheckResourceAttr(resourceName, "expression.0.evaluate_backward_minutes", "3"),
 					),
 					resource.TestCheckResourceAttr(resourceName, "anomaly_detection.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "query.#", "0"),
@@ -802,6 +801,7 @@ resource "mackerel_monitor" "foo" {
     operator = ">"
     warning = "0.7"
     critical = "0.9"
+	evaluate_backward_minutes = 3
   }
 }
 `, name)

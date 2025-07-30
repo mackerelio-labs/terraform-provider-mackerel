@@ -409,7 +409,7 @@ func schemaMonitorResourceExpressionBlock() schema.Block {
 					Description: schemaMonitorExpression_EvaluateBackwardMinutesDesc,
 					Optional:    true,
 					Computed:    true,
-					Default:     int64default.StaticInt64(0),
+					Default:     int64default.StaticInt64(2),
 					Validators: []validator.Int64{
 						int64validator.Between(2, 10),
 					},
