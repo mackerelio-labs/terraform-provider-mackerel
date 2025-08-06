@@ -20,6 +20,13 @@ linters:
       - text: "GetOkExists"
         linters:
           - staticcheck
+      - # ST1005: Error strings should not end with punctuation or newlines
+        # Disabled for Terraform provider error messages which are user-facing
+        # and benefit from proper punctuation for better readability
+        text: "ST1005"
+        path: "internal/(mackerel|provider)/.*"
+        linters:
+          - staticcheck
 
 formatters:
   enable:
