@@ -136,10 +136,10 @@ func (v FloatString) Type(_ context.Context) attr.Type {
 }
 
 func (v FloatString) ToFloat64Value(_ context.Context) (basetypes.Float64Value, diag.Diagnostics) {
-	if v.StringValue.IsUnknown() {
+	if v.IsUnknown() {
 		return basetypes.NewFloat64Unknown(), nil
 	}
-	if v.StringValue.IsNull() {
+	if v.IsNull() {
 		return basetypes.NewFloat64Null(), nil
 	}
 
@@ -168,7 +168,7 @@ func (v FloatString) ValueFloat64() float64 {
 }
 
 func (v FloatString) ValueFloat64Pointer() *float64 {
-	if v.StringValue.IsUnknown() || v.StringValue.IsNull() {
+	if v.IsUnknown() || v.IsNull() {
 		return nil
 	}
 	f, err := strconv.ParseFloat(v.ValueString(), 64)

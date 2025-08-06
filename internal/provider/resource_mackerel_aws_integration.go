@@ -32,11 +32,11 @@ type mackerelAWSIntegrationResource struct {
 	Client *mackerel.Client
 }
 
-func (_ *mackerelAWSIntegrationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (*mackerelAWSIntegrationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_aws_integration"
 }
 
-func (_ *mackerelAWSIntegrationResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (*mackerelAWSIntegrationResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schemaAWSIntegrationResource()
 }
 
@@ -119,7 +119,7 @@ func (r *mackerelAWSIntegrationResource) Delete(ctx context.Context, req resourc
 	}
 }
 
-func (_ *mackerelAWSIntegrationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (*mackerelAWSIntegrationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
