@@ -1,22 +1,34 @@
+version: "2"
+
 # all available settings of specific linters
-linters-settings:
-  errcheck:
-    ignore: github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:Set
-
-issues:
-    exclude:
-      - GetOkExists
-
 linters:
+  default: none
   enable:
     - errcheck
-    - gofmt
-    - goimports
-    - gosimple
     - ineffassign
     - misspell
     - staticcheck
     - unconvert
     - unused
-    - vet
-  disable-all: true
+    - govet
+  settings:
+    errcheck:
+      exclude-functions:
+        - "(*github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema.ResourceData).Set"
+  exclusions:
+    rules:
+      - text: "GetOkExists"
+        linters:
+          - staticcheck
+      - # ST1005: Error strings should not end with punctuation or newlines
+        # Disabled for Terraform provider error messages which are user-facing
+        # and benefit from proper punctuation for better readability
+        text: "ST1005"
+        path: "internal/(mackerel|provider)/.*"
+        linters:
+          - staticcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports

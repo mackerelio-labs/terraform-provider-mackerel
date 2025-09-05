@@ -23,11 +23,11 @@ type mackerelServiceMetricNamesDataSource struct {
 	Client *mackerel.Client
 }
 
-func (_ *mackerelServiceMetricNamesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (*mackerelServiceMetricNamesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_service_metric_names"
 }
 
-func (_ *mackerelServiceMetricNamesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (*mackerelServiceMetricNamesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "This data source allows access to details of a specific Service metric names.",
 
