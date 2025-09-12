@@ -106,7 +106,7 @@ resource "mackerel_monitor" "httpbin_load" {
     operator                  = ">"
     warning                   = "0.7"
     critical                  = "0.9"
-    evaluate_backward_minutes = 2
+    evaluate_backward_minutes = 0
   }
 }
 ```
@@ -198,7 +198,7 @@ The following arguments are required:
 * `operator` - (Required) The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right. Valid values are `>` and `<`.
 * `warning` - (Required, at least one of `warning` or `critical`) The threshold that generates a warning alert.
 * `critical` - (Required, at least one of `warning` or `critical`) The threshold that generates a critical alert.
-* `evaluate_backward_minutes` - The delay time until the expression result stabilizes (in minutes). The default is 2; (2-10).
+* `evaluate_backward_minutes` - The delay time until the expression result stabilizes (in minutes). The default is 0; (0-10).
 
 ### anomaly_detection
 
