@@ -6,9 +6,23 @@ updates:
     interval: daily
     time: "20:00"
   open-pull-requests-limit: 10
+  cooldown:
+    default-days: 5
+    include:
+      - "*"
+    exclude:
+      - "github.com/mackerelio/*"
+  groups:
+    github.com/hashicorp:
+      patterns:
+        - "github.com/hashicorp/*"
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
     interval: daily
     time: "20:00"
   open-pull-requests-limit: 10
+  cooldown:
+    default-days: 5
+    include:
+      - "*"
