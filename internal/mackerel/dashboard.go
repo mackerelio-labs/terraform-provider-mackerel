@@ -312,6 +312,8 @@ func newDashboardWidgetGraph(w mackerel.Widget) (DashboardWidgetGraph, error) {
 				Offset: types.Int64Value(w.Range.Offset),
 			}},
 		}}
+	case "": // null
+		// do nothing
 	default:
 		return g, fmt.Errorf("unsupported range type: %s", w.Range.Type)
 	}
@@ -353,24 +355,25 @@ func (g DashboardWidgetGraph) mackerelWidget() mackerel.Widget {
 	w := g.DashboardWidget.mackerelWidget()
 	w.Type = dashboardWidgetTypeGraph
 
-	if len(g.Range) != 1 {
-		panic(fmt.Sprintf("expect range length to be 1, but got: %d", len(g.Range)))
-	}
-	r := g.Range[0]
-	if len(g.Range[0].Absolute) == 1 {
-		w.Range = mackerel.Range{
-			Type:  dashboardRangeTypeAbsolute,
-			Start: r.Absolute[0].Start.ValueInt64(),
-			End:   r.Absolute[0].End.ValueInt64(),
+	if len(g.Range) > 1 {
+		panic(fmt.Sprintf("expect range length to be 0 or 1, but got: %d", len(g.Range)))
+	} else if len(g.Range) == 1 {
+		r := g.Range[0]
+		if len(g.Range[0].Absolute) == 1 {
+			w.Range = mackerel.Range{
+				Type:  dashboardRangeTypeAbsolute,
+				Start: r.Absolute[0].Start.ValueInt64(),
+				End:   r.Absolute[0].End.ValueInt64(),
+			}
+		} else if len(g.Range[0].Relative) == 1 {
+			w.Range = mackerel.Range{
+				Type:   dashboardRangeTypeRelative,
+				Period: r.Relative[0].Period.ValueInt64(),
+				Offset: r.Relative[0].Offset.ValueInt64(),
+			}
+		} else {
+			panic(fmt.Sprintf("invalid range: %+v", g.Range[0]))
 		}
-	} else if len(g.Range[0].Relative) == 1 {
-		w.Range = mackerel.Range{
-			Type:   dashboardRangeTypeRelative,
-			Period: r.Relative[0].Period.ValueInt64(),
-			Offset: r.Relative[0].Offset.ValueInt64(),
-		}
-	} else {
-		panic(fmt.Sprintf("invalid range: %+v", g.Range[0]))
 	}
 
 	if len(g.Host) == 1 {

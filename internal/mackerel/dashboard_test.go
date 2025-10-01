@@ -79,6 +79,59 @@ func Test_Dashboard_conv(t *testing.T) {
 				UpdatedAt:   types.Int64Value(1439346145003),
 			},
 		},
+		"no range": {
+			api: mackerel.Dashboard{
+				ID:      "2c5bLca8d",
+				Title:   "role graph dashboard title",
+				Memo:    "role graph dashboard",
+				URLPath: "role-graph-dashboard",
+				Widgets: []mackerel.Widget{{
+					Type:  "graph",
+					Title: "role graph",
+					Graph: mackerel.Graph{
+						Type:         "role",
+						RoleFullName: "service:role",
+						Name:         "loadavg5",
+						IsStacked:    true,
+					},
+					Layout: mackerel.Layout{
+						X:      2,
+						Y:      12,
+						Width:  10,
+						Height: 8,
+					},
+				}},
+				CreatedAt: 1439346145003,
+				UpdatedAt: 1439346145003,
+			},
+			model: DashboardModel{
+				ID:      types.StringValue("2c5bLca8d"),
+				Title:   types.StringValue("role graph dashboard title"),
+				Memo:    types.StringValue("role graph dashboard"),
+				URLPath: types.StringValue("role-graph-dashboard"),
+				Graph: []DashboardWidgetGraph{{
+					DashboardWidget: DashboardWidget{
+						Title: types.StringValue("role graph"),
+						Layout: []DashboardLayout{{
+							X:      types.Int64Value(2),
+							Y:      types.Int64Value(12),
+							Width:  types.Int64Value(10),
+							Height: types.Int64Value(8),
+						}},
+					},
+					Role: []DashboardGraphRole{{
+						RoleFullname: types.StringValue("service:role"),
+						Name:         types.StringValue("loadavg5"),
+						IsStacked:    types.BoolValue(true),
+					}},
+				}},
+				Value:       []DashboardWidgetValue{},
+				Markdown:    []DashboardWidgetMarkdown{},
+				AlertStatus: []DashboardWidgetAlertStatus{},
+				CreatedAt:   types.Int64Value(1439346145003),
+				UpdatedAt:   types.Int64Value(1439346145003),
+			},
+		},
 	}
 
 	for name, tt := range cases {
