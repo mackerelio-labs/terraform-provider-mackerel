@@ -85,10 +85,11 @@ resource "mackerel_monitor" "role_avg" {
   name = "role average"
 
   expression {
-    expression = "avg(roleSlots(service:role,loadavg5))"
-    operator   = ">"
-    warning    = 5
-    critical   = 10
+    expression                = "avg(roleSlots(service:role,loadavg5))"
+    operator                  = ">"
+    warning                   = 5
+    critical                  = 10
+    evaluate_backward_minutes = 2
   }
 }
 ```
@@ -100,11 +101,12 @@ resource "mackerel_monitor" "httpbin_load" {
   name = "httpbin load per node"
 
   query {
-    query = "sum by (k8s.node.name) (container.cpu.utilization{k8s.deployment.name=\"httpbin\"})"
-    legend = "cpu.utilization {{k8s.node.name}}"
-    operator = ">"
-    warning = "0.7"
-    critical = "0.9"
+    query                     = "sum by (k8s.node.name) (container.cpu.utilization{k8s.deployment.name=\"httpbin\"})"
+    legend                    = "cpu.utilization {{k8s.node.name}}"
+    operator                  = ">"
+    warning                   = "0.7"
+    critical                  = "0.9"
+    evaluate_backward_minutes = 0
   }
 }
 ```
@@ -187,6 +189,7 @@ The following arguments are required:
 * `operator` - (Required) The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right. Valid values are `>` and `<`.
 * `warning` - (Required, at least one of `warning` or `critical`) The threshold that generates a warning alert.
 * `critical` - (Required, at least one of `warning` or `critical`) The threshold that generates a critical alert.
+* `evaluate_backward_minutes` - The delay time until the expression result stabilizes (in minutes). The default is 2; (2-10).
 
 ### query
 
@@ -195,6 +198,7 @@ The following arguments are required:
 * `operator` - (Required) The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right. Valid values are `>` and `<`.
 * `warning` - (Required, at least one of `warning` or `critical`) The threshold that generates a warning alert.
 * `critical` - (Required, at least one of `warning` or `critical`) The threshold that generates a critical alert.
+* `evaluate_backward_minutes` - The delay time until the expression result stabilizes (in minutes). The default is 0; (0-10).
 
 ### anomaly_detection
 

@@ -23,15 +23,15 @@ type nilRelaxedModifier struct{}
 
 const desctiprion = "For compatibility with the states created by SDK provider, Terraform consider nil and zero values to be same."
 
-func (_ nilRelaxedModifier) Description(context.Context) string {
+func (nilRelaxedModifier) Description(context.Context) string {
 	return desctiprion
 }
 
-func (_ nilRelaxedModifier) MarkdownDescription(context.Context) string {
+func (nilRelaxedModifier) MarkdownDescription(context.Context) string {
 	return desctiprion
 }
 
-func (_ nilRelaxedModifier) PlanModifyMap(ctx context.Context, req planmodifier.MapRequest, resp *planmodifier.MapResponse) {
+func (nilRelaxedModifier) PlanModifyMap(ctx context.Context, req planmodifier.MapRequest, resp *planmodifier.MapResponse) {
 	if req.PlanValue.IsUnknown() {
 		resp.PlanValue = types.MapNull(req.PlanValue.ElementType(ctx))
 	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {
@@ -39,7 +39,7 @@ func (_ nilRelaxedModifier) PlanModifyMap(ctx context.Context, req planmodifier.
 	}
 }
 
-func (_ nilRelaxedModifier) PlanModifySet(ctx context.Context, req planmodifier.SetRequest, resp *planmodifier.SetResponse) {
+func (nilRelaxedModifier) PlanModifySet(ctx context.Context, req planmodifier.SetRequest, resp *planmodifier.SetResponse) {
 	if req.PlanValue.IsUnknown() {
 		resp.PlanValue = types.SetNull(req.PlanValue.ElementType(ctx))
 	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {
@@ -47,7 +47,7 @@ func (_ nilRelaxedModifier) PlanModifySet(ctx context.Context, req planmodifier.
 	}
 }
 
-func (_ nilRelaxedModifier) PlanModifyList(ctx context.Context, req planmodifier.ListRequest, resp *planmodifier.ListResponse) {
+func (nilRelaxedModifier) PlanModifyList(ctx context.Context, req planmodifier.ListRequest, resp *planmodifier.ListResponse) {
 	if req.PlanValue.IsUnknown() {
 		resp.PlanValue = types.ListNull(req.PlanValue.ElementType(ctx))
 	} else if req.PlanValue.IsNull() && len(req.StateValue.Elements()) == 0 {

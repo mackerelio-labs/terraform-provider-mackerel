@@ -73,7 +73,7 @@ func testSetenv(t testing.TB, name, val string) {
 }
 
 func TestProviderImpl(t *testing.T) {
-	var _ *schema.Provider = Provider()
+	var _ = Provider()
 }
 
 func testAccPreCheck(t *testing.T) {

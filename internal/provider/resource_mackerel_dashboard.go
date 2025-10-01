@@ -406,7 +406,9 @@ var schemaDashboardResource_graph = schema.ListNestedBlock{
 						},
 						"legend": schema.StringAttribute{
 							Description: schemaDashboardGraph_query_legendDesc,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
+							Default:     stringdefault.StaticString(""),
 						},
 					},
 				},
@@ -528,7 +530,9 @@ var schemaDashboardResource_value = schema.ListNestedBlock{
 									},
 									"legend": schema.StringAttribute{
 										Description: schemaDashboardValue_query_legendDesc,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
+										Default:     stringdefault.StaticString(""),
 									},
 								},
 							},
