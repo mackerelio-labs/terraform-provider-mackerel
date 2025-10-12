@@ -54,10 +54,10 @@ func (m *mackerelProvider) Configure(ctx context.Context, req provider.Configure
 
 	config := mackerel.NewClientConfigFromEnv()
 	// merge config
-	if config.APIKey.IsUnknown() {
+	if config.APIKey.IsNull() {
 		config.APIKey = schemaConfig.APIKey
 	}
-	if config.APIBase.IsUnknown() {
+	if config.APIBase.IsNull() {
 		config.APIBase = schemaConfig.APIBase
 	}
 
