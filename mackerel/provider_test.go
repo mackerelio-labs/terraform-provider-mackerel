@@ -75,9 +75,3 @@ func testSetenv(t testing.TB, name, val string) {
 func TestProviderImpl(t *testing.T) {
 	var _ = Provider()
 }
-
-func testAccPreCheck(t *testing.T) {
-	if os.Getenv("MACKEREL_API_KEY") == "" {
-		t.Fatal("MACKEREL_API_KEY must be set for acceptance tests")
-	}
-}

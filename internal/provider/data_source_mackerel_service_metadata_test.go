@@ -1,12 +1,33 @@
-package mackerel
+package provider_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
+	fwdatasource "github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 )
+
+func Test_MackerelServiceMetadataDataSource_schema(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	req := fwdatasource.SchemaRequest{}
+	resp := &fwdatasource.SchemaResponse{}
+	provider.NewMackerelServiceMetadataDataSource().Schema(ctx, req, resp)
+	if resp.Diagnostics.HasError() {
+		t.Errorf("schema method: %+v", resp.Diagnostics)
+		return
+	}
+
+	if diags := resp.Schema.ValidateImplementation(ctx); diags.HasError() {
+		t.Errorf("schema validation: %+v", diags)
+	}
+}
 
 func TestAccDataSourceMackerelServiceMetadata(t *testing.T) {
 	dsName := "data.mackerel_service_metadata.foo"
@@ -15,8 +36,8 @@ func TestAccDataSourceMackerelServiceMetadata(t *testing.T) {
 	namespace := fmt.Sprintf("tf-namespace-%s", rand)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProtoV5ProviderFactories,
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelServiceMetadataConfig(serviceName, namespace),

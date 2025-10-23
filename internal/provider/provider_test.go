@@ -2,6 +2,7 @@ package provider_test
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	fwprovider "github.com/hashicorp/terraform-plugin-framework/provider"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 	sdkmackerel "github.com/mackerelio-labs/terraform-provider-mackerel/mackerel"
+	"github.com/mackerelio/mackerel-client-go"
 )
 
 var (
@@ -28,6 +30,13 @@ var (
 
 func preCheck(t *testing.T) {
 	t.Helper()
+	if os.Getenv("MACKEREL_API_KEY") == "" {
+		t.Fatal("MACKEREL_API_KEY must be set for acceptance tests")
+	}
+}
+
+func mackerelClient() *mackerel.Client {
+	return mackerel.NewClient(os.Getenv("MACKEREL_API_KEY"))
 }
 
 func stepNoPlanInFramework(config string) resource.TestStep {
