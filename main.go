@@ -4,9 +4,9 @@ import (
 	"flag"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
-
-	"github.com/mackerelio-labs/terraform-provider-mackerel/mackerel"
+	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 )
 
 const (
@@ -30,7 +30,7 @@ func main() {
 
 	if err := tf5server.Serve(
 		providerAddr,
-		mackerel.ProtoV5ProviderServer,
+		providerserver.NewProtocol5(provider.New()),
 		serveOpts...,
 	); err != nil {
 		log.Printf("[ERROR] failed to start server: %v", err)
