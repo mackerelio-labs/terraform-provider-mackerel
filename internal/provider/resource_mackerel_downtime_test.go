@@ -29,96 +29,6 @@ func Test_MackerelDowntimeResource_schema(t *testing.T) {
 	}
 }
 
-func TestAccCompat_MackerelDowntimeResource(t *testing.T) {
-	t.Parallel()
-
-	cases := map[string]struct {
-		config func(name string) string
-	}{
-		"undefined": {
-			config: func(name string) string {
-				return `
-resource "mackerel_downtime" "foo" {
-  name = "` + name + `"
-  start = 2051254800
-  duration = 3600
-  recurrence {
-    type = "weekly"
-    interval = 2
-  }
-}`
-			},
-		},
-		"null": {
-			config: func(name string) string {
-				return `
-resource "mackerel_downtime" "foo" {
-  name = "` + name + `"
-  start = 2051254800
-  duration = 3600
-  service_scopes = null
-  service_exclude_scopes = null
-  role_scopes = null
-  role_exclude_scopes = null
-  monitor_scopes = null
-  monitor_exclude_scopes = null
-  recurrence {
-    type = "weekly"
-    interval = 2
-    weekdays = null
-  }
-}`
-			},
-		},
-		"empty": {
-			config: func(name string) string {
-				return `
-resource "mackerel_downtime" "foo" {
-  name = "` + name + `"
-  start = 2051254800
-  duration = 3600
-  service_scopes = []
-  service_exclude_scopes = []
-  role_scopes = []
-  role_exclude_scopes = []
-  monitor_scopes = []
-  monitor_exclude_scopes = []
-  recurrence {
-    type = "weekly"
-    interval = 2
-    weekdays = []
-  }
-}`
-			},
-		},
-	}
-
-	for name, tt := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			name := acctest.RandomWithPrefix("tf-compat-downtime")
-			config := tt.config(name)
-
-			resource.Test(t, resource.TestCase{
-				PreCheck: func() { preCheck(t) },
-				Steps: []resource.TestStep{
-					{
-						ProtoV5ProviderFactories: protoV5SDKProviderFactories,
-						Config:                   config,
-					},
-					stepNoPlanInFramework(config),
-					{
-						ProtoV5ProviderFactories: protoV5SDKProviderFactories,
-						Config:                   config,
-					},
-					stepNoPlanInFramework(config),
-				},
-			})
-		})
-	}
-}
-
 func TestAccMackerelDowntime(t *testing.T) {
 	resourceName := "mackerel_downtime.foo"
 	rand := acctest.RandString(5)
@@ -127,7 +37,7 @@ func TestAccMackerelDowntime(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5SDKProviderFactories,
+		ProtoV5ProviderFactories: protoV5ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelDowntimeDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create

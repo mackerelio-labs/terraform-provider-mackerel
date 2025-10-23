@@ -29,60 +29,6 @@ func Test_MackerelAlertGroupSettingResource_schema(t *testing.T) {
 	}
 }
 
-func TestAccCompat_MackerelAlertGroupSettingResource(t *testing.T) {
-	t.Parallel()
-
-	cases := map[string]struct {
-		config func(name string) string
-	}{
-		"minimal": {
-			config: func(name string) string {
-				return `
-resource "mackerel_alert_group_setting" "alert_group" {
-  name = "` + name + `"
-}`
-			},
-		},
-		"empty": {
-			config: func(name string) string {
-				return `
-resource "mackerel_alert_group_setting" "alert_group" {
-  name = "` + name + `"
-  service_scopes = []
-  role_scopes = []
-  monitor_scopes = []
-}`
-			},
-		},
-	}
-
-	for name, tt := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			name := acctest.RandomWithPrefix("tf-alert-group-setting-compat")
-			config := tt.config(name)
-
-			resource.Test(t, resource.TestCase{
-				PreCheck: func() { preCheck(t) },
-
-				Steps: []resource.TestStep{
-					{
-						ProtoV5ProviderFactories: protoV5SDKProviderFactories,
-						Config:                   config,
-					},
-					stepNoPlanInFramework(config),
-					{
-						ProtoV5ProviderFactories: protoV5SDKProviderFactories,
-						Config:                   config,
-					},
-					stepNoPlanInFramework(config),
-				},
-			})
-		})
-	}
-}
-
 func TestAccMackerelAlertGroupSetting(t *testing.T) {
 	resourceName := "mackerel_alert_group_setting.foo"
 	rand := acctest.RandString(5)
