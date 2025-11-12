@@ -22,7 +22,7 @@ terraform {
   required_providers {
     mackerel = {
       source  = "mackerelio-labs/mackerel"
-      version = "~> 0.3.0"
+      version = "~> 0.7.0"
     }
   }
 }
