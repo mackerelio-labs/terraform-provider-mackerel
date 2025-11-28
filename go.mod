@@ -1,8 +1,6 @@
 module github.com/mackerelio-labs/terraform-provider-mackerel
 
-go 1.23.0
-
-toolchain go1.24.0
+go 1.24.0
 
 require (
 	github.com/google/go-cmp v0.7.0
@@ -12,7 +10,7 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.23.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.34.0
 	github.com/hashicorp/terraform-plugin-testing v1.9.0
-	github.com/mackerelio/mackerel-client-go v0.37.3
+	github.com/mackerelio/mackerel-client-go v0.38.0
 )
 
 require (
