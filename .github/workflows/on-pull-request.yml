@@ -10,7 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
-        implementation: ['sdk', 'framework']
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -21,7 +20,6 @@ jobs:
         env:
           TF_ACC: 1
           MACKEREL_API_KEY: ${{ secrets.MACKEREL_API_KEY }}
-          MACKEREL_LEGACY_SDK: ${{ matrix.implementation == 'sdk' && '1' || '0' }}
           EXTERNAL_ID: ${{ secrets.EXTERNAL_ID }}
           AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
