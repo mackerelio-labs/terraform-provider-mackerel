@@ -82,6 +82,15 @@ func (m *ChannelModel) Read(ctx context.Context, client *Client) error {
 	return nil
 }
 
+// Updates a channel.
+func (m *ChannelModel) Update(ctx context.Context, client *Client) error {
+	channelParam := m.mackerelChannel()
+	if _, err := client.UpdateChannelContext(ctx, m.ID.ValueString(), &channelParam); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Deletes a channel.
 func (m *ChannelModel) Delete(_ context.Context, client *Client) error {
 	if _, err := client.DeleteChannel(m.ID.ValueString()); err != nil {
