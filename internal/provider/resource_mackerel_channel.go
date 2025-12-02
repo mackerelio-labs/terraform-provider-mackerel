@@ -12,11 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -99,6 +96,22 @@ func (r *mackerelChannelResource) Read(ctx context.Context, req resource.ReadReq
 }
 
 func (r *mackerelChannelResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data mackerel.ChannelModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err := data.Update(ctx, r.Client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to update a channel",
+			err.Error(),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *mackerelChannelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -142,6 +155,24 @@ const (
 	schemaChannelWebhook_URLDesc = "The URL that will receive HTTP request."
 )
 
+// requiresReplaceIfChannelTypeChanges returns a plan modifier that requires replace
+// when the channel type changes
+func requiresReplaceIfChannelTypeChanges() planmodifier.List {
+	return listplanmodifier.RequiresReplaceIf(
+		func(ctx context.Context, req planmodifier.ListRequest, res *listplanmodifier.RequiresReplaceIfFuncResponse) {
+			// Only require replace if list size changes (0->1 or 1->0)
+			// This indicates a channel type change
+			oldSize := len(req.StateValue.Elements())
+			newSize := len(req.PlanValue.Elements())
+			if (oldSize == 0 && newSize > 0) || (oldSize > 0 && newSize == 0) {
+				res.RequiresReplace = true
+			}
+		},
+		"Channel type cannot be changed in-place",
+		"Channel type cannot be changed in-place",
+	)
+}
+
 func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 	eventsAttr := schema.SetAttribute{
 		Description: schemaChannelEventsDesc,
@@ -160,7 +191,6 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 		)},
 		PlanModifiers: []planmodifier.Set{
 			planmodifierutil.NilRelaxedSet(),
-			setplanmodifier.RequiresReplace(),
 		},
 	}
 	schema := schema.Schema{
@@ -176,9 +206,6 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 			"name": schema.StringAttribute{
 				Description: schemaChannelNameDesc,
 				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 		},
 		Blocks: map[string]schema.Block{
@@ -188,7 +215,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 					listvalidator.SizeAtMost(1),
 				},
 				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+					requiresReplaceIfChannelTypeChanges(),
 				},
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
@@ -199,7 +226,6 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							Computed:    true,
 							PlanModifiers: []planmodifier.Set{
 								planmodifierutil.NilRelaxedSet(),
-								setplanmodifier.RequiresReplace(),
 							},
 						},
 						"user_ids": schema.SetAttribute{
@@ -209,7 +235,6 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							Computed:    true,
 							PlanModifiers: []planmodifier.Set{
 								planmodifierutil.NilRelaxedSet(),
-								setplanmodifier.RequiresReplace(),
 							},
 						},
 						"events": eventsAttr,
@@ -222,7 +247,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 					listvalidator.SizeAtMost(1),
 				},
 				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+					requiresReplaceIfChannelTypeChanges(),
 				},
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
@@ -231,9 +256,6 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							Required:    true,
 							Validators: []validator.String{
 								validatorutil.IsURLWithHTTPorHTTPS(),
-							},
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.RequiresReplace(),
 							},
 						},
 						// FIXME(needs schema upgrade): use nested attribute
@@ -248,7 +270,6 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							},
 							PlanModifiers: []planmodifier.Map{
 								planmodifierutil.NilRelaxedMap(),
-								mapplanmodifier.RequiresReplace(),
 							},
 						},
 						"enabled_graph_image": schema.BoolAttribute{
@@ -256,9 +277,6 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							Optional:    true,
 							Computed:    true,
 							Default:     booldefault.StaticBool(false),
-							PlanModifiers: []planmodifier.Bool{
-								boolplanmodifier.RequiresReplace(),
-							},
 						},
 						"events": eventsAttr,
 					},
@@ -270,7 +288,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 					listvalidator.SizeAtMost(1),
 				},
 				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+					requiresReplaceIfChannelTypeChanges(),
 				},
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
@@ -279,9 +297,6 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 							Required:    true,
 							Validators: []validator.String{
 								validatorutil.IsURLWithHTTPorHTTPS(),
-							},
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.RequiresReplace(),
 							},
 						},
 						"events": eventsAttr,

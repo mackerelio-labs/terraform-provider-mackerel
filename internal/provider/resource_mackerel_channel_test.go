@@ -8,6 +8,7 @@ import (
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 )
@@ -57,6 +58,9 @@ func TestAccMackerelChannel_Email(t *testing.T) {
 			// Test: Update
 			{
 				Config: testAccMackerelChannelConfigEmailUpdated(nameUpdated),
+				ConfigPlanChecks: resource.ConfigPlanChecks{PreApply: []plancheck.PlanCheck{
+					plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionUpdate),
+				}},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelChannelExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
@@ -106,6 +110,9 @@ func TestAccMackerelChannel_Slack(t *testing.T) {
 			// Test: Update
 			{
 				Config: testAccMackerelChannelConfigSlackUpdated(nameUpdated),
+				ConfigPlanChecks: resource.ConfigPlanChecks{PreApply: []plancheck.PlanCheck{
+					plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionUpdate),
+				}},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelChannelExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
@@ -156,6 +163,9 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 			// Test: Update
 			{
 				Config: testAccMackerelChannelConfigWebhookUpdated(nameUpdated),
+				ConfigPlanChecks: resource.ConfigPlanChecks{PreApply: []plancheck.PlanCheck{
+					plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionUpdate),
+				}},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMackerelChannelExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
@@ -171,6 +181,36 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccMackerelChannel_TypeChange(t *testing.T) {
+	resourceName := "mackerel_channel.type_change"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-channel email %s", rand)
+	nameUpdated := fmt.Sprintf("tf-channel slack %s updated", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelChannelDestroy,
+		Steps: []resource.TestStep{
+			// Test: Create email channel
+			{
+				Config: testAccMackerelChannelConfigTypeChange(name, "email"),
+			},
+			// Test: Change to slack channel (should trigger replace)
+			{
+				Config: testAccMackerelChannelConfigTypeChange(nameUpdated, "slack"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{PreApply: []plancheck.PlanCheck{
+					plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionReplace),
+				}},
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelChannelExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+				),
 			},
 		},
 	})
@@ -307,4 +347,36 @@ resource "mackerel_channel" "webhook" {
   }
 }
 `, name)
+}
+
+func testAccMackerelChannelConfigTypeChange(name string, channelType string) string {
+	switch channelType {
+	case "email":
+		return fmt.Sprintf(`
+resource "mackerel_channel" "type_change" {
+	name = "%s"
+	email {}
+}
+`, name)
+	case "slack":
+		return fmt.Sprintf(`
+resource "mackerel_channel" "type_change" {
+	name = "%s"
+	slack {
+		url = "https://hooks.slack.com/services/xxx/yyy/zzz"
+	}
+}
+`, name)
+	case "webhook":
+		return fmt.Sprintf(`
+resource "mackerel_channel" "type_change" {
+	name = "%s"
+	webhook {
+		url = "https://test.com/hook"
+	}
+}
+`, name)
+	default:
+		return ""
+	}
 }
