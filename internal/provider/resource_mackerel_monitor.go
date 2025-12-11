@@ -444,10 +444,7 @@ func schemaMonitorResourceQueryBlock() schema.Block {
 				},
 				"legend": schema.StringAttribute{
 					Description: schemaMonitorQuery_LegendDesc,
-					Required:    true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.RequiresReplace(), // force new
-					},
+					Optional:    true,
 				},
 				"operator": schemaMonitorResourceOperatorAttr(),
 				"warning":  schemaMonitorResourceWarningAttr(),
