@@ -49,7 +49,7 @@ signs:
       - "--detach-sign"
       - "${artifact}"
 release:
-  # If you want to manually examine the release before its live, uncomment this line:
-  # draft: true
+  draft: true
+  make_latest: true
 changelog:
-  disable: true
+  use: github-native
