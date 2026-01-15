@@ -147,8 +147,8 @@ var awsIntegrationServices = map[string]struct {
 }{
 	"ec2":         {supportsAutoRetire: true},
 	"elb":         {},
-	"alb":         {},
-	"nlb":         {},
+	"alb":         {supportsAutoRetire: true},
+	"nlb":         {supportsAutoRetire: true},
 	"rds":         {supportsAutoRetire: true},
 	"redshift":    {},
 	"elasticache": {supportsAutoRetire: true},

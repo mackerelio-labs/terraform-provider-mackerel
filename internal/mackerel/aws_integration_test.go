@@ -199,13 +199,13 @@ func Test_AWSIntegration_fromAPI(t *testing.T) {
 						RetireAutomatically: types.BoolValue(true),
 					}},
 					ELB: []AWSIntegrationService{},
-					ALB: []AWSIntegrationService{{
+					ALB: []AWSIntegrationServiceWithRetireAutomatically{{
 						Enable:              types.BoolValue(true),
 						Role:                types.StringValue("service: role"),
 						ExcludedMetrics:     []string{"alb.request.count", "alb.bytes.processed"},
 						RetireAutomatically: types.BoolValue(false),
 					}},
-					NLB: []AWSIntegrationService{{
+					NLB: []AWSIntegrationServiceWithRetireAutomatically{{
 						Enable:              types.BoolValue(true),
 						Role:                types.StringNull(),
 						ExcludedMetrics:     []string{},
@@ -294,13 +294,13 @@ func Test_AWSIntegration_toAPI(t *testing.T) {
 						RetireAutomatically: types.BoolValue(true),
 					}},
 					ELB: []AWSIntegrationService{},
-					ALB: []AWSIntegrationService{{
+					ALB: []AWSIntegrationServiceWithRetireAutomatically{{
 						Enable:              types.BoolValue(true),
 						Role:                types.StringValue("service: role"),
 						ExcludedMetrics:     []string{"alb.request.count", "alb.bytes.processed"},
 						RetireAutomatically: types.BoolValue(false),
 					}},
-					NLB: []AWSIntegrationService{{
+					NLB: []AWSIntegrationServiceWithRetireAutomatically{{
 						Enable:              types.BoolValue(true),
 						Role:                types.StringNull(),
 						ExcludedMetrics:     []string{},
