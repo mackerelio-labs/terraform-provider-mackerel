@@ -49,7 +49,7 @@ func TestAccDataSourceMackerelDowntime(t *testing.T) {
 					resource.TestCheckResourceAttr(dsName, "recurrence.0.type", "weekly"),
 					resource.TestCheckResourceAttr(dsName, "recurrence.0.interval", "2"),
 					resource.TestCheckResourceAttr(dsName, "recurrence.0.weekdays.#", "5"),
-					resource.TestCheckResourceAttr(dsName, "recurrence.0.until", "1767193199"),
+					resource.TestCheckResourceAttr(dsName, "recurrence.0.until", "2082725999"),
 					resource.TestCheckResourceAttr(dsName, "service_scopes.#", "1"),
 					resource.TestCheckResourceAttr(dsName, "service_exclude_scopes.#", "1"),
 					resource.TestCheckResourceAttr(dsName, "role_scopes.#", "1"),
@@ -97,7 +97,7 @@ resource "mackerel_downtime" "foo" {
       "Wednesday",
       "Thursday",
       "Friday"]
-    until = 1767193199
+    until = 2082725999
   }
 
   service_scopes = [
