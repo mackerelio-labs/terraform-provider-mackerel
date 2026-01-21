@@ -186,7 +186,6 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceEnableDesc,
 					Optional:    true,
 					Computed:    true,
-					Default:     booldefault.StaticBool(true),
 				},
 				"role": schema.StringAttribute{
 					Description: schemaAWSIntegrationServiceRoleDesc,
@@ -215,7 +214,6 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceEnableDesc,
 					Optional:    true,
 					Computed:    true,
-					Default:     booldefault.StaticBool(true),
 				},
 				"role": schema.StringAttribute{
 					Description: schemaAWSIntegrationServiceRoleDesc,
