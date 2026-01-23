@@ -186,6 +186,7 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceEnableDesc,
 					Optional:    true,
 					Computed:    true,
+					Default:     booldefault.StaticBool(true),
 				},
 				"role": schema.StringAttribute{
 					Description: schemaAWSIntegrationServiceRoleDesc,
@@ -214,6 +215,12 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceEnableDesc,
 					Optional:    true,
 					Computed:    true,
+					// This is workaround for the issue that booldefault.StaticBool(true)
+					// does not work well with multiple BoolAttribute with default value.
+					// See: https://github.com/hashicorp/terraform-plugin-framework/issues/867
+					PlanModifiers: []planmodifier.Bool{
+						planmodifierutil.BoolDefaultTrue(),
+					},
 				},
 				"role": schema.StringAttribute{
 					Description: schemaAWSIntegrationServiceRoleDesc,

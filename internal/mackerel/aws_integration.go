@@ -221,13 +221,8 @@ func (m *AWSIntegrationModel) createParam() *mackerel.CreateAWSIntegrationParam 
 	m.each(func(name string, service *AWSIntegrationService) *AWSIntegrationService {
 		var mackerelService mackerel.AWSIntegrationService
 		if service != nil {
-			// Default enable to true if not explicitly set
-			enable := true
-			if !service.Enable.IsNull() {
-				enable = service.Enable.ValueBool()
-			}
 			mackerelService = mackerel.AWSIntegrationService{
-				Enable:              enable,
+				Enable:              service.Enable.ValueBool(),
 				Role:                nil,
 				ExcludedMetrics:     nil,
 				IncludedMetrics:     nil,
