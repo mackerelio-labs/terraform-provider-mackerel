@@ -43,8 +43,8 @@ type AWSIntegrationDataSourceModel struct {
 type AWSIntegrationSerfvices struct {
 	EC2         AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"ec2"`
 	ELB         AWSIntegrationServiceOpt                        `tfsdk:"elb"`
-	ALB         AWSIntegrationServiceOpt                        `tfsdk:"alb"`
-	NLB         AWSIntegrationServiceOpt                        `tfsdk:"nlb"`
+	ALB         AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"alb"`
+	NLB         AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"nlb"`
 	RDS         AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"rds"`
 	Redshift    AWSIntegrationServiceOpt                        `tfsdk:"redshift"`
 	ElastiCache AWSIntegrationServiceWithRetireAutomaticallyOpt `tfsdk:"elasticache"`

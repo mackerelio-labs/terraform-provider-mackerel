@@ -147,8 +147,8 @@ var awsIntegrationServices = map[string]struct {
 }{
 	"ec2":         {supportsAutoRetire: true},
 	"elb":         {},
-	"alb":         {},
-	"nlb":         {},
+	"alb":         {supportsAutoRetire: true},
+	"nlb":         {supportsAutoRetire: true},
 	"rds":         {supportsAutoRetire: true},
 	"redshift":    {},
 	"elasticache": {supportsAutoRetire: true},
@@ -215,7 +215,12 @@ func schemaAWSIntegrationResource() schema.Schema {
 					Description: schemaAWSIntegrationServiceEnableDesc,
 					Optional:    true,
 					Computed:    true,
-					Default:     booldefault.StaticBool(true),
+					// This is workaround for the issue that booldefault.StaticBool(true)
+					// does not work well with multiple BoolAttribute with default value.
+					// See: https://github.com/hashicorp/terraform-plugin-framework/issues/867
+					PlanModifiers: []planmodifier.Bool{
+						planmodifierutil.BoolDefaultTrue(),
+					},
 				},
 				"role": schema.StringAttribute{
 					Description: schemaAWSIntegrationServiceRoleDesc,
