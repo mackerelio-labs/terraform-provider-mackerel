@@ -254,6 +254,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 						"url": schema.StringAttribute{
 							Description: schemaChannelSlack_URLDesc,
 							Required:    true,
+							Sensitive:   true,
 							Validators: []validator.String{
 								validatorutil.IsURLWithHTTPorHTTPS(),
 							},
@@ -295,6 +296,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 						"url": schema.StringAttribute{
 							Description: schemaChannelWebhook_URLDesc,
 							Required:    true,
+							Sensitive:   true,
 							Validators: []validator.String{
 								validatorutil.IsURLWithHTTPorHTTPS(),
 							},
