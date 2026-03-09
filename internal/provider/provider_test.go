@@ -8,14 +8,14 @@ import (
 	fwprovider "github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-var protoV5ProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
-	"mackerel": providerserver.NewProtocol5WithError(provider.New()),
+var protoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
+	"mackerel": providerserver.NewProtocol6WithError(provider.New()),
 }
 
 func preCheck(t *testing.T) {

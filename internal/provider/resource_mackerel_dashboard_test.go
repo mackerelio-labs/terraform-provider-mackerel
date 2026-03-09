@@ -35,7 +35,7 @@ func TestAccMackerelDashboardGraphWithoutRange(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Test: Create
 			{
@@ -91,7 +91,7 @@ func TestAccMackerelDashboardGraph(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -167,7 +167,7 @@ func TestAccMackerelDashboardValue(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -231,7 +231,7 @@ func TestAccMackerelDashboardMarkdown(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -296,7 +296,7 @@ func TestAccMackerelDashboardAlertStatus(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create

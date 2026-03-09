@@ -35,7 +35,7 @@ func TestAccDataSourceMackerelDowntime(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelDowntimeConfig(rand, name),
@@ -120,7 +120,7 @@ data "mackerel_downtime" "foo" {
 func TestAccDataSourceMackerelDowntimeNotMatchAnyDowntime(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data "mackerel_downtime" "foo" { id = "not-found" }`,

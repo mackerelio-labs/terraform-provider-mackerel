@@ -39,7 +39,7 @@ func TestAccMackerelMonitor_HostMetric(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -116,7 +116,7 @@ func TestAccMackerelMonitor_Connectivity(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -184,7 +184,7 @@ func TestAccMackerelMonitor_ServiceMetric(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -264,7 +264,7 @@ func TestAccMackerelMonitor_External(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -361,7 +361,7 @@ func TestAccMackerelMonitor_Expression(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -430,7 +430,7 @@ func TestAccMackerelMonitor_AnomalyDetection(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -500,7 +500,7 @@ func TestAccMackerelMonitor_Query(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create

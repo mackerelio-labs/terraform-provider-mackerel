@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 )
 
@@ -23,14 +23,14 @@ func main() {
 
 	flag.Parse()
 
-	var serveOpts []tf5server.ServeOpt
+	var serveOpts []tf6server.ServeOpt
 	if debug {
-		serveOpts = append(serveOpts, tf5server.WithManagedDebug())
+		serveOpts = append(serveOpts, tf6server.WithManagedDebug())
 	}
 
-	if err := tf5server.Serve(
+	if err := tf6server.Serve(
 		providerAddr,
-		providerserver.NewProtocol5(provider.New()),
+		providerserver.NewProtocol6(provider.New()),
 		serveOpts...,
 	); err != nil {
 		log.Printf("[ERROR] failed to start server: %v", err)
