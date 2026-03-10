@@ -11,11 +11,11 @@ A [Terraform](https://www.terraform.io/) provider for [mackerel.io](https://mack
 
 ## Requirements
 
-Terraform >= v0.14
+Terraform >= v1.0
 
 ## Usage example
 
-Terraform 0.14 and later
+Terraform 1.0 and later
 
 ```
 terraform {

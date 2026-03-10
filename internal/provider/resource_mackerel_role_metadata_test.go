@@ -37,7 +37,7 @@ func TestAccMackerelRoleMetadata(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelRoleMetadataDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create

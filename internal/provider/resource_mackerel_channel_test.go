@@ -38,7 +38,7 @@ func TestAccMackerelChannel_Email(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -90,7 +90,7 @@ func TestAccMackerelChannel_Slack(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -144,7 +144,7 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -194,7 +194,7 @@ func TestAccMackerelChannel_TypeChange(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelChannelDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create email channel

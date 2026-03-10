@@ -46,7 +46,7 @@ func TestAccMackerelAWSIntegrationIAMRole(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelAWSIntegrationDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create
@@ -115,7 +115,7 @@ func TestAccMackerelAWSIntegrationCredentials(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMackerelAWSIntegrationDestroy,
 		Steps: []resource.TestStep{
 			// Test: Create

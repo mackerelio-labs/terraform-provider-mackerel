@@ -34,7 +34,7 @@ func TestAccDataSourceMackerelDashboardGraph(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelDashboardConfigGraph(rand, title),
@@ -85,7 +85,7 @@ func TestAccDataSourceMackerelDashboardValue(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelDashboardConfigValue(rand, title),
@@ -139,7 +139,7 @@ func TestAccDataSourceMackerelDashboardMarkdown(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelDashboardConfigMarkdown(rand, title),
@@ -176,7 +176,7 @@ func TestAccDataSourceMackerelDashboardAlertStatus(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelDashboardConfigAlertStatus(rand, title),

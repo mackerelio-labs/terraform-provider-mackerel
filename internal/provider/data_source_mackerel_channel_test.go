@@ -35,7 +35,7 @@ func TestAccDataSourceMackerelChannelEmail(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelChannelConfigEmail(name),
@@ -62,7 +62,7 @@ func TestAccDataSourceMackerelChannelSlack(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelChannelConfigSlack(name),
@@ -92,7 +92,7 @@ func TestAccDataSourceMackerelChannelWebhook(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMackerelChannelConfigWebhook(name),
@@ -181,7 +181,7 @@ data "mackerel_channel" "foo" {
 func TestAccDataSourceMackerelChannelNotMatchAnyChannel(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories,
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data "mackerel_channel" "foo" { id = "not-found" }`,
