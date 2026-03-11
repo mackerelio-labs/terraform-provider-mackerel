@@ -88,30 +88,41 @@ func schemaChannelDataSource() schema.Schema {
 					},
 				},
 			},
-			"slack": schema.ListAttribute{
+			"slack": schema.ListNestedAttribute{
 				Description: schemaChannelSlackDesc,
 				Computed:    true,
-				ElementType: types.ObjectType{
-					AttrTypes: map[string]attr.Type{
-						"url": types.StringType,
-						"mentions": types.MapType{
-							ElemType: types.StringType,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"url": schema.StringAttribute{
+							Computed:  true,
+							Sensitive: true,
 						},
-						"enabled_graph_image": types.BoolType,
-						"events": types.SetType{
-							ElemType: types.StringType,
+						"mentions": schema.MapAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+						"enabled_graph_image": schema.BoolAttribute{
+							Computed: true,
+						},
+						"events": schema.SetAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
 						},
 					},
 				},
 			},
-			"webhook": schema.ListAttribute{
+			"webhook": schema.ListNestedAttribute{
 				Description: schemaChannelWebhookDesc,
 				Computed:    true,
-				ElementType: types.ObjectType{
-					AttrTypes: map[string]attr.Type{
-						"url": types.StringType,
-						"events": types.SetType{
-							ElemType: types.StringType,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"url": schema.StringAttribute{
+							Computed:  true,
+							Sensitive: true,
+						},
+						"events": schema.SetAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
 						},
 					},
 				},
