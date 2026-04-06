@@ -75,7 +75,6 @@ func Test_ServiceMetricNames_read(t *testing.T) {
 
 	ctx := context.Background()
 	for name, tt := range cases {
-		tt := tt
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
