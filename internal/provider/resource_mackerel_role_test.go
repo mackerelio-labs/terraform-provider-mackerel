@@ -3,6 +3,7 @@ package provider_test
 import (
 	"context"
 	"fmt"
+	"slices"
 	"testing"
 
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
@@ -86,10 +87,8 @@ func testAccCheckMackerelRoleDestroy(s *terraform.State) error {
 			if service.Name != r.Primary.Attributes["service"] {
 				continue
 			}
-			for _, role := range service.Roles {
-				if role == r.Primary.Attributes["name"] {
-					return fmt.Errorf("mackerel role still exists: %s", r.Primary.ID)
-				}
+			if slices.Contains(service.Roles, r.Primary.Attributes["name"]) {
+				return fmt.Errorf("mackerel role still exists: %s", r.Primary.ID)
 			}
 		}
 	}
