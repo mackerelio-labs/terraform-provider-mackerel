@@ -9,6 +9,9 @@ description: |-
 
 This resource allows creating and management of channel, which manages either email, slack or webhook.
 
+Channels created by this resource are not added to the default notification group automatically.
+Use `mackerel_default_notification_group` to manage channels included in the default notification group.
+
 ## Example Usage
 
 ### Channel of email
@@ -49,6 +52,25 @@ resource "mackerel_channel" "webhook" {
   webhook {
     url = "https://webhook.com/AAAAAAAA"
   }
+}
+```
+
+### Add channels to the default notification group
+
+```terraform
+resource "mackerel_channel" "email" {
+  name = "email"
+
+  email {
+    emails = ["alice@example.com"]
+    events = ["alert", "alertGroup"]
+  }
+}
+
+resource "mackerel_default_notification_group" "default" {
+  child_channel_ids = [
+    mackerel_channel.email.id,
+  ]
 }
 ```
 
