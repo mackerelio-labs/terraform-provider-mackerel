@@ -1,6 +1,7 @@
 package mackerel
 
 import (
+	"context"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -132,6 +133,85 @@ func Test_Channel_conv(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_Channel_Create_AddToDefaultNotificationGroupFalse(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	model := ChannelModel{
+		Name: types.StringValue("slack"),
+		Slack: []ChannelSlackModel{{
+			URL:               types.StringValue(testChannelSlackURL),
+			EnabledGraphImage: types.BoolValue(false),
+		}},
+	}
+	client := &channelCreatorTester{ID: "channel-id"}
+
+	if err := model.createInner(ctx, client); err != nil {
+		t.Fatalf("unexpected error: %+v", err)
+	}
+
+	if client.Request.AddToDefaultNotificationGroup == nil {
+		t.Fatal("AddToDefaultNotificationGroup is nil")
+	}
+	if *client.Request.AddToDefaultNotificationGroup {
+		t.Fatal("AddToDefaultNotificationGroup should be false")
+	}
+	if got := model.ID.ValueString(); got != "channel-id" {
+		t.Fatalf("ID = %q, want %q", got, "channel-id")
+	}
+}
+
+func Test_Channel_Update_DoesNotSendAddToDefaultNotificationGroup(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	model := ChannelModel{
+		ID:   types.StringValue("channel-id"),
+		Name: types.StringValue("slack"),
+		Slack: []ChannelSlackModel{{
+			URL:               types.StringValue(testChannelSlackURL),
+			EnabledGraphImage: types.BoolValue(false),
+		}},
+	}
+	client := &channelUpdaterTester{}
+
+	if err := model.updateInner(ctx, client); err != nil {
+		t.Fatalf("unexpected error: %+v", err)
+	}
+
+	if client.ID != "channel-id" {
+		t.Fatalf("updated ID = %q, want %q", client.ID, "channel-id")
+	}
+	if client.Request.AddToDefaultNotificationGroup != nil {
+		t.Fatalf("AddToDefaultNotificationGroup should be nil, got %#v", *client.Request.AddToDefaultNotificationGroup)
+	}
+}
+
+type channelCreatorTester struct {
+	ID      string
+	Request mackerel.Channel
+}
+
+func (ct *channelCreatorTester) CreateChannel(param *mackerel.Channel) (*mackerel.Channel, error) {
+	ct.Request = *param
+	data := *param
+	data.ID = ct.ID
+	return &data, nil
+}
+
+type channelUpdaterTester struct {
+	ID      string
+	Request mackerel.Channel
+}
+
+func (ut *channelUpdaterTester) UpdateChannelContext(_ context.Context, id string, param *mackerel.Channel) (*mackerel.Channel, error) {
+	ut.ID = id
+	ut.Request = *param
+	data := *param
+	data.ID = id
+	return &data, nil
 }
 
 func ptr[T any](x T) *T {

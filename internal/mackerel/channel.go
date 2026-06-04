@@ -59,8 +59,18 @@ func ReadChannel(_ context.Context, client *Client, id string) (ChannelModel, er
 
 // Creates a new channel.
 // Currently this function is NOT cancelable.
-func (m *ChannelModel) Create(_ context.Context, client *Client) error {
+func (m *ChannelModel) Create(ctx context.Context, client *Client) error {
+	return m.createInner(ctx, client)
+}
+
+type channelCreator interface {
+	CreateChannel(*mackerel.Channel) (*mackerel.Channel, error)
+}
+
+func (m *ChannelModel) createInner(_ context.Context, client channelCreator) error {
 	channelParam := m.mackerelChannel()
+	addToDefaultNotificationGroup := false
+	channelParam.AddToDefaultNotificationGroup = &addToDefaultNotificationGroup
 	channel, err := client.CreateChannel(&channelParam)
 	if err != nil {
 		return err
@@ -84,6 +94,14 @@ func (m *ChannelModel) Read(ctx context.Context, client *Client) error {
 
 // Updates a channel.
 func (m *ChannelModel) Update(ctx context.Context, client *Client) error {
+	return m.updateInner(ctx, client)
+}
+
+type channelUpdater interface {
+	UpdateChannelContext(context.Context, string, *mackerel.Channel) (*mackerel.Channel, error)
+}
+
+func (m *ChannelModel) updateInner(ctx context.Context, client channelUpdater) error {
 	channelParam := m.mackerelChannel()
 	if _, err := client.UpdateChannelContext(ctx, m.ID.ValueString(), &channelParam); err != nil {
 		return err
