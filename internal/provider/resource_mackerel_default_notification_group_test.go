@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
 )
 
@@ -38,8 +39,28 @@ func Test_MackerelDefaultNotificationGroupResource_schema(t *testing.T) {
 	if _, ok := resp.Schema.Attributes["child_notification_group_ids"]; !ok {
 		t.Fatal("default notification group resource must expose child_notification_group_ids attribute")
 	}
+	assertRequiredSetAttribute(t, resp.Schema.Attributes["child_notification_group_ids"])
+	assertRequiredSetAttribute(t, resp.Schema.Attributes["child_channel_ids"])
 
 	if diags := resp.Schema.ValidateImplementation(ctx); diags.HasError() {
 		t.Fatalf("schema validation diagnostics: %+v", diags)
+	}
+}
+
+func assertRequiredSetAttribute(t *testing.T, attr schema.Attribute) {
+	t.Helper()
+
+	setAttr, ok := attr.(schema.SetAttribute)
+	if !ok {
+		t.Fatalf("attribute type = %T, want schema.SetAttribute", attr)
+	}
+	if !setAttr.IsRequired() {
+		t.Fatal("attribute must be required")
+	}
+	if setAttr.IsOptional() {
+		t.Fatal("attribute must not be optional")
+	}
+	if setAttr.IsComputed() {
+		t.Fatal("attribute must not be computed")
 	}
 }

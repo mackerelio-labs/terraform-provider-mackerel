@@ -68,6 +68,8 @@ resource "mackerel_channel" "email" {
 }
 
 resource "mackerel_default_notification_group" "default" {
+  child_notification_group_ids = []
+
   child_channel_ids = [
     mackerel_channel.email.id,
   ]

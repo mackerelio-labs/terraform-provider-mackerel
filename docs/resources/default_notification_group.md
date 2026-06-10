@@ -41,11 +41,13 @@ resource "mackerel_default_notification_group" "default" {
 }
 ```
 
+To manage no child notification groups or channels, set the corresponding attribute to an empty list (`[]`).
+
 ## Argument Reference
 
-* `notification_level` - The level of notification ("all" or "critical". Default "all").
-* `child_notification_group_ids` - A set of notification group IDs.
-* `child_channel_ids` - A set of notification channel IDs.
+* `notification_level` - (Optional) The level of notification ("all" or "critical". Default "all").
+* `child_notification_group_ids` - (Required) A set of notification group IDs.
+* `child_channel_ids` - (Required) A set of notification channel IDs.
 
 ## Attributes Reference
 
