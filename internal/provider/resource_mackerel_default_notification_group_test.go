@@ -75,6 +75,11 @@ func TestAccMackerelDefaultNotificationGroup(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
 	}
+	// The default notification group is a singleton in an organization. This
+	// acceptance test updates it and cannot safely run in parallel CI jobs.
+	if os.Getenv("MACKEREL_TEST_DEFAULT_NOTIFICATION_GROUP") == "" {
+		t.Skip("Default notification group acceptance test skipped unless env 'MACKEREL_TEST_DEFAULT_NOTIFICATION_GROUP' set")
+	}
 
 	resourceName := "mackerel_default_notification_group.default"
 	rand := acctest.RandString(5)

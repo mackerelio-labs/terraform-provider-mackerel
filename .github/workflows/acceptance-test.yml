@@ -18,6 +18,7 @@ jobs:
       - run: make test
         env:
           TF_ACC: 1
+          MACKEREL_TEST_DEFAULT_NOTIFICATION_GROUP: ${{ matrix.os == 'ubuntu-latest' && '1' || '' }}
           MACKEREL_API_KEY: ${{ secrets.MACKEREL_API_KEY }}
           EXTERNAL_ID: ${{ secrets.EXTERNAL_ID }}
           AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
