@@ -2,11 +2,17 @@ package provider_test
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"testing"
 
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/provider"
+	mackerelclient "github.com/mackerelio/mackerel-client-go"
 )
 
 func Test_MackerelDefaultNotificationGroupResource_schema(t *testing.T) {
@@ -63,4 +69,186 @@ func assertRequiredSetAttribute(t *testing.T, attr schema.Attribute) {
 	if setAttr.IsComputed() {
 		t.Fatal("attribute must not be computed")
 	}
+}
+
+func TestAccMackerelDefaultNotificationGroup(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
+	}
+
+	resourceName := "mackerel_default_notification_group.default"
+	rand := acctest.RandString(5)
+
+	preCheck(t)
+
+	client := mackerelClient()
+	original, err := testAccFindDefaultNotificationGroup(client)
+	if err != nil {
+		t.Fatalf("failed to find default notification group: %+v", err)
+	}
+	t.Cleanup(func() {
+		if err := testAccRestoreDefaultNotificationGroup(client, original); err != nil {
+			t.Errorf("failed to restore default notification group: %+v", err)
+		}
+	})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMackerelDefaultNotificationGroupConfigEmpty(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelDefaultNotificationGroup(resourceName, "all", 0, 0),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "notification_level", "all"),
+					resource.TestCheckResourceAttr(resourceName, "child_notification_group_ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "child_channel_ids.#", "0"),
+				),
+			},
+			{
+				Config: testAccMackerelDefaultNotificationGroupConfigWithChildren(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelDefaultNotificationGroup(resourceName, "critical", 1, 1),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "notification_level", "critical"),
+					resource.TestCheckResourceAttr(resourceName, "child_notification_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "child_channel_ids.#", "1"),
+				),
+			},
+			{
+				Config: testAccMackerelDefaultNotificationGroupConfigEmptyWithChildren(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelDefaultNotificationGroup(resourceName, "all", 0, 0),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "notification_level", "all"),
+					resource.TestCheckResourceAttr(resourceName, "child_notification_group_ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "child_channel_ids.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func testAccFindDefaultNotificationGroup(client *mackerelclient.Client) (*mackerelclient.NotificationGroup, error) {
+	groups, err := client.FindNotificationGroups()
+	if err != nil {
+		return nil, err
+	}
+
+	var defaultGroup *mackerelclient.NotificationGroup
+	for _, group := range groups {
+		if group.Type != mackerelclient.NotificationGroupTypeGroupDefault {
+			continue
+		}
+		if defaultGroup != nil {
+			return nil, fmt.Errorf("multiple default notification groups found")
+		}
+		defaultGroup = group
+	}
+	if defaultGroup == nil {
+		return nil, fmt.Errorf("default notification group is not found")
+	}
+	return defaultGroup, nil
+}
+
+func testAccRestoreDefaultNotificationGroup(client *mackerelclient.Client, group *mackerelclient.NotificationGroup) error {
+	param := testAccDefaultNotificationGroupUpdateParam(group)
+	_, err := client.UpdateNotificationGroup(group.ID, &param)
+	return err
+}
+
+func testAccDefaultNotificationGroupUpdateParam(group *mackerelclient.NotificationGroup) mackerelclient.NotificationGroup {
+	param := *group
+	param.Type = ""
+	if param.ChildNotificationGroupIDs == nil {
+		param.ChildNotificationGroupIDs = []string{}
+	}
+	if param.ChildChannelIDs == nil {
+		param.ChildChannelIDs = []string{}
+	}
+	return param
+}
+
+func testAccCheckMackerelDefaultNotificationGroup(resourceName, notificationLevel string, childNotificationGroupCount, childChannelCount int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("default notification group not found from resources: %s", resourceName)
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no default notification group ID is set")
+		}
+
+		group, err := testAccFindDefaultNotificationGroup(mackerelClient())
+		if err != nil {
+			return err
+		}
+		if group.ID != rs.Primary.ID {
+			return fmt.Errorf("default notification group ID = %q, want %q", group.ID, rs.Primary.ID)
+		}
+		if string(group.NotificationLevel) != notificationLevel {
+			return fmt.Errorf("default notification group notification level = %q, want %q", group.NotificationLevel, notificationLevel)
+		}
+		if got := len(group.ChildNotificationGroupIDs); got != childNotificationGroupCount {
+			return fmt.Errorf("default notification group child notification group count = %d, want %d", got, childNotificationGroupCount)
+		}
+		if got := len(group.ChildChannelIDs); got != childChannelCount {
+			return fmt.Errorf("default notification group child channel count = %d, want %d", got, childChannelCount)
+		}
+		return nil
+	}
+}
+
+func testAccMackerelDefaultNotificationGroupConfigEmpty() string {
+	return `
+resource "mackerel_default_notification_group" "default" {
+  notification_level = "all"
+
+  child_notification_group_ids = []
+  child_channel_ids = []
+}
+`
+}
+
+func testAccMackerelDefaultNotificationGroupConfigWithChildren(rand string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "foo" {
+  name = "tf-channel-%s"
+  email {}
+}
+
+resource "mackerel_notification_group" "child" {
+  name = "tf-notification-group-%s-child"
+}
+
+resource "mackerel_default_notification_group" "default" {
+  notification_level = "critical"
+
+  child_notification_group_ids = [
+    mackerel_notification_group.child.id]
+  child_channel_ids = [
+    mackerel_channel.foo.id]
+}
+`, rand, rand)
+}
+
+func testAccMackerelDefaultNotificationGroupConfigEmptyWithChildren(rand string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "foo" {
+  name = "tf-channel-%s"
+  email {}
+}
+
+resource "mackerel_notification_group" "child" {
+  name = "tf-notification-group-%s-child"
+}
+
+resource "mackerel_default_notification_group" "default" {
+  notification_level = "all"
+
+  child_notification_group_ids = []
+  child_channel_ids = []
+}
+`, rand, rand)
 }
