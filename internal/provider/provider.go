@@ -87,6 +87,7 @@ func (m *mackerelProvider) Resources(context.Context) []func() resource.Resource
 		NewMackerelAWSIntegrationResource,
 		NewMackerelChannelResource,
 		NewMackerelDashboardResource,
+		NewMackerelDefaultNotificationGroupResource,
 		NewMackerelDowntimeResource,
 		NewMackerelMonitorResource,
 		NewMackerelNotificationGroupResource,
