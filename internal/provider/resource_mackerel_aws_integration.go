@@ -172,6 +172,7 @@ var awsIntegrationServices = map[string]struct {
 	"connect":     {},
 	"docdb":       {},
 	"codebuild":   {},
+	"athena":      {},
 }
 
 func schemaAWSIntegrationResource() schema.Schema {

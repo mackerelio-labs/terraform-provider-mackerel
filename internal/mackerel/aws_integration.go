@@ -68,6 +68,7 @@ type AWSIntegrationSerfvices struct {
 	Connect     AWSIntegrationServiceOpt                        `tfsdk:"connect"`
 	DocDB       AWSIntegrationServiceOpt                        `tfsdk:"docdb"`
 	CodeBuild   AWSIntegrationServiceOpt                        `tfsdk:"codebuild"`
+	Athena      AWSIntegrationServiceOpt                        `tfsdk:"athena"`
 }
 
 type AWSIntegrationService struct {
@@ -298,6 +299,7 @@ func (m *AWSIntegrationSerfvices) each(fn awsServiceEachFunc) {
 	m.Connect.each("Connect", fn)
 	m.DocDB.each("DocDB", fn)
 	m.CodeBuild.each("CodeBuild", fn)
+	m.Athena.each("Athena", fn)
 }
 
 func (s *AWSIntegrationServiceOpt) each(name string, fn awsServiceEachFunc) {

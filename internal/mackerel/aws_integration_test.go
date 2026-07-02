@@ -166,7 +166,6 @@ func Test_AWSIntegration_fromAPI(t *testing.T) {
 						Role:            nil,
 						ExcludedMetrics: []string{},
 					},
-					// AWS Integration supports Athena, but the terraform provider does not.
 					"Athena": {
 						Enable:          false,
 						Role:            nil,
@@ -244,6 +243,7 @@ func Test_AWSIntegration_fromAPI(t *testing.T) {
 					Connect:    []AWSIntegrationService{},
 					DocDB:      []AWSIntegrationService{},
 					CodeBuild:  []AWSIntegrationService{},
+					Athena:     []AWSIntegrationService{},
 				},
 			},
 		},
@@ -339,6 +339,7 @@ func Test_AWSIntegration_toAPI(t *testing.T) {
 					Connect:    []AWSIntegrationService{},
 					DocDB:      []AWSIntegrationService{},
 					CodeBuild:  []AWSIntegrationService{},
+					Athena:     []AWSIntegrationService{},
 				},
 			},
 			param: mackerel.CreateAWSIntegrationParam{
@@ -397,6 +398,7 @@ func Test_AWSIntegration_toAPI(t *testing.T) {
 					"Connect":    {ExcludedMetrics: []string{}},
 					"DocDB":      {ExcludedMetrics: []string{}},
 					"CodeBuild":  {ExcludedMetrics: []string{}},
+					"Athena":     {ExcludedMetrics: []string{}},
 				},
 			},
 		},
