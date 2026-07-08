@@ -104,6 +104,9 @@ func schemaDashboardDataSource() schema.Schema {
 					AttrTypes: map[string]attr.Type{
 						"title":  types.StringType,
 						"layout": layoutType,
+						"legend_list": types.ListType{
+							ElemType: types.StringType,
+						},
 						"range": types.ListType{
 							ElemType: types.ObjectType{
 								AttrTypes: map[string]attr.Type{
