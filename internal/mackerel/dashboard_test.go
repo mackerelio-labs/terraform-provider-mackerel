@@ -60,6 +60,7 @@ func Test_Dashboard_conv(t *testing.T) {
 							Height: types.Int64Value(8),
 						}},
 					},
+					LegendList: types.ListNull(types.StringType),
 					Role: []DashboardGraphRole{{
 						RoleFullname: types.StringValue("service:role"),
 						Name:         types.StringValue("loadavg5"),
@@ -119,6 +120,7 @@ func Test_Dashboard_conv(t *testing.T) {
 							Height: types.Int64Value(8),
 						}},
 					},
+					LegendList: types.ListNull(types.StringType),
 					Role: []DashboardGraphRole{{
 						RoleFullname: types.StringValue("service:role"),
 						Name:         types.StringValue("loadavg5"),

@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/mackerel"
 )
 
@@ -220,6 +221,8 @@ var schemaDashboardResource_widgetLayout = schema.ListNestedBlock{
 }
 
 const (
+	schemaDashboardGraph_legendListDesc = "The list of metric names to display in the graph. Only the specified metric names will be shown. If not set, all metrics are displayed. Only valid for host graphs and service graphs."
+
 	schemaDashboardGraph_rangeDesc               = "The graph display range."
 	schemaDashboardGraph_rangeRelativeDesc       = "The relative display range. From (current time + `offset` - `period`) to (current time + `offset`)."
 	schemaDashboardGraph_rangeRelativePeriodDesc = "The length of the period (in seconds)."
@@ -307,6 +310,11 @@ var schemaDashboardResource_graph = schema.ListNestedBlock{
 	NestedObject: schema.NestedBlockObject{
 		Attributes: map[string]schema.Attribute{
 			"title": schemaDashboardResource_widgetTitle,
+			"legend_list": schema.ListAttribute{
+				Description: schemaDashboardGraph_legendListDesc,
+				Optional:    true,
+				ElementType: types.StringType,
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"range":  schemaDashboardResource_widgetRange,

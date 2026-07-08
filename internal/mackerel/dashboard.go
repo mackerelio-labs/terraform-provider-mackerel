@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio/mackerel-client-go"
 )
@@ -36,7 +37,8 @@ type (
 
 	DashboardWidgetGraph struct {
 		DashboardWidget
-		Range []DashboardRange `tfsdk:"range"`
+		Range      []DashboardRange `tfsdk:"range"`
+		LegendList types.List       `tfsdk:"legend_list"`
 
 		Host       []DashboardGraphHost       `tfsdk:"host"`
 		Role       []DashboardGraphRole       `tfsdk:"role"`
@@ -297,6 +299,16 @@ func newDashboardWidgetGraph(w mackerel.Widget) (DashboardWidgetGraph, error) {
 		DashboardWidget: newDashboardWidget(w),
 	}
 
+	if len(w.LegendList) > 0 {
+		vals := make([]attr.Value, len(w.LegendList))
+		for i, v := range w.LegendList {
+			vals[i] = types.StringValue(v)
+		}
+		g.LegendList = types.ListValueMust(types.StringType, vals)
+	} else {
+		g.LegendList = types.ListNull(types.StringType)
+	}
+
 	switch w.Range.Type {
 	case dashboardRangeTypeAbsolute:
 		g.Range = []DashboardRange{{
@@ -354,6 +366,14 @@ func newDashboardWidgetGraph(w mackerel.Widget) (DashboardWidgetGraph, error) {
 func (g DashboardWidgetGraph) mackerelWidget() mackerel.Widget {
 	w := g.DashboardWidget.mackerelWidget()
 	w.Type = dashboardWidgetTypeGraph
+
+	if !g.LegendList.IsNull() && !g.LegendList.IsUnknown() {
+		elems := g.LegendList.Elements()
+		w.LegendList = make([]string, len(elems))
+		for i, e := range elems {
+			w.LegendList[i] = e.(types.String).ValueString()
+		}
+	}
 
 	if len(g.Range) > 1 {
 		panic(fmt.Sprintf("expect range length to be 0 or 1, but got: %d", len(g.Range)))
