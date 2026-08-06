@@ -30,6 +30,10 @@ func Test_Dashboard_conv(t *testing.T) {
 						Name:         "loadavg5",
 						IsStacked:    true,
 					},
+					ReferenceLines: []mackerel.ReferenceLine{{
+						Label: "SLO",
+						Value: 99.9,
+					}},
 					Range: mackerel.Range{
 						Type:   "relative",
 						Period: 3600,
@@ -61,6 +65,10 @@ func Test_Dashboard_conv(t *testing.T) {
 						}},
 					},
 					LegendList: types.ListNull(types.StringType),
+					ReferenceLines: []DashboardReferenceLine{{
+						Label: types.StringValue("SLO"),
+						Value: types.Float64Value(99.9),
+					}},
 					Role: []DashboardGraphRole{{
 						RoleFullname: types.StringValue("service:role"),
 						Name:         types.StringValue("loadavg5"),

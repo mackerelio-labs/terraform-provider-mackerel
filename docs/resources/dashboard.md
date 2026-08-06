@@ -40,6 +40,10 @@ resource "mackerel_dashboard" "graph" {
         offset = 1800
       }
     }
+    reference_lines {
+      label = "SLO"
+      value = 99.9
+    }
     layout {
       x = 2
       y = 12
@@ -159,6 +163,9 @@ resource "mackerel_dashboard" "alert_status" {
   * `query` - (Required) The PromQL-style query.
   * `legend` - The query legend.
 * `legend_list` - The list of metric names to display in the graph. Only the specified metric names will be shown. If not set, all metrics are displayed. Only valid for host graphs and service graphs.
+* `reference_lines` - The reference line of the graph. Only one reference line can be specified.
+  * `label` - (Required) The label of the reference line. It must contain at least one non-whitespace character and must be 32 characters or less.
+  * `value` - (Required) The value of the reference line. It must be greater than or equal to 0.
 * `range` - The display period for graphs. If unspecified, it will be variable and thedisplay period can be changed from the controller displayed at the top of the dashboard.
   * `relative` - （The period from (current time + `offset` - `period`) to (current time + `offset`) is displayed. Negative values for `offset` can be used to display graphs for a specified period in the past.
     * `period` - (Required) Duration (seconds).

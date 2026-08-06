@@ -46,6 +46,9 @@ data "mackerel_dashboard" "this" {
     * `query` - The PromQL-style query.
     * `legend` - The query legend.
   * `legend_list` - The list of metric names to display in the graph. Only the specified metric names will be shown. If not set, all metrics are displayed. Only valid for host graphs and service graphs.
+  * `reference_lines` - The reference line of the graph.
+    * `label` - The label of the reference line.
+    * `value` - The value of the reference line.
   * `range` - The display period for graphs. If unspecified, it will be variable and the display period can be changed from the controller displayed at the top of the dashboard.
     * `relative` - （The period from (current time + `offset` - `period`) to (current time + `offset`) is displayed. Negative values for `offset` can be used to display graphs for a specified period in the past.
       * `period` - Duration (seconds).
