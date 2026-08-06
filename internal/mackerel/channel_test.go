@@ -38,6 +38,7 @@ func Test_Channel_conv(t *testing.T) {
 				Name: types.StringValue("slack"),
 				Slack: []ChannelSlackModel{{
 					URL:               types.StringValue(testChannelSlackURL),
+					Mentions:          map[string]string{},
 					EnabledGraphImage: types.BoolValue(false),
 					Events:            []string{},
 				}},

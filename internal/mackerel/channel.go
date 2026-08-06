@@ -131,25 +131,22 @@ func newChannel(mackerelChannel mackerel.Channel) (ChannelModel, error) {
 		}}
 		return model, nil
 	case "slack":
-		slackModel := ChannelSlackModel{
+		mentions := make(map[string]string, 3)
+		if mackerelChannel.Mentions.OK != "" {
+			mentions["ok"] = mackerelChannel.Mentions.OK
+		}
+		if mackerelChannel.Mentions.Warning != "" {
+			mentions["warning"] = mackerelChannel.Mentions.Warning
+		}
+		if mackerelChannel.Mentions.Critical != "" {
+			mentions["critical"] = mackerelChannel.Mentions.Critical
+		}
+		model.Slack = []ChannelSlackModel{{
 			URL:               types.StringValue(mackerelChannel.URL),
+			Mentions:          mentions,
 			EnabledGraphImage: types.BoolPointerValue(mackerelChannel.EnabledGraphImage),
 			Events:            *mackerelChannel.Events,
-		}
-		if mackerelChannel.Mentions != (mackerel.Mentions{}) {
-			mentions := make(map[string]string, 3)
-			if mackerelChannel.Mentions.OK != "" {
-				mentions["ok"] = mackerelChannel.Mentions.OK
-			}
-			if mackerelChannel.Mentions.Warning != "" {
-				mentions["warning"] = mackerelChannel.Mentions.Warning
-			}
-			if mackerelChannel.Mentions.Critical != "" {
-				mentions["critical"] = mackerelChannel.Mentions.Critical
-			}
-			slackModel.Mentions = mentions
-		}
-		model.Slack = []ChannelSlackModel{slackModel}
+		}}
 		return model, nil
 	case "webhook":
 		model.Webhook = []ChannelWebhookModel{{

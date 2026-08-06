@@ -132,6 +132,14 @@ func TestAccMackerelChannel_Slack(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			// Test: explicit empty mentions map should not cause perpetual diff
+			{
+				Config: testAccMackerelChannelConfigSlackWithEmptyMentions(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelChannelExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "slack.0.mentions.%", "0"),
+				),
+			},
 		},
 	})
 }
@@ -291,6 +299,18 @@ resource "mackerel_channel" "slack" {
   name = "%s"
   slack {
     url = "https://hooks.slack.com/services/xxx/yyy/zzz"
+  }
+}
+`, name)
+}
+
+func testAccMackerelChannelConfigSlackWithEmptyMentions(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "slack" {
+  name = "%s"
+  slack {
+    url = "https://hooks.slack.com/services/xxx/yyy/zzz"
+    mentions = {}
   }
 }
 `, name)
