@@ -2,8 +2,11 @@ package provider
 
 import (
 	"context"
+	"regexp"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -193,6 +196,7 @@ var schemaDashboardResource_widgetTitle = schema.StringAttribute{
 	Description: schemaDashboardWidget_titleDesc,
 	Required:    true,
 }
+
 var schemaDashboardResource_widgetLayout = schema.ListNestedBlock{
 	Description: schemaDashboardWidget_layoutDesc,
 	Validators: []validator.List{
@@ -304,6 +308,10 @@ const (
 	schemaDashboardGraph_queryDesc        = "The query graph."
 	schemaDashboardGraph_query_queryDesc  = "The PromQL-style query."
 	schemaDashboardGraph_query_legendDesc = "The query legend."
+
+	schemaDashboardGraph_referenceLinesDesc       = "The reference line of the graph. Only one reference line can be specified."
+	schemaDashboardGraph_referenceLines_labelDesc = "The label of the reference line. It must contain at least one non-whitespace character and must be 32 characters or less."
+	schemaDashboardGraph_referenceLines_valueDesc = "The value of the reference line. It must be greater than or equal to 0."
 )
 
 var schemaDashboardResource_graph = schema.ListNestedBlock{
@@ -319,6 +327,33 @@ var schemaDashboardResource_graph = schema.ListNestedBlock{
 		Blocks: map[string]schema.Block{
 			"range":  schemaDashboardResource_widgetRange,
 			"layout": schemaDashboardResource_widgetLayout,
+			"reference_lines": schema.ListNestedBlock{
+				Description: schemaDashboardGraph_referenceLinesDesc,
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
+				},
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"label": schema.StringAttribute{
+							Description: schemaDashboardGraph_referenceLines_labelDesc,
+							Required:    true,
+							Validators: []validator.String{
+								stringvalidator.UTF8LengthBetween(1, 32),
+								stringvalidator.RegexMatches(
+									regexp.MustCompile(`\S`),
+									"must contain at least one non-whitespace character"),
+							},
+						},
+						"value": schema.Float64Attribute{
+							Description: schemaDashboardGraph_referenceLines_valueDesc,
+							Required:    true,
+							Validators: []validator.Float64{
+								float64validator.AtLeast(0),
+							},
+						},
+					},
+				},
+			},
 
 			"host": schema.ListNestedBlock{
 				Description: schemaDashboardGraph_hostDesc,

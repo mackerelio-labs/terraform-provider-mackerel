@@ -37,8 +37,9 @@ type (
 
 	DashboardWidgetGraph struct {
 		DashboardWidget
-		Range      []DashboardRange `tfsdk:"range"`
-		LegendList types.List       `tfsdk:"legend_list"`
+		Range          []DashboardRange         `tfsdk:"range"`
+		LegendList     types.List               `tfsdk:"legend_list"`
+		ReferenceLines []DashboardReferenceLine `tfsdk:"reference_lines"`
 
 		Host       []DashboardGraphHost       `tfsdk:"host"`
 		Role       []DashboardGraphRole       `tfsdk:"role"`
@@ -49,6 +50,10 @@ type (
 	DashboardRange struct {
 		Relative []DashboardRangeRelative `tfsdk:"relative"`
 		Absolute []DashboardRangeAbsolute `tfsdk:"absolute"`
+	}
+	DashboardReferenceLine struct {
+		Label types.String  `tfsdk:"label"`
+		Value types.Float64 `tfsdk:"value"`
 	}
 	DashboardRangeRelative struct {
 		Period types.Int64 `tfsdk:"period"`
@@ -202,9 +207,6 @@ func newDashboard(d mackerel.Dashboard) (DashboardModel, error) {
 
 	for _, w := range d.Widgets {
 		// unsupported features
-		if len(w.ReferenceLines) != 0 {
-			return m, fmt.Errorf("referenceLines is unsupported.")
-		}
 		if len(w.FormatRules) != 0 {
 			return m, fmt.Errorf("formatFules is unsupported.")
 		}
@@ -309,6 +311,16 @@ func newDashboardWidgetGraph(w mackerel.Widget) (DashboardWidgetGraph, error) {
 		g.LegendList = types.ListNull(types.StringType)
 	}
 
+	if len(w.ReferenceLines) > 0 {
+		g.ReferenceLines = make([]DashboardReferenceLine, len(w.ReferenceLines))
+		for i, r := range w.ReferenceLines {
+			g.ReferenceLines[i] = DashboardReferenceLine{
+				Label: types.StringValue(r.Label),
+				Value: types.Float64Value(r.Value),
+			}
+		}
+	}
+
 	switch w.Range.Type {
 	case dashboardRangeTypeAbsolute:
 		g.Range = []DashboardRange{{
@@ -372,6 +384,16 @@ func (g DashboardWidgetGraph) mackerelWidget() mackerel.Widget {
 		w.LegendList = make([]string, len(elems))
 		for i, e := range elems {
 			w.LegendList[i] = e.(types.String).ValueString()
+		}
+	}
+
+	if len(g.ReferenceLines) > 0 {
+		w.ReferenceLines = make([]mackerel.ReferenceLine, len(g.ReferenceLines))
+		for i, r := range g.ReferenceLines {
+			w.ReferenceLines[i] = mackerel.ReferenceLine{
+				Label: r.Label.ValueString(),
+				Value: r.Value.ValueFloat64(),
+			}
 		}
 	}
 

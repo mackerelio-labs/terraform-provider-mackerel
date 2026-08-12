@@ -107,6 +107,9 @@ func TestAccMackerelDashboardGraph(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "graph.0.role.0.name", "loadavg5"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.range.0.relative.0.period", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.range.0.relative.0.offset", "1800"),
+					resource.TestCheckResourceAttr(resourceName, "graph.0.reference_lines.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "graph.0.reference_lines.0.label", "SLO"),
+					resource.TestCheckResourceAttr(resourceName, "graph.0.reference_lines.0.value", "99.9"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.layout.0.x", "2"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.layout.0.y", "12"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.layout.0.width", "10"),
@@ -126,6 +129,9 @@ func TestAccMackerelDashboardGraph(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "graph.0.role.0.name", "loadavg5"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.range.0.relative.0.period", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.range.0.relative.0.offset", "1800"),
+					// The reference line set on create is removed here, so this also
+					// covers deleting reference lines from an existing dashboard.
+					resource.TestCheckResourceAttr(resourceName, "graph.0.reference_lines.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.layout.0.x", "2"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.layout.0.y", "12"),
 					resource.TestCheckResourceAttr(resourceName, "graph.0.layout.0.width", "10"),
@@ -418,6 +424,10 @@ resource "mackerel_dashboard" "graph" {
         period = 3600
         offset = 1800
       }
+    }
+    reference_lines {
+      label = "SLO"
+      value = 99.9
     }
     layout {
       x = 2

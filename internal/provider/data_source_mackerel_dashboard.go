@@ -107,6 +107,14 @@ func schemaDashboardDataSource() schema.Schema {
 						"legend_list": types.ListType{
 							ElemType: types.StringType,
 						},
+						"reference_lines": types.ListType{
+							ElemType: types.ObjectType{
+								AttrTypes: map[string]attr.Type{
+									"label": types.StringType,
+									"value": types.Float64Type,
+								},
+							},
+						},
 						"range": types.ListType{
 							ElemType: types.ObjectType{
 								AttrTypes: map[string]attr.Type{
