@@ -512,6 +512,7 @@ const (
 	schemaMonitorExternal_CertificationExpirationCriticalDesc = "The threshold (in days) of the certification expiration date for critical alerts."
 	schemaMonitorExternal_CertificationExpirationWarningDesc  = "The threshold (in days) of the certification expiration date for warning alerts."
 	schemaMonitorExternal_ExpectedStatusCodeDesc              = "Specify the status code that is judged as OK. If not specified, 2xx or 3xx will be judged as OK."
+	schemaMonitorExternal_DualstackDesc                       = "Specify use monitoring on the IP version. Supporting values `ipv4`, `ipv6`, `auto`. If not specified use a `ipv4`"
 )
 
 func schemaMonitorResourceExternalBlock() schema.Block {
@@ -621,6 +622,15 @@ func schemaMonitorResourceExternalBlock() schema.Block {
 				"expected_status_code": schema.Int64Attribute{
 					Description: schemaMonitorExternal_ExpectedStatusCodeDesc,
 					Optional:    true,
+				},
+				"dualstack": schema.StringAttribute{
+					Description: schemaMonitorExternal_DualstackDesc,
+					Optional:    true,
+					Computed:    true,
+					Validators: []validator.String{
+						stringvalidator.OneOf("ipv4", "ipv6", "auto"),
+					},
+					Default: stringdefault.StaticString("ipv4"),
 				},
 			},
 		},

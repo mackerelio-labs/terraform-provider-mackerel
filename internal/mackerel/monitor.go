@@ -91,6 +91,7 @@ type MonitorExternal struct {
 	Headers                         map[string]string `tfsdk:"headers"`
 	FollowRedirect                  types.Bool        `tfsdk:"follow_redirect"`
 	ExpectedStatusCode              types.Int64       `tfsdk:"expected_status_code"`
+	Dualstack                       types.String      `tfsdk:"dualstack"`
 }
 
 type MonitorAnomalyDetection struct {
@@ -276,6 +277,11 @@ func newMonitor(mackerelMonitor mackerel.Monitor) (MonitorModel, error) {
 		if m.ExpectedStatusCode != nil {
 			ehm.ExpectedStatusCode = types.Int64Value(int64(*m.ExpectedStatusCode))
 		}
+		if m.Dualstack != nil {
+			ehm.Dualstack = types.StringValue(string(*m.Dualstack))
+		} else /* default */ {
+			ehm.Dualstack = types.StringValue("ipv4")
+		}
 
 		if m.Headers != nil {
 			headers := make(map[string]string, len(m.Headers))
@@ -449,6 +455,18 @@ func (m MonitorModel) mackerelMonitor() mackerel.Monitor {
 		if expectedStatusCode := ehm.ExpectedStatusCode.ValueInt64(); expectedStatusCode > 0 {
 			expectedStatusCode := int(expectedStatusCode)
 			mon.ExpectedStatusCode = &expectedStatusCode
+		}
+		if dualstack := ehm.Dualstack.ValueString(); dualstack != "" {
+			var ds mackerel.Dualstack
+			switch dualstack {
+			case "ipv4":
+				ds = mackerel.DualstackIPv4
+			case "ipv6":
+				ds = mackerel.DualstackIPv6
+			case "auto":
+				ds = mackerel.DualstackAuto
+			}
+			mon.Dualstack = &ds
 		}
 
 		// Headers

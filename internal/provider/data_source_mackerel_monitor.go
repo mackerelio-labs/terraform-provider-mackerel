@@ -154,6 +154,8 @@ func (d *mackerelMonitorDataSource) Schema(_ context.Context, _ datasource.Schem
 						"skip_certificate_verification":     types.BoolType,
 						"certification_expiration_critical": types.Int64Type,
 						"certification_expiration_warning":  types.Int64Type,
+
+						"dualstack": types.StringType,
 					},
 				},
 			},
