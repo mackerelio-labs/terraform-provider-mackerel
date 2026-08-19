@@ -64,6 +64,7 @@ data "mackerel_monitor" "this" {
   * `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made.
   * `follow_redirect` - Evaluates the response of the redirector as a result.
   * `expected_status_code` - Expected http status code of the response.
+  * `dualstack` - Specify use monitoring on the IP version. Supporting values `ipv4`, `ipv6`, `auto`. If not specified use a `ipv4`
 * `expression` -  The settings for the monitor of expression monitoring.
   * `expression` - Expression of the monitoring target.
   * `operator` - The comparison operator to determines the conditions that state whether the designated variable is either big or small. The observed value is on the left of the operator and the designated value is on the right.

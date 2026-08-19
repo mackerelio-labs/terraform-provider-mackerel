@@ -183,6 +183,7 @@ func TestAccDataSourceMackerelMonitorExternal(t *testing.T) {
 						resource.TestCheckResourceAttr(dsName, "external.0.headers.Cache-Control", "no-cache"),
 						resource.TestCheckResourceAttr(dsName, "external.0.follow_redirect", "true"),
 						resource.TestCheckResourceAttr(dsName, "external.0.expected_status_code", "200"),
+						resource.TestCheckResourceAttr(dsName, "external.0.dualstack", "ipv6"),
 					),
 					resource.TestCheckResourceAttr(dsName, "expression.#", "0"),
 					resource.TestCheckResourceAttr(dsName, "anomaly_detection.#", "0"),
@@ -453,6 +454,7 @@ resource "mackerel_monitor" "foo" {
     }
     follow_redirect = true
     expected_status_code = 200
+    dualstack = "ipv6"
   }
 }
 

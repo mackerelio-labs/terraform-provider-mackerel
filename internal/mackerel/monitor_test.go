@@ -352,6 +352,7 @@ func Test_Monitor_toModel(t *testing.T) {
 					SkipCertificateVerification:     types.BoolValue(false),
 					Headers:                         nil,
 					FollowRedirect:                  types.BoolValue(false),
+					Dualstack:                       types.StringValue("ipv4"),
 				}},
 			},
 		},
@@ -381,6 +382,7 @@ func Test_Monitor_toModel(t *testing.T) {
 					{Name: "Cache-Control", Value: "no-cache"},
 				},
 				ExpectedStatusCode: toPtr(200),
+				Dualstack:          toPtr(mackerel.DualstackAuto),
 			},
 			wants: MonitorModel{
 				ID:                   types.StringValue("5dQKsiUxvf9"),
@@ -407,6 +409,7 @@ func Test_Monitor_toModel(t *testing.T) {
 					},
 					FollowRedirect:     types.BoolValue(true),
 					ExpectedStatusCode: types.Int64Value(200),
+					Dualstack:          types.StringValue("auto"),
 				}},
 			},
 		},

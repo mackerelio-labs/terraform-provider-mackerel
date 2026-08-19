@@ -182,6 +182,7 @@ The following arguments are required:
 * `max_check_attempts` - Number of consecutive Warning/Critical counts before an alert is made. Default is `1`. Valid values are numbers `1` through `10` inclusive.
 * `follow_redirect` - Evaluates the response of the redirector as a result. Valid values are `true` and `false`. Default is `false`.
 * `expected_status_code` - Expected http status code of the response.
+* `dualstack` - Specify use monitoring on the IP version. Supporting values `ipv4`, `ipv6`, `auto`. If not specified use a `ipv4`
 
 ### expression
 
