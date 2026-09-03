@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
@@ -89,10 +90,16 @@ func (r *mackerelMonitorResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	if err := data.Read(ctx, r.Client); err != nil {
+		if errors.Is(err, mackerel.ErrMonitorNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Unable to read Monitor",
 			err.Error(),
 		)
+		return
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
