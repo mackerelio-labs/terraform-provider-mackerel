@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
@@ -89,10 +90,16 @@ func (r *mackerelMonitorResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	if err := data.Read(ctx, r.Client); err != nil {
+		if errors.Is(err, mackerel.ErrMonitorNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Unable to read Monitor",
 			err.Error(),
 		)
+		return
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -149,61 +156,61 @@ const (
 
 func schemaMonitorResource() (schema.Schema, []resource.ConfigValidator) {
 	return schema.Schema{
-			Description: "This resource allows creating and management of monitors.",
-			Attributes: map[string]schema.Attribute{
-				"id": schema.StringAttribute{
-					Description: schemaMonitorIDDesc,
-					Computed:    true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.UseStateForUnknown(),
-					},
-				},
-				"name": schema.StringAttribute{
-					Description: schemaMonitorNameDesc,
-					Required:    true,
-				},
-				"memo": schema.StringAttribute{
-					Description: schemaMonitorMemoDesc,
-					Optional:    true,
-					Computed:    true,
-					Default:     stringdefault.StaticString(""),
-				},
-				"is_mute": schema.BoolAttribute{
-					Description: schemaMonitorIsMuteDesc,
-					Optional:    true,
-					Computed:    true,
-					Default:     booldefault.StaticBool(false),
-				},
-				"notification_interval": schema.Int64Attribute{
-					Description: schemaMonitorNotificationIntervalDesc,
-					Optional:    true,
-					Computed:    true,
-					Default:     int64default.StaticInt64(0), // TODO(schema upgrade): handle null
-					Validators: []validator.Int64{
-						int64validator.AtLeast(0),
-					},
+		Description: "This resource allows creating and management of monitors.",
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Description: schemaMonitorIDDesc,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			Blocks: map[string]schema.Block{
-				"host_metric":       schemaMonitorResourceHostMetricBlock(),
-				"service_metric":    schemaMonitorResourceServiceMetricBlock(),
-				"expression":        schemaMonitorResourceExpressionBlock(),
-				"query":             schemaMonitorResourceQueryBlock(),
-				"connectivity":      schemaMonitorResourceConnectivityBlock(),
-				"external":          schemaMonitorResourceExternalBlock(),
-				"anomaly_detection": schemaMonitorResourceAnomalyDetectionBlock(),
+			"name": schema.StringAttribute{
+				Description: schemaMonitorNameDesc,
+				Required:    true,
 			},
-		}, []resource.ConfigValidator{
-			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("host_metric"),
-				path.MatchRoot("service_metric"),
-				path.MatchRoot("expression"),
-				path.MatchRoot("query"),
-				path.MatchRoot("connectivity"),
-				path.MatchRoot("external"),
-				path.MatchRoot("anomaly_detection"),
-			),
-		}
+			"memo": schema.StringAttribute{
+				Description: schemaMonitorMemoDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString(""),
+			},
+			"is_mute": schema.BoolAttribute{
+				Description: schemaMonitorIsMuteDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     booldefault.StaticBool(false),
+			},
+			"notification_interval": schema.Int64Attribute{
+				Description: schemaMonitorNotificationIntervalDesc,
+				Optional:    true,
+				Computed:    true,
+				Default:     int64default.StaticInt64(0), // TODO(schema upgrade): handle null
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
+			},
+		},
+		Blocks: map[string]schema.Block{
+			"host_metric":       schemaMonitorResourceHostMetricBlock(),
+			"service_metric":    schemaMonitorResourceServiceMetricBlock(),
+			"expression":        schemaMonitorResourceExpressionBlock(),
+			"query":             schemaMonitorResourceQueryBlock(),
+			"connectivity":      schemaMonitorResourceConnectivityBlock(),
+			"external":          schemaMonitorResourceExternalBlock(),
+			"anomaly_detection": schemaMonitorResourceAnomalyDetectionBlock(),
+		},
+	}, []resource.ConfigValidator{
+		resourcevalidator.ExactlyOneOf(
+			path.MatchRoot("host_metric"),
+			path.MatchRoot("service_metric"),
+			path.MatchRoot("expression"),
+			path.MatchRoot("query"),
+			path.MatchRoot("connectivity"),
+			path.MatchRoot("external"),
+			path.MatchRoot("anomaly_detection"),
+		),
+	}
 }
 
 const (

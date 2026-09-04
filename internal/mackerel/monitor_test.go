@@ -1,6 +1,9 @@
 package mackerel
 
 import (
+	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -8,6 +11,25 @@ import (
 	"github.com/mackerelio-labs/terraform-provider-mackerel/internal/typeutil"
 	"github.com/mackerelio/mackerel-client-go"
 )
+
+func Test_ReadMonitor_NotFound(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	t.Cleanup(server.Close)
+
+	client, err := mackerel.NewClientWithOptions("dummy-api-key", server.URL, false)
+	if err != nil {
+		t.Fatalf("failed to create client: %v", err)
+	}
+
+	_, err = ReadMonitor(t.Context(), client, "missing-monitor-id")
+	if !errors.Is(err, ErrMonitorNotFound) {
+		t.Errorf("expected ErrMonitorNotFound, got: %v", err)
+	}
+}
 
 func Test_Monitor_toModel(t *testing.T) {
 	t.Parallel()
