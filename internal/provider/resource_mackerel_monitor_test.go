@@ -31,6 +31,48 @@ func Test_MackerelMonitorResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelMonitor_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_monitor.foo"
+	name := fmt.Sprintf("tf-monitor recreate %s", acctest.RandString(5))
+	config := testAccMackerelMonitorConfigHostMetric(name)
+
+	var monitorID string
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelMonitorDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelMonitorExists(resourceName),
+					// Get monitorID from the Terraform state
+					func(s *terraform.State) error {
+						r, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("monitor not found from resources: %s", resourceName)
+						}
+						monitorID = r.Primary.ID
+						return nil
+					},
+				),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteMonitor(monitorID)
+					if err != nil {
+						t.Fatalf("failed to delete monitor: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelMonitorExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelMonitor_HostMetric(t *testing.T) {
 	resourceName := "mackerel_monitor.foo"
 	rand := acctest.RandString(5)
