@@ -1,7 +1,9 @@
 package mackerel
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -9,6 +11,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio/mackerel-client-go"
 )
+
+func Test_ReadRoleMetadata_NotFound(t *testing.T) {
+	t.Parallel()
+
+	inClient := roleMetadataReaderFunc(func(string, string, string) (*mackerel.RoleMetaDataResp, error) {
+		return nil, &mackerel.APIError{StatusCode: http.StatusNotFound, Message: "not found"}
+	})
+
+	_, err := readRoleMetadata(inClient, "service", "role", "namespace")
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound, got: %v", err)
+	}
+}
 
 func Test_ReadRoleMetadata(t *testing.T) {
 	t.Parallel()

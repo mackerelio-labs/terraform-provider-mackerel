@@ -2,6 +2,9 @@ package mackerel
 
 import (
 	"context"
+	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -13,6 +16,26 @@ const (
 	testChannelSlackURL   = "https://slack.test/services/xxx/yyy/zzz"
 	testChannelWebhookURL = "https://example.test/hook"
 )
+
+func Test_ReadChannel_NotFound(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"channels":[]}`))
+	}))
+	t.Cleanup(server.Close)
+
+	client, err := mackerel.NewClientWithOptions("dummy-api-key", server.URL, false)
+	if err != nil {
+		t.Fatalf("failed to create client: %v", err)
+	}
+
+	_, err = ReadChannel(t.Context(), client, "missing-id")
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound, got: %v", err)
+	}
+}
 
 func Test_Channel_conv(t *testing.T) {
 	t.Parallel()

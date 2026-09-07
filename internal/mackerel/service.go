@@ -61,7 +61,7 @@ func readServiceInner(client serviceFinder, name string) (ServiceModel, error) {
 		return s.Name == name
 	})
 	if serviceIdx == -1 {
-		return ServiceModel{}, fmt.Errorf("the name '%s' does not match any service in mackerel.io", name)
+		return ServiceModel{}, fmt.Errorf("%w: the name '%s' does not match any service in mackerel.io", ErrNotFound, name)
 	}
 
 	service := services[serviceIdx]

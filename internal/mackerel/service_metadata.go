@@ -48,7 +48,7 @@ func readServiceMetadataInner(_ context.Context, client serviceMetadataGetter, d
 
 	metadataResp, err := client.GetServiceMetaData(serviceName, namespace)
 	if err != nil {
-		return ServiceMetadataModel{}, err
+		return ServiceMetadataModel{}, wrapErrNotFoundIfHttp404(err)
 	}
 
 	data.ID = types.StringValue(serviceMetadataID(serviceName, namespace))

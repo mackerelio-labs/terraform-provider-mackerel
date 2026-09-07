@@ -29,6 +29,48 @@ func Test_MackerelDowntimeResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelDowntime_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_downtime.foo"
+	name := fmt.Sprintf("tf-downtime recreate %s", acctest.RandString(5))
+	config := testAccMackerelDowntimeConfig(name)
+
+	var downtimeID string
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelDowntimeDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelDowntimeExists(resourceName),
+					// Get downtimeID from the Terraform state
+					func(s *terraform.State) error {
+						r, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("downtime not found from resources: %s", resourceName)
+						}
+						downtimeID = r.Primary.ID
+						return nil
+					},
+				),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteDowntime(downtimeID)
+					if err != nil {
+						t.Fatalf("failed to delete downtime: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelDowntimeExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelDowntime(t *testing.T) {
 	resourceName := "mackerel_downtime.foo"
 	rand := acctest.RandString(5)

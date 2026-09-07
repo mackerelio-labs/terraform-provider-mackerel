@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -71,6 +72,10 @@ func Test_NotificationGroup_Read(t *testing.T) {
 				} else {
 					t.Errorf("unexpected error: %+v", err)
 				}
+				return
+			}
+			if err != nil && !errors.Is(err, ErrNotFound) {
+				t.Errorf("expected ErrNotFound, got: %v", err)
 				return
 			}
 

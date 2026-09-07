@@ -96,14 +96,14 @@ type AWSIntegrationServiceWithRetireAutomatically struct {
 
 type AWSIntegrationServiceWithRetireAutomaticallyOpt []AWSIntegrationServiceWithRetireAutomatically // length <= 1
 
-func ReadAWSIntegration(_ context.Context, client *Client, id string) (*AWSIntegrationModel, error) {
-	return readAWSIntegration(client, id)
+func ReadAWSIntegration(ctx context.Context, client *Client, id string) (*AWSIntegrationModel, error) {
+	return readAWSIntegration(ctx, client, id)
 }
 
-func readAWSIntegration(client *Client, id string) (*AWSIntegrationModel, error) {
-	mackerelAWSIntegration, err := client.FindAWSIntegration(id)
+func readAWSIntegration(ctx context.Context, client *Client, id string) (*AWSIntegrationModel, error) {
+	mackerelAWSIntegration, err := client.FindAWSIntegrationContext(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, wrapErrNotFoundIfHttp404(err)
 	}
 	return newAWSIntegrationModel(*mackerelAWSIntegration)
 }
@@ -118,8 +118,8 @@ func (m *AWSIntegrationModel) Create(_ context.Context, client *Client) error {
 	return nil
 }
 
-func (m *AWSIntegrationModel) Read(_ context.Context, client *Client) error {
-	integration, err := readAWSIntegration(client, m.ID.ValueString())
+func (m *AWSIntegrationModel) Read(ctx context.Context, client *Client) error {
+	integration, err := readAWSIntegration(ctx, client, m.ID.ValueString())
 	if err != nil {
 		return err
 	}

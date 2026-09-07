@@ -26,8 +26,8 @@ func Test_ReadMonitor_NotFound(t *testing.T) {
 	}
 
 	_, err = ReadMonitor(t.Context(), client, "missing-monitor-id")
-	if !errors.Is(err, ErrMonitorNotFound) {
-		t.Errorf("expected ErrMonitorNotFound, got: %v", err)
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound, got: %v", err)
 	}
 }
 

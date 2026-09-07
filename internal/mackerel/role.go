@@ -62,7 +62,7 @@ func readRoleInner(_ context.Context, client roleFinder, serviceName, roleName s
 		return r.Name == roleName
 	})
 	if roleIdx < 0 {
-		return RoleModel{}, fmt.Errorf("the name '%s' does not match any role in mackerel.io", roleName)
+		return RoleModel{}, fmt.Errorf("%w: the name '%s' does not match any role in mackerel.io", ErrNotFound, roleName)
 	}
 
 	role := roles[roleIdx]

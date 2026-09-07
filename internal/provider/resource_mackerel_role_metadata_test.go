@@ -28,6 +28,37 @@ func Test_MackerelRoleMetadataResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelRoleMetadata_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_role_metadata.foo"
+	rand := acctest.RandString(5)
+	serviceName := fmt.Sprintf("tf-%s", rand)
+	roleName := fmt.Sprintf("tf-%s-role", rand)
+	namespace := fmt.Sprintf("tf-namespace-%s-recreate", rand)
+	config := testAccMackerelRoleMetadataConfig(serviceName, roleName, namespace)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelRoleMetadataDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check:  testAccCheckMackerelRoleMetadataExists(resourceName),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					if err := mackerelClient().DeleteRoleMetaData(serviceName, roleName, namespace); err != nil {
+						t.Fatalf("failed to delete role metadata: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelRoleMetadataExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelRoleMetadata(t *testing.T) {
 	resourceName := "mackerel_role_metadata.foo"
 	rand := acctest.RandString(5)

@@ -29,6 +29,58 @@ func Test_MackerelAWSIntegrationResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelAWSIntegration_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_aws_integration.foo"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-aws-integration recreate %s", rand)
+
+	externalID := os.Getenv("EXTERNAL_ID")
+	if externalID == "" {
+		t.Skip("EXTERNAL_ID must be set for acceptance tests")
+	}
+	awsRoleArn := os.Getenv("AWS_ROLE_ARN")
+	if awsRoleArn == "" {
+		t.Skip("AWS_ROLE_ARN must be set for acceptance tests")
+	}
+	config := testAccSourceMackerelAWSIntegrationConfigIAMRole(rand, name, awsRoleArn, externalID)
+
+	var integrationID string
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelAWSIntegrationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelAWSIntegrationExists(resourceName),
+					// Get integrationID from the Terraform state
+					func(s *terraform.State) error {
+						r, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("aws integration not found from resources: %s", resourceName)
+						}
+						integrationID = r.Primary.ID
+						return nil
+					},
+				),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteAWSIntegration(integrationID)
+					if err != nil {
+						t.Fatalf("failed to delete aws integration: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelAWSIntegrationExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelAWSIntegrationIAMRole(t *testing.T) {
 	resourceName := "mackerel_aws_integration.foo"
 	rand := acctest.RandString(5)

@@ -54,7 +54,7 @@ func readNotificationGroupInner(_ context.Context, client notificationGroupFinde
 		return ng.ID == id
 	})
 	if ngIdx < 0 {
-		return NotificationGroupModel{}, fmt.Errorf("the ID '%s' does not match any notification group in mackerel.io", id)
+		return NotificationGroupModel{}, fmt.Errorf("%w: the ID '%s' does not match any notification group in mackerel.io", ErrNotFound, id)
 	}
 
 	return newNotificationGroupModel(*ngs[ngIdx]), nil

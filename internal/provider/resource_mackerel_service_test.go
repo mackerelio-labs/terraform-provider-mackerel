@@ -32,6 +32,39 @@ func TestMackerelServiceResourceSchema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelService_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_service.foo"
+	name := fmt.Sprintf("tf-service-recreate-%s", acctest.RandString(5))
+	config := fmt.Sprintf(`
+resource "mackerel_service" "foo" {
+  name = "%s"
+}
+`, name)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check:  testAccCheckMackerelServiceExists(resourceName),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteService(name)
+					if err != nil {
+						t.Fatalf("failed to delete service: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelServiceExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelService(t *testing.T) {
 	t.Parallel()
 	resourceName := "mackerel_service.foo"

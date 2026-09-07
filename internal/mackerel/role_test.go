@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -61,6 +62,8 @@ func Test_Role_ReadRole(t *testing.T) {
 			if err != nil {
 				if !tt.wantErr {
 					t.Errorf("unexpected error: %+v", err)
+				} else if !errors.Is(err, ErrNotFound) {
+					t.Errorf("expected ErrNotFound, got: %v", err)
 				}
 				return
 			} else if tt.wantErr {

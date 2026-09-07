@@ -2,9 +2,7 @@ package mackerel
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"net/http"
 	"slices"
 	"strconv"
 	"strings"
@@ -104,17 +102,11 @@ type MonitorAnomalyDetection struct {
 	Scopes              []string     `tfsdk:"scopes"`
 }
 
-var ErrMonitorNotFound = errors.New("monitor not found")
-
 // Reads the monitor by the id.
 func ReadMonitor(ctx context.Context, client *Client, id string) (MonitorModel, error) {
 	m, err := client.GetMonitorContext(ctx, id)
 	if err != nil {
-		var apiErr *mackerel.APIError
-		if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
-			return MonitorModel{}, fmt.Errorf("%w: %w", ErrMonitorNotFound, err)
-		}
-		return MonitorModel{}, err
+		return MonitorModel{}, wrapErrNotFoundIfHttp404(err)
 	}
 	return newMonitor(m)
 }

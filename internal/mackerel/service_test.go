@@ -2,6 +2,7 @@ package mackerel
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -126,6 +127,8 @@ func Test_ReadService(t *testing.T) {
 			if err != nil {
 				if !tt.wantFail {
 					t.Errorf("unexpected error: %+v", err)
+				} else if !errors.Is(err, ErrNotFound) {
+					t.Errorf("expected ErrNotFound, got: %v", err)
 				}
 				return
 			}

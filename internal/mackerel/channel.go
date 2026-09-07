@@ -35,9 +35,8 @@ type (
 )
 
 // Reads a channel by the ID.
-// Currently this function is NOT cancelable.
-func ReadChannel(_ context.Context, client *Client, id string) (ChannelModel, error) {
-	channels, err := client.FindChannels()
+func ReadChannel(ctx context.Context, client *Client, id string) (ChannelModel, error) {
+	channels, err := client.FindChannelsContext(ctx)
 	if err != nil {
 		return ChannelModel{}, err
 	}
@@ -46,7 +45,7 @@ func ReadChannel(_ context.Context, client *Client, id string) (ChannelModel, er
 		return c.ID == id
 	})
 	if channelIdx < 0 {
-		return ChannelModel{}, fmt.Errorf("the ID '%s' does not match any channel in mackerel.io", id)
+		return ChannelModel{}, fmt.Errorf("%w: the ID '%s' does not match any channel in mackerel.io", ErrNotFound, id)
 	}
 
 	channel, err := newChannel(*channels[channelIdx])

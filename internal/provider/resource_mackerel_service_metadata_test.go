@@ -30,6 +30,36 @@ func Test_MackerelServiceMetadataResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelServiceMetadata_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_service_metadata.foo"
+	rand := acctest.RandString(5)
+	serviceName := fmt.Sprintf("tf-%s", rand)
+	namespace := fmt.Sprintf("tf-namespace-%s-recreate", rand)
+	config := testAccMackerelServiceMetadataConfig(serviceName, namespace)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelServiceMetadataDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check:  testAccCheckMackerelServiceMetadataExists(resourceName),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					if err := mackerelClient().DeleteServiceMetaData(serviceName, namespace); err != nil {
+						t.Fatalf("failed to delete service metadata: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelServiceMetadataExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelServiceMetadata(t *testing.T) {
 	resourceName := "mackerel_service_metadata.foo"
 	rand := acctest.RandString(5)

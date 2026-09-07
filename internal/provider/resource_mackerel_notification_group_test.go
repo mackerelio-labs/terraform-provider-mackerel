@@ -29,6 +29,48 @@ func Test_MackerelNotificationGroupResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelNotificationGroup_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_notification_group.foo"
+	name := fmt.Sprintf("tf-notification-group recreate %s", acctest.RandString(5))
+	config := testAccMackerelNotificationGroupConfig(name)
+
+	var groupID string
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelNotificationGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelNotificationGroupExists(resourceName),
+					// Get groupID from the Terraform state
+					func(s *terraform.State) error {
+						r, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("notification group not found from resources: %s", resourceName)
+						}
+						groupID = r.Primary.ID
+						return nil
+					},
+				),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteNotificationGroup(groupID)
+					if err != nil {
+						t.Fatalf("failed to delete notification group: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelNotificationGroupExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelNotificationGroup(t *testing.T) {
 	resourceName := "mackerel_notification_group.foo"
 	rand := acctest.RandString(5)

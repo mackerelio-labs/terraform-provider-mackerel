@@ -1,12 +1,34 @@
 package mackerel
 
 import (
+	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mackerelio/mackerel-client-go"
 )
+
+func Test_ReadAWSIntegration_NotFound(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	t.Cleanup(server.Close)
+
+	client, err := mackerel.NewClientWithOptions("dummy-api-key", server.URL, false)
+	if err != nil {
+		t.Fatalf("failed to create client: %v", err)
+	}
+
+	_, err = ReadAWSIntegration(t.Context(), client, "missing-id")
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound, got: %v", err)
+	}
+}
 
 func Test_AWSIntegration_fromAPI(t *testing.T) {
 	t.Parallel()
