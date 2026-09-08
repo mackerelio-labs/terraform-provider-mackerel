@@ -30,6 +30,37 @@ func Test_MackerelRoleResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelRole_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_role.bar"
+	rand := acctest.RandString(5)
+	serviceName := fmt.Sprintf("tf-service-%s", rand)
+	name := fmt.Sprintf("tf-role-%s-recreate", rand)
+	config := testAccMackerelRoleConfig(serviceName, name)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check:  testAccCheckMackerelRoleExists(resourceName),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteRole(serviceName, name)
+					if err != nil {
+						t.Fatalf("failed to delete role: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelRoleExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelRole(t *testing.T) {
 	resourceName := "mackerel_role.bar"
 	rand := acctest.RandString(5)

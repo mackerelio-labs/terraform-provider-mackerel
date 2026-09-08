@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
@@ -77,6 +78,11 @@ func (r *mackerelDashboardResource) Read(ctx context.Context, req resource.ReadR
 	}
 
 	if err := data.Read(ctx, r.Client); err != nil {
+		if errors.Is(err, mackerel.ErrNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Unable to read a dashboard",
 			err.Error(),

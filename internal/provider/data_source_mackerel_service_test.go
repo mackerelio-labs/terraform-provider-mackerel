@@ -78,9 +78,8 @@ data "mackerel_service" "foo" {
 		"not match any service": func() []resource.TestStep {
 			name := fmt.Sprintf("tf-service-%s", acctest.RandString(5))
 			return []resource.TestStep{{
-				Config: fmt.Sprintf(`data "mackerel_service" "foo" { name = "%s" }`, name),
-				// FIXME: error message should not be tested
-				ExpectError: regexp.MustCompile(fmt.Sprintf(`the name '%s' does not match any service in mackerel\.io`, name)),
+				Config:      fmt.Sprintf(`data "mackerel_service" "foo" { name = "%s" }`, name),
+				ExpectError: regexp.MustCompile(`Unable to read Service`),
 			}}
 		},
 	}

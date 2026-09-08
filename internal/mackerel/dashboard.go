@@ -123,10 +123,10 @@ type (
 	}
 )
 
-func ReadDashboard(_ context.Context, client *Client, id string) (DashboardModel, error) {
-	d, err := client.FindDashboard(id)
+func ReadDashboard(ctx context.Context, client *Client, id string) (DashboardModel, error) {
+	d, err := client.FindDashboardContext(ctx, id)
 	if err != nil {
-		return DashboardModel{}, err
+		return DashboardModel{}, wrapErrNotFoundIfHttp404(err)
 	}
 	return newDashboard(*d)
 }

@@ -43,7 +43,7 @@ type roleMetadataReader interface {
 func readRoleMetadata(client roleMetadataReader, serviceName, roleName, namespace string) (RoleMetadataModel, error) {
 	metadataResp, err := client.GetRoleMetaData(serviceName, roleName, namespace)
 	if err != nil {
-		return RoleMetadataModel{}, err
+		return RoleMetadataModel{}, wrapErrNotFoundIfHttp404(err)
 	}
 
 	metadataJSON, err := json.Marshal(metadataResp.RoleMetaData)

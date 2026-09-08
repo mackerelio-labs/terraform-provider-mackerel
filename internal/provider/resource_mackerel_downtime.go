@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -76,6 +77,11 @@ func (r *mackerelDowntimeResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	if err := data.Read(ctx, r.Client); err != nil {
+		if errors.Is(err, mackerel.ErrNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Unable to read a downtime",
 			err.Error(),

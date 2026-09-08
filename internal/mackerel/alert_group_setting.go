@@ -17,10 +17,10 @@ type AlertGroupSettingModel struct {
 	NotificationInterval types.Int64  `tfsdk:"notification_interval"`
 }
 
-func ReadAlertGroupSetting(_ context.Context, client *Client, id string) (AlertGroupSettingModel, error) {
-	mag, err := client.GetAlertGroupSetting(id)
+func ReadAlertGroupSetting(ctx context.Context, client *Client, id string) (AlertGroupSettingModel, error) {
+	mag, err := client.GetAlertGroupSettingContext(ctx, id)
 	if err != nil {
-		return AlertGroupSettingModel{}, err
+		return AlertGroupSettingModel{}, wrapErrNotFoundIfHttp404(err)
 	}
 	return newAlertGroupSetting(*mag), nil
 }

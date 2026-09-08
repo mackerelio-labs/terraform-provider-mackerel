@@ -30,6 +30,48 @@ func Test_MackerelChannelResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelChannel_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_channel.email"
+	name := fmt.Sprintf("tf-channel recreate %s", acctest.RandString(5))
+	config := testAccMackerelChannelConfigEmail(name)
+
+	var channelID string
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelChannelDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelChannelExists(resourceName),
+					// Get channelID from the Terraform state
+					func(s *terraform.State) error {
+						r, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("channel not found from resources: %s", resourceName)
+						}
+						channelID = r.Primary.ID
+						return nil
+					},
+				),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteChannel(channelID)
+					if err != nil {
+						t.Fatalf("failed to delete channel: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelChannelExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelChannel_Email(t *testing.T) {
 	resourceName := "mackerel_channel.email"
 	rand := acctest.RandString(5)

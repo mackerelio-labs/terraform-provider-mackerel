@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -160,6 +161,11 @@ func (r *mackerelNotificationGroupResource) Read(ctx context.Context, req resour
 	}
 
 	if err := data.Read(ctx, r.Client); err != nil {
+		if errors.Is(err, mackerel.ErrNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Unable read Notification Group",
 			err.Error(),

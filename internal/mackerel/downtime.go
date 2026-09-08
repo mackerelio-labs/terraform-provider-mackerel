@@ -49,7 +49,7 @@ func readDowntime(client downtimeFinder, id string) (*DowntimeModel, error) {
 		return d.ID == id
 	})
 	if downtimeIdx < 0 {
-		return nil, fmt.Errorf("the ID '%s' does not match any downtime in mackerel.io", id)
+		return nil, fmt.Errorf("%w: the ID '%s' does not match any downtime in mackerel.io", ErrNotFound, id)
 	}
 
 	return newDowntime(*downtimes[downtimeIdx]), nil

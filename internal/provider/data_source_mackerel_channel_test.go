@@ -185,7 +185,7 @@ func TestAccDataSourceMackerelChannelNotMatchAnyChannel(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      `data "mackerel_channel" "foo" { id = "not-found" }`,
-				ExpectError: regexp.MustCompile(`the ID 'not-found' does not match any channel in mackerel\.io`),
+				ExpectError: regexp.MustCompile(`Unable to read a channel`),
 			},
 		},
 	})

@@ -90,7 +90,7 @@ func (r *mackerelMonitorResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	if err := data.Read(ctx, r.Client); err != nil {
-		if errors.Is(err, mackerel.ErrMonitorNotFound) {
+		if errors.Is(err, mackerel.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}

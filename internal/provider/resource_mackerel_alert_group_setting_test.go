@@ -29,6 +29,48 @@ func Test_MackerelAlertGroupSettingResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelAlertGroupSetting_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_alert_group_setting.foo"
+	name := fmt.Sprintf("tf-alert-group-setting recreate %s", acctest.RandString(5))
+	config := testAccMackerelAlertGroupSettingConfig(name)
+
+	var settingID string
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelAlertGroupSettingDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelAlertGroupSettingExists(resourceName),
+					// Get settingID from the Terraform state
+					func(s *terraform.State) error {
+						r, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("alert group setting not found from resources: %s", resourceName)
+						}
+						settingID = r.Primary.ID
+						return nil
+					},
+				),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteAlertGroupSetting(settingID)
+					if err != nil {
+						t.Fatalf("failed to delete alert group setting: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelAlertGroupSettingExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelAlertGroupSetting(t *testing.T) {
 	resourceName := "mackerel_alert_group_setting.foo"
 	rand := acctest.RandString(5)

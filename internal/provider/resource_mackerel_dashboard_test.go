@@ -28,6 +28,49 @@ func Test_MackerelDashboardResource_schema(t *testing.T) {
 	}
 }
 
+func TestAccMackerelDashboard_RecreateAfterManualDeletion(t *testing.T) {
+	resourceName := "mackerel_dashboard.graph"
+	rand := acctest.RandString(5)
+	title := fmt.Sprintf("tf-dashboard recreate %s", rand)
+	config := testAccMackerelDashboardConfigGraph(rand, title)
+
+	var dashboardID string
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelDashboardDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelDashboardExists(resourceName),
+					// Get dashboardID from the Terraform state
+					func(s *terraform.State) error {
+						r, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("dashboard not found from resources: %s", resourceName)
+						}
+						dashboardID = r.Primary.ID
+						return nil
+					},
+				),
+			},
+			{
+				// Simulate deletion outside Terraform
+				PreConfig: func() {
+					_, err := mackerelClient().DeleteDashboard(dashboardID)
+					if err != nil {
+						t.Fatalf("failed to delete dashboard: %v", err)
+					}
+				},
+				Config: config,
+				Check:  testAccCheckMackerelDashboardExists(resourceName),
+			},
+		},
+	})
+}
+
 func TestAccMackerelDashboardGraphWithoutRange(t *testing.T) {
 	resourceName := "mackerel_dashboard.graph"
 	rand := acctest.RandString(5)

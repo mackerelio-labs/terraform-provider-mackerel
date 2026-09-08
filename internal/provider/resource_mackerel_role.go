@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -109,6 +110,11 @@ func (r *mackerelRoleResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	if err := data.Read(ctx, r.Client); err != nil {
+		if errors.Is(err, mackerel.ErrNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Unable to read Role",
 			err.Error(),

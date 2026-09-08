@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
@@ -116,6 +117,11 @@ func (r *mackerelServiceMetadataResource) Read(ctx context.Context, req resource
 
 	remoteData, err := mackerel.ReadServiceMetadata(ctx, r.Client, data)
 	if err != nil {
+		if errors.Is(err, mackerel.ErrNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read Service Metadata: %s", data.ID.ValueString()),
 			err.Error(),

@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -113,6 +114,11 @@ func (r *mackerelRoleMetadataResource) Read(ctx context.Context, req resource.Re
 	}
 
 	if err := data.Read(ctx, r.Client); err != nil {
+		if errors.Is(err, mackerel.ErrNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Unable to read Role Metadata",
 			err.Error(),

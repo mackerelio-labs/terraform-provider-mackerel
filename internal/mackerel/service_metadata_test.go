@@ -2,7 +2,9 @@ package mackerel
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"testing"
 
@@ -99,6 +101,22 @@ type serviceMetadataGetterFunc func(string, string) (*mackerel.ServiceMetaDataRe
 
 func (f serviceMetadataGetterFunc) GetServiceMetaData(serviceName, namespace string) (*mackerel.ServiceMetaDataResp, error) {
 	return f(serviceName, namespace)
+}
+
+func Test_ReadServiceMetadata_NotFound(t *testing.T) {
+	t.Parallel()
+
+	inClient := serviceMetadataGetterFunc(func(string, string) (*mackerel.ServiceMetaDataResp, error) {
+		return nil, &mackerel.APIError{StatusCode: http.StatusNotFound, Message: "not found"}
+	})
+
+	_, err := readServiceMetadataInner(t.Context(), inClient, ServiceMetadataModel{
+		ServiceName: types.StringValue("service0"),
+		Namespace:   types.StringValue("data0"),
+	})
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound, got: %v", err)
+	}
 }
 
 func Test_ServiceMetadata_Validate(t *testing.T) {

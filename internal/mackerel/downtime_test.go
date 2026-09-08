@@ -1,6 +1,7 @@
 package mackerel
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -87,6 +88,9 @@ func Test_Downtime_ReadDowntime(t *testing.T) {
 				t.Errorf("unexpected error: %+v", err)
 			}
 			if err != nil {
+				if !errors.Is(err, ErrNotFound) {
+					t.Errorf("expected ErrNotFound, got: %v", err)
+				}
 				return
 			}
 			if diff := cmp.Diff(*model, tt.wants); diff != "" {
