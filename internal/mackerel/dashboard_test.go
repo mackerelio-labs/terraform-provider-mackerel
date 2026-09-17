@@ -77,15 +77,13 @@ func Test_Dashboard_conv(t *testing.T) {
 				Memo:    types.StringValue("role graph dashboard"),
 				URLPath: types.StringValue("role-graph-dashboard"),
 				Graph: []DashboardWidgetGraph{{
-					DashboardWidget: DashboardWidget{
-						Title: types.StringValue("role graph"),
-						Layout: []DashboardLayout{{
-							X:      types.Int64Value(2),
-							Y:      types.Int64Value(12),
-							Width:  types.Int64Value(10),
-							Height: types.Int64Value(8),
-						}},
-					},
+					Title: types.StringValue("role graph"),
+					Layout: []DashboardLayout{{
+						X:      types.Int64Value(2),
+						Y:      types.Int64Value(12),
+						Width:  types.Int64Value(10),
+						Height: types.Int64Value(8),
+					}},
 					LegendList: types.ListNull(types.StringType),
 					ReferenceLines: []DashboardReferenceLine{{
 						Label: types.StringValue("SLO"),
@@ -141,15 +139,13 @@ func Test_Dashboard_conv(t *testing.T) {
 				Memo:    types.StringValue("role graph dashboard"),
 				URLPath: types.StringValue("role-graph-dashboard"),
 				Graph: []DashboardWidgetGraph{{
-					DashboardWidget: DashboardWidget{
-						Title: types.StringValue("role graph"),
-						Layout: []DashboardLayout{{
-							X:      types.Int64Value(2),
-							Y:      types.Int64Value(12),
-							Width:  types.Int64Value(10),
-							Height: types.Int64Value(8),
-						}},
-					},
+					Title: types.StringValue("role graph"),
+					Layout: []DashboardLayout{{
+						X:      types.Int64Value(2),
+						Y:      types.Int64Value(12),
+						Width:  types.Int64Value(10),
+						Height: types.Int64Value(8),
+					}},
 					LegendList: types.ListNull(types.StringType),
 					Role: []DashboardGraphRole{{
 						RoleFullname: types.StringValue("service:role"),
