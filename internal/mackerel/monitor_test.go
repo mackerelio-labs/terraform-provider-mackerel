@@ -48,7 +48,7 @@ func Test_Monitor_toModel(t *testing.T) {
 
 				Metric:           "cpu_sys",
 				Operator:         ">",
-				Warning:          toPtr(75.0),
+				Warning:          new(75.0),
 				Duration:         1,
 				MaxCheckAttempts: 1,
 			},
@@ -81,8 +81,8 @@ func Test_Monitor_toModel(t *testing.T) {
 
 				Metric:           "cpu.usr",
 				Operator:         ">",
-				Warning:          toPtr(70.0),
-				Critical:         toPtr(90.0),
+				Warning:          new(70.0),
+				Critical:         new(90.0),
 				Duration:         3,
 				MaxCheckAttempts: 5,
 
@@ -116,7 +116,7 @@ func Test_Monitor_toModel(t *testing.T) {
 				Service:          "tf-svc",
 				Metric:           "custom.access.2xx_ratio",
 				Operator:         "<",
-				Warning:          toPtr(99.9),
+				Warning:          new(99.9),
 				Duration:         1,
 				MaxCheckAttempts: 1,
 			},
@@ -151,8 +151,8 @@ func Test_Monitor_toModel(t *testing.T) {
 				Service:                 "tf-svc",
 				Metric:                  "custom.access.5xx_ratio",
 				Operator:                ">",
-				Warning:                 toPtr(99.9),
-				Critical:                toPtr(99.99),
+				Warning:                 new(99.9),
+				Critical:                new(99.99),
 				Duration:                3,
 				MaxCheckAttempts:        5,
 				MissingDurationWarning:  10,
@@ -185,7 +185,7 @@ func Test_Monitor_toModel(t *testing.T) {
 
 				Expression: "max(role(my-service:db, loadavg5))",
 				Operator:   ">",
-				Warning:    toPtr(0.7),
+				Warning:    new(0.7),
 			},
 			wants: MonitorModel{
 				ID:                   types.StringValue("5dxWMxdx8w1"),
@@ -213,9 +213,9 @@ func Test_Monitor_toModel(t *testing.T) {
 
 				Expression:              "max(role(my-service:db, loadavg5))",
 				Operator:                ">",
-				Warning:                 toPtr(0.7),
-				Critical:                toPtr(0.9),
-				EvaluateBackwardMinutes: toPtr(uint64(3)),
+				Warning:                 new(0.7),
+				Critical:                new(0.9),
+				EvaluateBackwardMinutes: new(uint64(3)),
 			},
 			wants: MonitorModel{
 				ID:                   types.StringValue("5dxWMxdx8w1"),
@@ -241,7 +241,7 @@ func Test_Monitor_toModel(t *testing.T) {
 				Query:    `sum by (k8s.node.name) (container.cpu.utilization{k8s.deployment.name="nginx"})`,
 				Legend:   "nginx cpu utilization on {{k8s.node.name}}",
 				Operator: ">",
-				Warning:  toPtr(0.7),
+				Warning:  new(0.7),
 			},
 			wants: MonitorModel{
 				ID:                   types.StringValue("5dQpDFsYzrS"),
@@ -272,9 +272,9 @@ func Test_Monitor_toModel(t *testing.T) {
 				Query:                   `sum by (k8s.node.name) (container.cpu.utilization{k8s.deployment.name="nginx"})`,
 				Legend:                  "nginx cpu utilization on {{k8s.node.name}}",
 				Operator:                ">",
-				Warning:                 toPtr(0.7),
-				Critical:                toPtr(0.9),
-				EvaluateBackwardMinutes: toPtr(uint64(3)),
+				Warning:                 new(0.7),
+				Critical:                new(0.9),
+				EvaluateBackwardMinutes: new(uint64(3)),
 			},
 			wants: MonitorModel{
 				ID:                   types.StringValue("5dQpDFKqCpJ"),
@@ -391,19 +391,19 @@ func Test_Monitor_toModel(t *testing.T) {
 				URL:                             "https://terraform-provider-mackerel.test/",
 				MaxCheckAttempts:                3,
 				Service:                         "tf-test-svc",
-				ResponseTimeCritical:            toPtr(3000.0),
-				ResponseTimeWarning:             toPtr(2000.0),
-				ResponseTimeDuration:            toPtr(uint64(3)),
+				ResponseTimeCritical:            new(3000.0),
+				ResponseTimeWarning:             new(2000.0),
+				ResponseTimeDuration:            new(uint64(3)),
 				RequestBody:                     "foo=bar",
 				ContainsString:                  "blah blah blah",
-				CertificationExpirationCritical: toPtr(uint64(7)),
-				CertificationExpirationWarning:  toPtr(uint64(14)),
+				CertificationExpirationCritical: new(uint64(7)),
+				CertificationExpirationWarning:  new(uint64(14)),
 				SkipCertificateVerification:     true,
 				FollowRedirect:                  true,
 				Headers: []mackerel.HeaderField{
 					{Name: "Cache-Control", Value: "no-cache"},
 				},
-				ExpectedStatusCode: toPtr(200),
+				ExpectedStatusCode: new(200),
 				Dualstack:          toPtr(mackerel.DualstackAuto),
 			},
 			wants: MonitorModel{
@@ -541,7 +541,7 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 
 				Metric:           "cpu_sys",
 				Operator:         ">",
-				Warning:          toPtr(75.0),
+				Warning:          new(75.0),
 				Duration:         1,
 				MaxCheckAttempts: 1,
 			},
@@ -574,8 +574,8 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 
 				Metric:           "cpu.usr",
 				Operator:         ">",
-				Warning:          toPtr(70.0),
-				Critical:         toPtr(90.0),
+				Warning:          new(70.0),
+				Critical:         new(90.0),
 				Duration:         3,
 				MaxCheckAttempts: 5,
 
@@ -610,7 +610,7 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 				Service:          "tf-svc",
 				Metric:           "custom.access.2xx_ratio",
 				Operator:         "<",
-				Warning:          toPtr(99.9),
+				Warning:          new(99.9),
 				Duration:         1,
 				MaxCheckAttempts: 1,
 			},
@@ -645,8 +645,8 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 				Service:                 "tf-svc",
 				Metric:                  "custom.access.5xx_ratio",
 				Operator:                ">",
-				Warning:                 toPtr(99.9),
-				Critical:                toPtr(99.99),
+				Warning:                 new(99.9),
+				Critical:                new(99.99),
 				Duration:                3,
 				MaxCheckAttempts:        5,
 				MissingDurationWarning:  10,
@@ -674,7 +674,7 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 
 				Expression: "max(role(my-service:db, loadavg5))",
 				Operator:   ">",
-				Warning:    toPtr(0.7),
+				Warning:    new(0.7),
 			},
 		},
 		"expression/full": {
@@ -701,8 +701,8 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 
 				Expression: "max(role(my-service:db, loadavg5))",
 				Operator:   ">",
-				Warning:    toPtr(0.7),
-				Critical:   toPtr(0.9),
+				Warning:    new(0.7),
+				Critical:   new(0.9),
 			},
 		},
 		"query/basic": {
@@ -729,9 +729,9 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 				Query:    `sum by (k8s.node.name) (container.cpu.utilization{k8s.deployment.name="nginx"})`,
 				Legend:   "nginx cpu utilization on {{k8s.node.name}}",
 				Operator: ">",
-				Warning:  toPtr(0.7),
+				Warning:  new(0.7),
 
-				EvaluateBackwardMinutes: toPtr(uint64(0)),
+				EvaluateBackwardMinutes: new(uint64(0)),
 			},
 		},
 		"query/full": {
@@ -761,10 +761,10 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 				Query:    `sum by (k8s.node.name) (container.cpu.utilization{k8s.deployment.name="nginx"})`,
 				Legend:   "nginx cpu utilization on {{k8s.node.name}}",
 				Operator: ">",
-				Warning:  toPtr(0.7),
-				Critical: toPtr(0.9),
+				Warning:  new(0.7),
+				Critical: new(0.9),
 
-				EvaluateBackwardMinutes: toPtr(uint64(0)),
+				EvaluateBackwardMinutes: new(uint64(0)),
 			},
 		},
 		"connectivity/basic": {
@@ -889,13 +889,13 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 				URL:                             "https://terraform-provider-mackerel.test/",
 				MaxCheckAttempts:                3,
 				Service:                         "tf-test-svc",
-				ResponseTimeCritical:            toPtr(3000.0),
-				ResponseTimeWarning:             toPtr(2000.0),
-				ResponseTimeDuration:            toPtr(uint64(3)),
+				ResponseTimeCritical:            new(3000.0),
+				ResponseTimeWarning:             new(2000.0),
+				ResponseTimeDuration:            new(uint64(3)),
 				RequestBody:                     "foo=bar",
 				ContainsString:                  "blah blah blah",
-				CertificationExpirationCritical: toPtr(uint64(7)),
-				CertificationExpirationWarning:  toPtr(uint64(14)),
+				CertificationExpirationCritical: new(uint64(7)),
+				CertificationExpirationWarning:  new(uint64(14)),
 				SkipCertificateVerification:     true,
 				FollowRedirect:                  true,
 				Headers: []mackerel.HeaderField{
@@ -971,6 +971,7 @@ func Test_Monitor_toMackerelMonitor(t *testing.T) {
 	}
 }
 
+//go:fix inline
 func toPtr[T any](x T) *T {
-	return &x
+	return new(x)
 }
