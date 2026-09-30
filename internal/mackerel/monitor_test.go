@@ -260,6 +260,35 @@ func Test_Monitor_toModel(t *testing.T) {
 				}},
 			},
 		},
+		"query/empty-legend": {
+			// An unset legend is mapped to StringValue(""), not StringNull(),
+			// so it stays consistent with the schema's Default("").
+			in: &mackerel.MonitorQuery{
+				ID:   "5dQpDFsYzrS",
+				Name: "tf-monitor-query-empty-legend",
+				Type: "query",
+
+				Query:    `container.cpu.utilization{k8s.deployment.name="nginx"}`,
+				Operator: ">",
+				Warning:  toPtr(0.7),
+			},
+			wants: MonitorModel{
+				ID:                   types.StringValue("5dQpDFsYzrS"),
+				Name:                 types.StringValue("tf-monitor-query-empty-legend"),
+				Memo:                 types.StringValue(""),
+				IsMute:               types.BoolValue(false),
+				NotificationInterval: types.Int64Value(0),
+
+				QueryMonitor: []MonitorQuery{{
+					Query:                   types.StringValue(`container.cpu.utilization{k8s.deployment.name="nginx"}`),
+					Legend:                  types.StringValue(""),
+					Operator:                types.StringValue(">"),
+					Warning:                 typeutil.NewFloatStringValue("0.7"),
+					Critical:                typeutil.NewFloatStringValue(""),
+					EvaluateBackwardMinutes: types.Int64Value(0),
+				}},
+			},
+		},
 		"query/full": {
 			in: &mackerel.MonitorQuery{
 				ID:                   "5dQpDFKqCpJ",

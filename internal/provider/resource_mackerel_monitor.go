@@ -452,6 +452,8 @@ func schemaMonitorResourceQueryBlock() schema.Block {
 				"legend": schema.StringAttribute{
 					Description: schemaMonitorQuery_LegendDesc,
 					Optional:    true,
+					Computed:    true,
+					Default:     stringdefault.StaticString(""),
 				},
 				"operator": schemaMonitorResourceOperatorAttr(),
 				"warning":  schemaMonitorResourceWarningAttr(),
