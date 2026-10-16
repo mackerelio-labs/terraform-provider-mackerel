@@ -163,9 +163,9 @@ func newMonitor(mackerelMonitor mackerel.Monitor) (MonitorModel, error) {
 			Critical:         newFloatStringV0FromFloatPointer(m.Critical),
 			Duration:         types.Int64Value(int64(m.Duration)),
 			MaxCheckAttempts: types.Int64Value(int64(m.MaxCheckAttempts)),
-		}
-		hm.Scopes = normalizeScopes(m.Scopes)
-		hm.ExcludeScopes = normalizeScopes(m.ExcludeScopes)
+
+			Scopes:        normalizeScopes(m.Scopes),
+			ExcludeScopes: normalizeScopes(m.ExcludeScopes)}
 
 		model.HostMetricMonitor = []MonitorHostMetric{hm}
 	case *mackerel.MonitorServiceMetric:
@@ -229,9 +229,9 @@ func newMonitor(mackerelMonitor mackerel.Monitor) (MonitorModel, error) {
 
 		cm := MonitorConnectivity{
 			AlertStatusOnGone: types.StringValue(m.AlertStatusOnGone),
-		}
-		cm.Scopes = normalizeScopes(m.Scopes)
-		cm.ExcludeScopes = normalizeScopes(m.ExcludeScopes)
+
+			Scopes:        normalizeScopes(m.Scopes),
+			ExcludeScopes: normalizeScopes(m.ExcludeScopes)}
 		model.ConnectivityMonitor = []MonitorConnectivity{cm}
 	case *mackerel.MonitorExternalHTTP:
 		model.Memo = types.StringValue(m.Memo)

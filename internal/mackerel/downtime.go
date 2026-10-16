@@ -107,8 +107,8 @@ func newDowntime(d mackerel.Downtime) *DowntimeModel {
 			Type:     types.StringValue(d.Recurrence.Type.String()),
 			Interval: types.Int64Value(d.Recurrence.Interval),
 			Until:    types.Int64Value(d.Recurrence.Until),
-		}
-		recurrence.Weekdays = make([]string, 0, len(d.Recurrence.Weekdays))
+
+			Weekdays: make([]string, 0, len(d.Recurrence.Weekdays))}
 		for _, wd := range d.Recurrence.Weekdays {
 			recurrence.Weekdays = append(recurrence.Weekdays, wd.String())
 		}

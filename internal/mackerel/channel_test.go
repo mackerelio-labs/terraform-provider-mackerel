@@ -51,9 +51,9 @@ func Test_Channel_conv(t *testing.T) {
 				Name:              "slack",
 				Type:              "slack",
 				Mentions:          mackerel.Mentions{},
-				EnabledGraphImage: ptr(false),
+				EnabledGraphImage: new(false),
 				URL:               testChannelSlackURL,
-				Events:            ptr([]string{}),
+				Events:            new([]string{}),
 			},
 
 			model: ChannelModel{
@@ -77,9 +77,9 @@ func Test_Channel_conv(t *testing.T) {
 					Warning:  "WARNING!!!",
 					Critical: "CRITICAL!!!",
 				},
-				EnabledGraphImage: ptr(true),
+				EnabledGraphImage: new(true),
 				URL:               testChannelSlackURL,
-				Events:            ptr([]string{"alert"}),
+				Events:            new([]string{"alert"}),
 			},
 
 			model: ChannelModel{
@@ -103,7 +103,7 @@ func Test_Channel_conv(t *testing.T) {
 				Name:   "webhook",
 				Type:   "webhook",
 				URL:    testChannelWebhookURL,
-				Events: ptr([]string{}),
+				Events: new([]string{}),
 			},
 			model: ChannelModel{
 				ID:   types.StringValue("5eKHBxRHcMJ"),
@@ -119,9 +119,9 @@ func Test_Channel_conv(t *testing.T) {
 				ID:      "5eKHBzgCmAd",
 				Name:    "email",
 				Type:    "email",
-				Emails:  ptr([]string{"john.doe@example.test"}),
-				UserIDs: ptr([]string{"john"}),
-				Events:  ptr([]string{"alertGroup"}),
+				Emails:  new([]string{"john.doe@example.test"}),
+				UserIDs: new([]string{"john"}),
+				Events:  new([]string{"alertGroup"}),
 			},
 			model: ChannelModel{
 				ID:   types.StringValue("5eKHBzgCmAd"),
@@ -238,6 +238,7 @@ func (ut *channelUpdaterTester) UpdateChannelContext(_ context.Context, id strin
 	return &data, nil
 }
 
+//go:fix inline
 func ptr[T any](x T) *T {
-	return &x
+	return new(x)
 }

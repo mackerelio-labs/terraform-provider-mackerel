@@ -63,12 +63,12 @@ func Test_AWSIntegration_fromAPI(t *testing.T) {
 					},
 					"ALB": {
 						Enable:          true,
-						Role:            ptr("service: role"),
+						Role:            new("service: role"),
 						ExcludedMetrics: []string{"alb.request.count", "alb.bytes.processed"},
 					},
 					"RDS": {
 						Enable:              true,
-						Role:                ptr("service: role"),
+						Role:                new("service: role"),
 						ExcludedMetrics:     []string{"rds.cpu.used"},
 						RetireAutomatically: false,
 					},
@@ -383,7 +383,7 @@ func Test_AWSIntegration_toAPI(t *testing.T) {
 					"ELB": {ExcludedMetrics: []string{}},
 					"ALB": {
 						Enable:          true,
-						Role:            ptr("service: role"),
+						Role:            new("service: role"),
 						ExcludedMetrics: []string{"alb.request.count", "alb.bytes.processed"},
 					},
 					"NLB": {
@@ -392,7 +392,7 @@ func Test_AWSIntegration_toAPI(t *testing.T) {
 					},
 					"RDS": {
 						Enable:          true,
-						Role:            ptr("service: role"),
+						Role:            new("service: role"),
 						ExcludedMetrics: []string{"rds.cpu.used"},
 					},
 					"Redshift":    {ExcludedMetrics: []string{}},
