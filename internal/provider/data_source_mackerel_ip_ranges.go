@@ -44,12 +44,12 @@ func (*mackerelIPRangesDataSource) Schema(_ context.Context, _ datasource.Schema
 				Computed:    true,
 			},
 			"outgoing": schema.ListAttribute{
-				Description: "IPv4 address ranges that Mackerel sends from (e.g. alert notifications).",
+				Description: "IPv4 address ranges from which Mackerel sends requests (alert notifications such as Webhook, and external monitoring).",
 				ElementType: types.StringType,
 				Computed:    true,
 			},
 			"outgoing_ipv6": schema.ListAttribute{
-				Description: "IPv6 address ranges that Mackerel sends from (e.g. alert notifications).",
+				Description: "IPv6 address ranges from which Mackerel sends requests (alert notifications such as Webhook, and external monitoring).",
 				ElementType: types.StringType,
 				Computed:    true,
 			},

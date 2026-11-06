@@ -12,7 +12,7 @@ The ranges are fetched from `https://mackerel.io/meta/ip-ranges.json`, which doe
 
 ## Example Usage
 
-Allow requests from Mackerel (e.g. external monitoring and Webhook notifications) in an AWS security group.
+Allow requests from Mackerel (external monitoring and alert notifications such as Webhook) in an AWS security group.
 
 ```terraform
 data "mackerel_ip_ranges" "this" {}
@@ -37,5 +37,5 @@ This data source has no arguments.
 * `id` - The URL of the Metadata API endpoint.
 * `incoming` - List of IPv4 address ranges that Mackerel receives.
 * `incoming_ipv6` - List of IPv6 address ranges that Mackerel receives.
-* `outgoing` - List of IPv4 address ranges that Mackerel sends from, such as alert notifications (e.g. Webhook).
-* `outgoing_ipv6` - List of IPv6 address ranges that Mackerel sends from, such as alert notifications (e.g. Webhook).
+* `outgoing` - List of IPv4 address ranges from which Mackerel sends requests (alert notifications such as Webhook, and external monitoring).
+* `outgoing_ipv6` - List of IPv6 address ranges from which Mackerel sends requests (alert notifications such as Webhook, and external monitoring).
