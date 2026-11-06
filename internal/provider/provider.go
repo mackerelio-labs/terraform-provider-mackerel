@@ -105,6 +105,7 @@ func (m *mackerelProvider) DataSources(context.Context) []func() datasource.Data
 		NewMackerelChannelDataSource,
 		NewMackerelDashboardDataSource,
 		NewMackerelDowntimeDataSource,
+		NewMackerelIPRangesDataSource,
 		NewMackerelMonitorDataSource,
 		NewMackerelNotificationGroupDataSource,
 		NewMackerelRoleDataSource,
