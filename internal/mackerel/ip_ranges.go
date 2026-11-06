@@ -59,7 +59,7 @@ func readIPRangesInner(ctx context.Context, httpClient *http.Client, url, userAg
 	if err != nil {
 		return IPRangesModel{}, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // nolint
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
