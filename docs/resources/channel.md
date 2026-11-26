@@ -7,7 +7,7 @@ description: |-
 
 # Resource: mackerel_channel
 
-This resource allows creating and management of channel, which manages either email, slack or webhook.
+This resource allows creating and management of channel, which manages either email, slack, webhook or Google Chat.
 
 Channels created by this resource are not added to the default notification group automatically.
 Use `mackerel_default_notification_group` to manage channels included in the default notification group.
@@ -55,6 +55,19 @@ resource "mackerel_channel" "webhook" {
 }
 ```
 
+### Channel of Google Chat
+
+```terraform
+resource "mackerel_channel" "google_chat" {
+  name = "google chat"
+
+  google_chat {
+    url                 = "https://chat.googleapis.com/v1/spaces/SPACE_ID/messages?key=KEY&token=TOKEN"
+    enabled_graph_image = true
+  }
+}
+```
+
 ### Add channels to the default notification group
 
 ```terraform
@@ -98,6 +111,12 @@ The following arguments are required:
 ### webhook
 
 * `url` - URL to receive HTTP request.
+* `events` - A set of notification events. Valid values are `alert`, `alertGroup`, `hostStatus`, `hostRegister`, `hostRetire` and `monitor`.
+
+### google_chat
+
+* `url` - Incoming Webhook URL for Google Chat.
+* `enabled_graph_image` - A boolean value whether to post the corresponding graph. Default `false`.
 * `events` - A set of notification events. Valid values are `alert`, `alertGroup`, `hostStatus`, `hostRegister`, `hostRetire` and `monitor`.
 
 ## Attributes Reference

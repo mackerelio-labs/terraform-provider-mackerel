@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	testChannelSlackURL   = "https://slack.test/services/xxx/yyy/zzz"
-	testChannelWebhookURL = "https://example.test/hook"
+	testChannelSlackURL      = "https://slack.test/services/xxx/yyy/zzz"
+	testChannelWebhookURL    = "https://example.test/hook"
+	testChannelGoogleChatURL = "https://chat.googleapis.com/v1/spaces/xxx/messages?key=yyy&token=zzz"
 )
 
 func Test_ReadChannel_NotFound(t *testing.T) {
@@ -111,6 +112,25 @@ func Test_Channel_conv(t *testing.T) {
 				Webhook: []ChannelWebhookModel{{
 					URL:    types.StringValue(testChannelWebhookURL),
 					Events: []string{},
+				}},
+			},
+		},
+		"google-chat": {
+			api: mackerel.Channel{
+				ID:                "5eKHBxRHcMK",
+				Name:              "google-chat",
+				Type:              "google-chat",
+				URL:               testChannelGoogleChatURL,
+				EnabledGraphImage: ptr(true),
+				Events:            ptr([]string{"alert"}),
+			},
+			model: ChannelModel{
+				ID:   types.StringValue("5eKHBxRHcMK"),
+				Name: types.StringValue("google-chat"),
+				GoogleChat: []ChannelGoogleChatModel{{
+					URL:               types.StringValue(testChannelGoogleChatURL),
+					EnabledGraphImage: types.BoolValue(true),
+					Events:            []string{"alert"},
 				}},
 			},
 		},

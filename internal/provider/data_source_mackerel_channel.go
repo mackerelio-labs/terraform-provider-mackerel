@@ -127,6 +127,25 @@ func schemaChannelDataSource() schema.Schema {
 					},
 				},
 			},
+			"google_chat": schema.ListNestedAttribute{
+				Description: schemaChannelGoogleChatDesc,
+				Computed:    true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"url": schema.StringAttribute{
+							Computed:  true,
+							Sensitive: true,
+						},
+						"enabled_graph_image": schema.BoolAttribute{
+							Computed: true,
+						},
+						"events": schema.SetAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 	return schema
