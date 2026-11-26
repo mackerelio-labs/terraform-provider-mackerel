@@ -236,6 +236,57 @@ func TestAccMackerelChannel_Webhook(t *testing.T) {
 	})
 }
 
+func TestAccMackerelChannel_GoogleChat(t *testing.T) {
+	resourceName := "mackerel_channel.google_chat"
+	rand := acctest.RandString(5)
+	name := fmt.Sprintf("tf-channel google-chat %s", rand)
+	nameUpdated := fmt.Sprintf("tf-channel google-chat %s updated", rand)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMackerelChannelDestroy,
+		Steps: []resource.TestStep{
+			// Test: Create
+			{
+				Config: testAccMackerelChannelConfigGoogleChat(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelChannelExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "email.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "slack.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "webhook.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "google_chat.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "google_chat.0.url"),
+					resource.TestCheckResourceAttr(resourceName, "google_chat.0.enabled_graph_image", "false"),
+					resource.TestCheckResourceAttr(resourceName, "google_chat.0.events.#", "0"),
+				),
+			},
+			// Test: Update
+			{
+				Config: testAccMackerelChannelConfigGoogleChatUpdated(nameUpdated),
+				ConfigPlanChecks: resource.ConfigPlanChecks{PreApply: []plancheck.PlanCheck{
+					plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionUpdate),
+				}},
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMackerelChannelExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", nameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "google_chat.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "google_chat.0.url"),
+					resource.TestCheckResourceAttr(resourceName, "google_chat.0.enabled_graph_image", "true"),
+					resource.TestCheckResourceAttr(resourceName, "google_chat.0.events.#", "6"),
+				),
+			},
+			// Test: Import
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccMackerelChannel_TypeChange(t *testing.T) {
 	resourceName := "mackerel_channel.type_change"
 	rand := acctest.RandString(5)
@@ -399,6 +450,36 @@ resource "mackerel_channel" "webhook" {
   name = "%s"
   webhook {
     url = "https://test.com/hook"
+    events = [
+      "alert",
+      "alertGroup",
+      "hostStatus",
+      "hostRegister",
+      "hostRetire",
+      "monitor"]
+  }
+}
+`, name)
+}
+
+func testAccMackerelChannelConfigGoogleChat(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "google_chat" {
+  name = "%s"
+  google_chat {
+    url = "https://chat.googleapis.com/v1/spaces/xxx/messages?key=yyy&token=zzz"
+  }
+}
+`, name)
+}
+
+func testAccMackerelChannelConfigGoogleChatUpdated(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "google_chat" {
+  name = "%s"
+  google_chat {
+    url = "https://chat.googleapis.com/v1/spaces/xxx/messages?key=yyy&token=zzz"
+    enabled_graph_image = true
     events = [
       "alert",
       "alertGroup",

@@ -7,7 +7,7 @@ description: |-
 # Data Source: mackerel_channel
 
 Use this data source allows access to details of a specific Channel.  
-You can get one of the following channels: email, slack or webhook.
+You can get one of the following channels: email, slack, webhook or google_chat.
 
 ## Example Usage
 
@@ -27,4 +27,5 @@ data "mackerel_channel" "this" {
 * `name` - The name of channel.
 * `slack` - The list including `url`, `mentions`, `enabled_graph_image` and `events`.
 * `webhook` - The list including `url` and `events`.
+* `google_chat` - The list including `url`, `enabled_graph_image` and `events`.
 * `email` - The list including `emails`, `user_ids` and `events`.

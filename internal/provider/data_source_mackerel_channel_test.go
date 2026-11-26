@@ -112,6 +112,34 @@ func TestAccDataSourceMackerelChannelWebhook(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceMackerelChannelGoogleChat(t *testing.T) {
+	dsName := "data.mackerel_channel.foo"
+	name := acctest.RandomWithPrefix("tf-channel-")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: protoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMackerelChannelConfigGoogleChat(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(dsName, "id"),
+					resource.TestCheckResourceAttr(dsName, "name", name),
+					resource.TestCheckResourceAttr(dsName, "email.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "slack.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "webhook.#", "0"),
+					resource.TestCheckResourceAttr(dsName, "google_chat.#", "1"),
+					resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(dsName, "google_chat.0.url", "https://chat.googleapis.com/v1/spaces/xxx/messages?key=yyy&token=zzz"),
+						resource.TestCheckResourceAttr(dsName, "google_chat.0.enabled_graph_image", "true"),
+						resource.TestCheckResourceAttr(dsName, "google_chat.0.events.#", "6"),
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceMackerelChannelConfigEmail(name string) string {
 	return fmt.Sprintf(`
 resource "mackerel_channel" "foo" {
@@ -162,6 +190,29 @@ resource "mackerel_channel" "foo" {
   name = "%s"
   webhook {
     url = "https://test.com/hook"
+    events = [
+      "alert",
+      "alertGroup",
+      "hostStatus",
+      "hostRegister",
+      "hostRetire",
+      "monitor"]
+  }
+}
+
+data "mackerel_channel" "foo" {
+  id = mackerel_channel.foo.id
+}
+`, name)
+}
+
+func testAccDataSourceMackerelChannelConfigGoogleChat(name string) string {
+	return fmt.Sprintf(`
+resource "mackerel_channel" "foo" {
+  name = "%s"
+  google_chat {
+    url = "https://chat.googleapis.com/v1/spaces/xxx/messages?key=yyy&token=zzz"
+    enabled_graph_image = true
     events = [
       "alert",
       "alertGroup",

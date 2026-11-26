@@ -11,11 +11,12 @@ import (
 
 type (
 	ChannelModel struct {
-		ID      types.String          `tfsdk:"id"`
-		Name    types.String          `tfsdk:"name"`
-		Email   []ChannelEmailModel   `tfsdk:"email"`
-		Slack   []ChannelSlackModel   `tfsdk:"slack"`
-		Webhook []ChannelWebhookModel `tfsdk:"webhook"`
+		ID         types.String             `tfsdk:"id"`
+		Name       types.String             `tfsdk:"name"`
+		Email      []ChannelEmailModel      `tfsdk:"email"`
+		Slack      []ChannelSlackModel      `tfsdk:"slack"`
+		Webhook    []ChannelWebhookModel    `tfsdk:"webhook"`
+		GoogleChat []ChannelGoogleChatModel `tfsdk:"google_chat"`
 	}
 	ChannelEmailModel struct {
 		Emails  []string `tfsdk:"emails"`
@@ -31,6 +32,11 @@ type (
 	ChannelWebhookModel struct {
 		URL    types.String `tfsdk:"url"`
 		Events []string     `tfsdk:"events"`
+	}
+	ChannelGoogleChatModel struct {
+		URL               types.String `tfsdk:"url"`
+		EnabledGraphImage types.Bool   `tfsdk:"enabled_graph_image"`
+		Events            []string     `tfsdk:"events"`
 	}
 )
 
@@ -153,6 +159,13 @@ func newChannel(mackerelChannel mackerel.Channel) (ChannelModel, error) {
 			Events: *mackerelChannel.Events,
 		}}
 		return model, nil
+	case "google-chat":
+		model.GoogleChat = []ChannelGoogleChatModel{{
+			URL:               types.StringValue(mackerelChannel.URL),
+			EnabledGraphImage: types.BoolPointerValue(mackerelChannel.EnabledGraphImage),
+			Events:            *mackerelChannel.Events,
+		}}
+		return model, nil
 	default:
 		return ChannelModel{}, fmt.Errorf("unsupported channel type: %s", mackerelChannel.Type)
 	}
@@ -205,6 +218,14 @@ func (m ChannelModel) mackerelChannel() mackerel.Channel {
 		channel.URL = webhookModel.URL.ValueString()
 		if len(webhookModel.Events) > 0 {
 			channel.Events = &webhookModel.Events
+		}
+	} else if len(m.GoogleChat) > 0 {
+		googleChatModel := m.GoogleChat[0]
+		channel.Type = "google-chat"
+		channel.URL = googleChatModel.URL.ValueString()
+		channel.EnabledGraphImage = googleChatModel.EnabledGraphImage.ValueBoolPointer()
+		if len(googleChatModel.Events) > 0 {
+			channel.Events = &googleChatModel.Events
 		}
 	}
 	return channel

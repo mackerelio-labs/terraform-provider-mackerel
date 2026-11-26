@@ -159,6 +159,10 @@ const (
 
 	schemaChannelWebhookDesc     = "The settings for a webhook notification channel."
 	schemaChannelWebhook_URLDesc = "The URL that will receive HTTP request."
+
+	schemaChannelGoogleChatDesc                   = "The settings for a Google Chat notification channel."
+	schemaChannelGoogleChat_URLDesc               = "The incoming webhook URL for Google Chat."
+	schemaChannelGoogleChat_EnabledGraphImageDesc = "Whether or not the corresponding graph is posted to Google Chat."
 )
 
 // requiresReplaceIfChannelTypeChanges returns a plan modifier that requires replace
@@ -200,7 +204,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 		},
 	}
 	schema := schema.Schema{
-		Description: "This resource allows creating and management of channel, which manages either email, slack or webhook.",
+		Description: "This resource allows creating and management of channel, which manages either email, slack, webhook or Google Chat.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description: schemaChannelIDDesc,
@@ -311,6 +315,34 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 					},
 				},
 			},
+			"google_chat": schema.ListNestedBlock{
+				Description: schemaChannelGoogleChatDesc,
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
+				},
+				PlanModifiers: []planmodifier.List{
+					requiresReplaceIfChannelTypeChanges(),
+				},
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"url": schema.StringAttribute{
+							Description: schemaChannelGoogleChat_URLDesc,
+							Required:    true,
+							Sensitive:   true,
+							Validators: []validator.String{
+								validatorutil.IsURLWithHTTPorHTTPS(),
+							},
+						},
+						"enabled_graph_image": schema.BoolAttribute{
+							Description: schemaChannelGoogleChat_EnabledGraphImageDesc,
+							Optional:    true,
+							Computed:    true,
+							Default:     booldefault.StaticBool(false),
+						},
+						"events": eventsAttr,
+					},
+				},
+			},
 		},
 	}
 	validators := []resource.ConfigValidator{
@@ -318,6 +350,7 @@ func schemaChannelResource() (schema.Schema, []resource.ConfigValidator) {
 			path.MatchRoot("email"),
 			path.MatchRoot("slack"),
 			path.MatchRoot("webhook"),
+			path.MatchRoot("google_chat"),
 		),
 	}
 	return schema, validators
